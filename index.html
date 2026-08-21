@@ -317,28 +317,28 @@ footer b{color:var(--ink-2)}
 
   <div class="card">
     <h2>5 &middot; Je eigen geld</h2>
-    <p class="hint">Zet eerst hoeveel je hebt en hoeveel je minstens en hoogstens wil inbrengen. Schuif dan naar het bedrag dat goed voelt. Wat je niet inbrengt, blijft je buffer. Koop je met twee en reken je met gezamenlijke bedragen, laat het tweede vakje dan uit.</p>
-    <div class="trio">
-      <div><label class="mini" for="b1Have">Je hebt</label><input type="number" id="b1Have" value="0" step="500" min="0"></div>
+    <p class="hint">Schuif of typ meteen bij "je inbreng" hoeveel eigen geld je in de aankoop stopt. De drie vakjes eronder zijn optioneel: vul "je hebt" in als je wil zien welke buffer er overblijft, en gebruik "minstens" en "hoogstens" om de schuifbalk te begrenzen. Koop je met twee en reken je met gezamenlijke bedragen, laat de tweede koper dan uit.</p>
+    <div class="field">
+      <div class="flab"><label for="b1In">Je inbreng</label>
+        <input type="number" class="pin num" id="b1InN" min="0" step="500" placeholder="0"></div>
+      <input type="range" id="b1In" min="0" max="500000" step="500" value="0" aria-label="Je inbreng">
+    </div>
+    <div class="trio" style="margin-top:13px">
+      <div><label class="mini" for="b1Have">Je hebt (optioneel)</label><input type="number" id="b1Have" value="0" step="500" min="0"></div>
       <div><label class="mini" for="b1Min">Minstens inbrengen</label><input type="number" id="b1Min" value="0" step="500" min="0"></div>
       <div><label class="mini" for="b1Max">Hoogstens inbrengen</label><input type="number" id="b1Max" value="0" step="500" min="0"></div>
     </div>
-    <div class="field" style="margin-top:11px">
-      <div class="flab"><label for="b1In">Je inbreng</label>
-        <input type="number" class="pin num" id="b1InN" min="0" step="500" placeholder="0"></div>
-      <input type="range" id="b1In" min="0" max="0" step="500" value="0" aria-label="Je inbreng">
-    </div>
     <label class="check" style="margin-top:18px"><input type="checkbox" id="two"> Een tweede koper met eigen bedragen toevoegen</label>
     <div id="b2Box" style="display:none">
-      <div class="trio">
-        <div><label class="mini" for="b2Have">Tweede koper heeft</label><input type="number" id="b2Have" value="0" step="500" min="0"></div>
-        <div><label class="mini" for="b2Min">Minstens inbrengen</label><input type="number" id="b2Min" value="0" step="500" min="0"></div>
-        <div><label class="mini" for="b2Max">Hoogstens inbrengen</label><input type="number" id="b2Max" value="0" step="500" min="0"></div>
-      </div>
-      <div class="field" style="margin-top:11px">
+      <div class="field">
         <div class="flab"><label for="b2In">Inbreng tweede koper</label>
           <input type="number" class="pin num" id="b2InN" min="0" step="500" placeholder="0"></div>
-        <input type="range" id="b2In" min="0" max="0" step="500" value="0" aria-label="Inbreng tweede koper">
+        <input type="range" id="b2In" min="0" max="500000" step="500" value="0" aria-label="Inbreng tweede koper">
+      </div>
+      <div class="trio" style="margin-top:13px">
+        <div><label class="mini" for="b2Have">Heeft (optioneel)</label><input type="number" id="b2Have" value="0" step="500" min="0"></div>
+        <div><label class="mini" for="b2Min">Minstens inbrengen</label><input type="number" id="b2Min" value="0" step="500" min="0"></div>
+        <div><label class="mini" for="b2Max">Hoogstens inbrengen</label><input type="number" id="b2Max" value="0" step="500" min="0"></div>
       </div>
     </div>
   </div>
@@ -590,14 +590,20 @@ footer b{color:var(--ink-2)}
     return lo;
   }
 
+  // De inbreng staat op zichzelf. "Je hebt" is optioneel: het begrenst de inbreng
+  // en maakt de buffer zichtbaar, maar je kan ook meteen schuiven of een bedrag typen.
   function clampBuyer(pfx){
-    var have=v(pfx+'Have');
-    var mn=Math.max(0,Math.min(v(pfx+'Min'),have));
-    var mx=Math.max(mn,Math.min(v(pfx+'Max')||have,have));
-    E(pfx+'Min').value=mn; E(pfx+'Max').value=mx;
-    var s=E(pfx+'In'); s.min=mn; s.max=mx;
-    var cur=parseFloat(s.value); if(isNaN(cur)) cur=mx;
-    s.value=String(Math.max(mn,Math.min(cur,mx)));
+    var have=v(pfx+'Have'), mnF=v(pfx+'Min'), mxF=v(pfx+'Max');
+    var s=E(pfx+'In'), cur=parseFloat(s.value); if(isNaN(cur)) cur=0;
+    var mn=Math.max(0,mnF);
+    var hi;
+    if(mxF>0) hi=mxF;
+    else if(have>0) hi=have;
+    else hi=Math.max(500000,cur);          // niets ingevuld: ruim bereik, typen mag altijd
+    if(have>0){ mn=Math.min(mn,have); hi=Math.min(hi,have); }
+    if(hi<mn) hi=mn;
+    s.min=String(mn); s.max=String(hi);
+    s.value=String(Math.max(mn,Math.min(cur,hi)));
     E(pfx+'InN').value=s.value;
   }
 
@@ -620,7 +626,8 @@ footer b{color:var(--ink-2)}
     var repayGross=pay+payOld, totalOut=repayGross+fixed;
     var cap=Math.max(0,inc*ratio-v('debts'));
     var mx=maxPrice(cap,r,term);
-    var buffer=available()-contributions();
+    var known=available();
+    var buffer=known>0?(known-contributions()):0;
 
     var empty='<p class="empty">Vul een aankoopprijs in bij vak 1 om te beginnen.</p>';
 
@@ -705,7 +712,9 @@ footer b{color:var(--ink-2)}
 
     // samenvatting
     E('s-cash').innerHTML=deco(eur.format(m.funds));
-    E('s-cash-sub').textContent=buffer>0?('buffer die overblijft: '+eur.format(buffer)):'geen buffer over';
+    E('s-cash-sub').textContent = known<=0
+      ? 'vul "je hebt" in voor je buffer'
+      : (buffer>0?('buffer die overblijft: '+eur.format(buffer)):'geen buffer over');
     E('s-loan').innerHTML=deco(P>0?(m.loan>0?eur.format(m.loan):eur.format(0)):eur.format(0));
     E('s-ltv').textContent=(P>0&&m.loan>0)?((m.loan/P*100).toFixed(0)+'% van de aankoopprijs'):(P>0?eur.format(m.surplus)+' teveel':'vul een prijs in');
     E('s-pay').innerHTML=deco(eur.format(repayGross));
@@ -754,7 +763,7 @@ footer b{color:var(--ink-2)}
       say('info','?','Op basis van alleen deze inkomensregel kom je uit op een aankoopprijs van ongeveer <b>'+eur.format(mx)+
           '</b>. Dat is geen kredietbelofte: een bank weegt ook de schatting, je andere schulden en je gezinssituatie.');
     }
-    if(buffer<10000&&contributions()>0)
+    if(known>0&&buffer<10000&&contributions()>0)
       say('warn','~','<b>Je houdt '+eur.format(buffer)+' achter de hand.</b> Elke tienduizend euro die je niet inbrengt kost ruw vijftig euro per maand extra aan lening, en dat is goedkope verzekering tegen onverwachte kosten in het eerste jaar.');
     if(port()&&v('oldYears')>0&&v('bonus')>0){
       var gain=v('bonus')*v('oldYears')-v('portCost');
