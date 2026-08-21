@@ -46,16 +46,31 @@ er geen aan, en geeft geen financieel, fiscaal of juridisch advies. Alleen een
 bank kent een rentevoet toe en beslist over een krediet. Alleen een notaris
 berekent de aankoopkosten exact.
 
-Aangeboden zoals ze is, zonder garantie op juistheid of actualiteit, onder de
-MIT-licentie (zie `LICENSE`). Geen aansprakelijkheid voor schade door gebruik
-van de berekening. Wie deze pagina verspreidt of op een eigen site plaatst,
-blijft zelf verantwoordelijk voor de juistheid tegenover zijn clienten en voor
-de beroepsregels die op hem van toepassing zijn.
+Aangeboden zoals ze is, zonder garantie op juistheid of actualiteit. Geen
+aansprakelijkheid voor schade door gebruik van de berekening. Wie deze pagina
+verspreidt of op een eigen site plaatst, blijft zelf verantwoordelijk voor de
+juistheid tegenover zijn lezers en voor de beroepsregels die op hem van
+toepassing zijn.
 
 Deze pagina verwerkt geen persoonsgegevens: geen formulier, geen cookies, geen
 localStorage, geen analytics, geen externe bestanden. Een cookiebanner is dus
 niet nodig. De hostingpartij registreert wel technische gegevens van de
 opvraging, waaronder het IP-adres, zoals bij elke website.
+
+## Licentie
+
+PolyForm Noncommercial License 1.0.0 (zie `LICENSE`).
+
+Niet-commercieel gebruik is vrij: bekijken, kopieren, aanpassen en verspreiden
+mag, zolang de licentie en de auteursvermelding meegaan. Persoonlijk gebruik,
+studie, hobbyprojecten, onderwijsinstellingen, overheden en organisaties zonder
+winstoogmerk vallen daaronder.
+
+Commercieel gebruik vraagt schriftelijke toestemming. Daaronder valt onder meer
+het plaatsen van deze rekenhulp op de site van een makelaar, bank,
+kredietmakelaar of notariskantoor, en het verwerken ervan in een betalend
+product of een betalende dienst. Toestemming vragen kan via een issue op
+GitHub.
 
 ## Voorbehoud
 
