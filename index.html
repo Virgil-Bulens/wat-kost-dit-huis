@@ -56,6 +56,13 @@ header{padding:44px 0 26px; border-bottom:1px solid var(--line)}
 header h1{font-size:clamp(30px,4.6vw,46px); letter-spacing:-.025em; line-height:1.08}
 header p{max-width:66ch; color:var(--ink-2); margin:14px 0 0; font-size:16px}
 
+.disclaimer{background:var(--warn-soft); border:1px solid var(--warn); border-radius:var(--r);
+  padding:16px 18px; margin:22px 0 0; color:var(--warn); font-size:13.5px; line-height:1.55}
+.disclaimer h2{font-size:14px; margin-bottom:6px; color:var(--warn); letter-spacing:0}
+.disclaimer p{margin:0 0 7px}
+.disclaimer p:last-child{margin-bottom:0}
+.disclaimer b{font-weight:700}
+.stamp{font-size:11.5px; color:var(--muted); margin-top:10px; font-family:var(--mono)}
 .summary{position:sticky; top:0; z-index:20; background:var(--surface); border-bottom:1px solid var(--line); box-shadow:var(--shadow)}
 .summary-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line)}
 .tile{background:var(--surface); padding:14px 18px; min-width:0}
@@ -170,6 +177,15 @@ footer b{color:var(--ink-2)}
     <p class="eyebrow">Vlaanderen &middot; tarieven 2026</p>
     <h1>Wat kost dit huis?</h1>
     <p>Alles wat er bij een woningaankoop komt kijken: wat er bovenop de vraagprijs komt, wat je overhoudt als je eerst je eigen woning verkoopt, hoeveel je moet lenen en wat dat elke maand kost. Vul in wat je weet. Elke schuifbalk heeft ook een invoervak, zodat je een exact bedrag kan typen.</p>
+
+    <div class="disclaimer">
+      <h2>Lees dit eerst</h2>
+      <p><b>Dit is een rekenhulp, geen advies en geen aanbod.</b> De uitkomsten zijn indicatieve schattingen. Ze houden geen rekening met jouw persoonlijke situatie en vormen geen financieel, fiscaal, juridisch of kredietadvies.</p>
+      <p><b>Wij zijn geen kredietgever, kredietbemiddelaar of kredietadviseur.</b> Deze pagina bemiddelt niet in kredieten en biedt er geen aan. Alleen een bank kan een rentevoet toekennen en over een krediet beslissen. Alleen een notaris kan de aankoopkosten exact berekenen.</p>
+      <p><b>Geen garantie op juistheid of actualiteit.</b> Tarieven en regels veranderen. Controleer elk bedrag bij je notaris, je bank of de bevoegde overheid voordat je een beslissing neemt of een verbintenis aangaat. Gebruik van deze pagina is op eigen risico, en er wordt geen aansprakelijkheid aanvaard voor schade door beslissingen die op deze berekening gebaseerd zijn.</p>
+      <p><b>Deze pagina is niet van de overheid, een notariaat, een bank of een makelaar.</b> Ze is een hulpmiddel, geen officiële bron.</p>
+      <p class="stamp">Tarieven laatst nagekeken op 21 augustus 2026. Controleer of er sindsdien niets gewijzigd is.</p>
+    </div>
   </div>
 </header>
 
@@ -434,7 +450,9 @@ footer b{color:var(--ink-2)}
   <p><b>De kosten van de hypotheekakte</b> zijn hier een ruwe schatting. Een kredietakte bevat onder meer registratiebelasting op het gewaarborgde bedrag, inschrijvingskosten, het ereloon van de notaris en uitgaven aan derden. Het gewaarborgde bedrag kan hoger zijn dan het geleende kapitaal. Gebruik de rekenmodule van notaris.be voor een preciezere schatting.</p>
   <p><b>Bij nieuwbouw</b> betaal je 21% btw op het gebouw. Vul dan de prijs exclusief btw in. Voor de grond kan btw of registratiebelasting gelden, afhankelijk van de voorwaarden. Die opsplitsing zit hier niet in.</p>
   <p><b>De maandlast</b> wordt berekend met de equivalente maandrente, de twaalfde wortel uit de jaarrente. Dat is de Belgische conventie. Ter controle, het voorbeeld van Wikifin: &euro; 100.000 op 20 jaar aan 2% geeft &euro; 505,03 per maand en &euro; 21.206,35 aan intrest. De aankoopkosten zijn geijkt op de infofiche van notaris.be, waar een gezinswoning van &euro; 250.000 in Vlaanderen &euro; 9.370 aan kosten geeft.</p>
-  <p>Tarieven nagekeken op 21 augustus 2026 tegen vlaanderen.be, notaris.be, wikifin.be en economie.fgov.be. Bedragen zijn afgerond op hele euro's. Deze pagina stuurt niets wat je invult naar een server en laadt geen enkel extern bestand.</p>
+  <p><b>Privacy.</b> Alles wat je invult, blijft in je browser. Deze pagina bevat geen formulier dat verstuurt, geen fetch of XMLHttpRequest, geen cookies, geen localStorage, geen analytics en geen externe bestanden of webfonts. Er worden dus geen persoonsgegevens door deze pagina verwerkt en er is geen cookiebanner nodig. Zoals bij elke website registreert de hostingpartij wel technische gegevens van de opvraging, waaronder je IP-adres; dat gebeurt buiten deze pagina om en valt onder het privacybeleid van die partij.</p>
+  <p><b>Aansprakelijkheid.</b> Deze rekenhulp wordt aangeboden zoals ze is, zonder enige garantie. De auteur aanvaardt geen aansprakelijkheid voor onjuiste of verouderde bedragen, noch voor schade die voortvloeit uit het gebruik ervan. Wie deze pagina verder verspreidt of op een eigen website plaatst, blijft zelf verantwoordelijk voor de juistheid van de informatie tegenover zijn cliënten en voor de beroepsregels die op hem van toepassing zijn.</p>
+  <p><b>Bronnen.</b> Tarieven nagekeken op 21 augustus 2026 tegen vlaanderen.be, notaris.be, wikifin.be en economie.fgov.be. Bedragen zijn afgerond op hele euro's.</p>
 </footer>
 </div>
 
