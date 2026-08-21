@@ -479,7 +479,21 @@ footer b{color:var(--ink-2)}
 (function(){
   var eur=new Intl.NumberFormat('nl-BE',{style:'currency',currency:'EUR',maximumFractionDigits:0});
   function E(i){return document.getElementById(i)}
-  function v(i){var n=parseFloat(E(i).value); return isNaN(n)?0:n}
+  // Bij gekoppelde velden is het invoervak de bron van waarheid. De schuifbalk heeft een
+  // grove stapgrootte en zou een getypt bedrag afronden, dus daar lezen we niet uit.
+  var pairOf={price:'priceN', sale:'saleN', b1In:'b1InN', b2In:'b2InN',
+              term:'termN', rate:'rateN', ratio:'ratioN'};
+  function v(i){
+    var t=pairOf[i];
+    if(t){
+      var a=parseFloat(E(t).value);
+      if(!isNaN(a)) return a;
+      var b=parseFloat(E(i).value);
+      return isNaN(b)?0:b;
+    }
+    var n=parseFloat(E(i).value);
+    return isNaN(n)?0:n;
+  }
   function chk(i){return E(i).checked}
 
   // Belgische conventie: maandrente is de twaalfde wortel uit de jaarrente
@@ -505,13 +519,14 @@ footer b{color:var(--ink-2)}
   // schuifbalk en invoervak twee richtingen koppelen; typen mag buiten het bereik
   var links=[['price','priceN'],['sale','saleN'],['b1In','b1InN'],['b2In','b2InN'],
              ['term','termN'],['rate','rateN'],['ratio','ratioN']];
-  function syncFromRange(r,n){ E(n).value=E(r).value; }
-  function syncFromNum(r,n){
+  // schuifbalk versleept: het invoervak volgt
+  function fromRange(r,n){ E(n).value=E(r).value; }
+  // bedrag getypt: alleen de duimpositie volgt, de getypte waarde blijft onaangeroerd
+  function fromNum(r,n){
     var rg=E(r), val=parseFloat(E(n).value);
     if(isNaN(val)) return;
-    if(val>parseFloat(rg.max)) rg.max=String(Math.ceil(val/50000)*50000||val);
-    if(val<parseFloat(rg.min)) val=parseFloat(rg.min);
-    rg.value=String(val);
+    if(val>parseFloat(rg.max)) rg.max=String(Math.max(Math.ceil(val/50000)*50000, val));
+    rg.value=String(Math.max(parseFloat(rg.min)||0, val));
   }
 
   var mode={not:'pct', fee:'pct'};
@@ -594,7 +609,8 @@ footer b{color:var(--ink-2)}
   // en maakt de buffer zichtbaar, maar je kan ook meteen schuiven of een bedrag typen.
   function clampBuyer(pfx){
     var have=v(pfx+'Have'), mnF=v(pfx+'Min'), mxF=v(pfx+'Max');
-    var s=E(pfx+'In'), cur=parseFloat(s.value); if(isNaN(cur)) cur=0;
+    var s=E(pfx+'In'), nf=E(pfx+'InN');
+    var cur=parseFloat(nf.value); if(isNaN(cur)) cur=parseFloat(s.value)||0;
     var mn=Math.max(0,mnF);
     var hi;
     if(mxF>0) hi=mxF;
@@ -603,8 +619,9 @@ footer b{color:var(--ink-2)}
     if(have>0){ mn=Math.min(mn,have); hi=Math.min(hi,have); }
     if(hi<mn) hi=mn;
     s.min=String(mn); s.max=String(hi);
-    s.value=String(Math.max(mn,Math.min(cur,hi)));
-    E(pfx+'InN').value=s.value;
+    var kept=Math.max(mn,Math.min(cur,hi));
+    s.value=String(kept);
+    if(kept!==cur) nf.value=String(kept);   // alleen bijstellen als het echt buiten de grenzen lag
   }
 
   function calc(){
@@ -615,7 +632,6 @@ footer b{color:var(--ink-2)}
     E('portBox').style.display=port()?'grid':'none';
     E('feeVal').disabled=!chk('agent');
     clampBuyer('b1'); if(chk('two')) clampBuyer('b2');
-    links.forEach(function(p){ syncFromRange(p[0],p[1]); });
 
     var P=v('price'), term=v('term'), r=v('rate')/100;
     var inc=v('inc1'), ratio=v('ratio')/100;
@@ -792,17 +808,21 @@ footer b{color:var(--ink-2)}
     E('r-notes').innerHTML=msg;
   }
 
-  ['price','kind','zone','notVal','disb','reno','moving','hasHome','sale','agent','feeVal','certs',
+  // de gekoppelde schuifbalken staan hier niet bij: die krijgen hun eigen luisteraar hieronder
+  ['kind','zone','notVal','disb','reno','moving','hasHome','agent','feeVal','certs',
    'hasOld','oldBal','oldRate','oldYears','portCost','bonus','two',
-   'b1Have','b1Min','b1Max','b1In','b2Have','b2Min','b2Max','b2In',
-   'term','rate','mortFix','bridgeAmt','bridgeRate','bridgeMonths',
-   'inc1','debts','ratio','ovr','fire','ssv'].forEach(function(i){
+   'b1Have','b1Min','b1Max','b2Have','b2Min','b2Max',
+   'mortFix','bridgeAmt','bridgeRate','bridgeMonths',
+   'inc1','debts','ovr','fire','ssv'].forEach(function(i){
     var el=E(i); if(!el) return;
     el.addEventListener('input',calc); el.addEventListener('change',calc);
   });
   links.forEach(function(p){
-    E(p[1]).addEventListener('input',function(){ syncFromNum(p[0],p[1]); calc(); });
+    E(p[0]).addEventListener('input',function(){ fromRange(p[0],p[1]); calc(); });
+    E(p[1]).addEventListener('input',function(){ fromNum(p[0],p[1]); calc(); });
   });
+  // de invoervakken zonder value-attribuut eenmalig vullen vanuit hun schuifbalk
+  links.forEach(function(p){ if(E(p[1]).value==='') E(p[1]).value=E(p[0]).value; });
   document.querySelectorAll('input[name=oldChoice]').forEach(function(x){ x.addEventListener('change',calc); });
   [['notSeg','not'],['feeSeg','fee']].forEach(function(pr){
     Array.prototype.forEach.call(E(pr[0]).querySelectorAll('button'),function(b){
