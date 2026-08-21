@@ -263,8 +263,8 @@ footer b{color:var(--ink-2)}
       <div><label class="mini" for="disb">Akte- en opzoekingskosten</label><input type="number" id="disb" value="1120" step="50" min="0"></div>
     </div>
     <div class="pair" style="margin-top:13px">
-      <div><label class="mini" for="reno">Renovatie, mee te financieren</label><input type="number" id="reno" value="0" step="1000" min="0"></div>
-      <div><label class="mini" for="moving">Verhuis en inrichting, zelf te betalen</label><input type="number" id="moving" value="0" step="500" min="0"></div>
+      <div><label class="mini" for="reno">Renovatie, mee te financieren</label><input type="number" id="reno" placeholder="0" step="1000" min="0"></div>
+      <div><label class="mini" for="moving">Verhuis en inrichting, zelf te betalen</label><input type="number" id="moving" placeholder="0" step="500" min="0"></div>
     </div>
   </div>
 
@@ -296,9 +296,9 @@ footer b{color:var(--ink-2)}
     <label class="check"><input type="checkbox" id="hasOld"> Ik heb nog een hypothecair krediet lopen</label>
     <div id="oldBox" style="display:none">
       <div class="trio">
-        <div><label class="mini" for="oldBal">Nog openstaand</label><input type="number" id="oldBal" value="0" step="1000" min="0"></div>
-        <div><label class="mini" for="oldRate">Rente per jaar (%)</label><input type="number" id="oldRate" value="0" step="0.05" min="0"></div>
-        <div><label class="mini" for="oldYears">Jaren te gaan</label><input type="number" id="oldYears" value="0" step="1" min="0" max="30"></div>
+        <div><label class="mini" for="oldBal">Nog openstaand</label><input type="number" id="oldBal" placeholder="0" step="1000" min="0"></div>
+        <div><label class="mini" for="oldRate">Rente per jaar (%)</label><input type="number" id="oldRate" placeholder="0" step="0.05" min="0"></div>
+        <div><label class="mini" for="oldYears">Jaren te gaan</label><input type="number" id="oldYears" placeholder="0" step="1" min="0" max="30"></div>
       </div>
       <div class="field" style="margin-top:15px">
         <div class="radios">
@@ -310,7 +310,7 @@ footer b{color:var(--ink-2)}
       </div>
       <div class="pair" id="portBox" style="margin-top:13px">
         <div><label class="mini" for="portCost">Kosten pandwisselakte</label><input type="number" id="portCost" value="2000" step="250" min="0"></div>
-        <div><label class="mini" for="bonus">Woonbonus per jaar</label><input type="number" id="bonus" value="0" step="50" min="0"></div>
+        <div><label class="mini" for="bonus">Woonbonus per jaar</label><input type="number" id="bonus" placeholder="0" step="50" min="0"></div>
       </div>
     </div>
   </div>
@@ -324,9 +324,9 @@ footer b{color:var(--ink-2)}
       <input type="range" id="b1In" min="0" max="500000" step="500" value="0" aria-label="Je inbreng">
     </div>
     <div class="trio" style="margin-top:13px">
-      <div><label class="mini" for="b1Have">Je hebt (optioneel)</label><input type="number" id="b1Have" value="0" step="500" min="0"></div>
-      <div><label class="mini" for="b1Min">Minstens inbrengen</label><input type="number" id="b1Min" value="0" step="500" min="0"></div>
-      <div><label class="mini" for="b1Max">Hoogstens inbrengen</label><input type="number" id="b1Max" value="0" step="500" min="0"></div>
+      <div><label class="mini" for="b1Have">Je hebt (optioneel)</label><input type="number" id="b1Have" placeholder="0" step="500" min="0"></div>
+      <div><label class="mini" for="b1Min">Minstens inbrengen</label><input type="number" id="b1Min" placeholder="0" step="500" min="0"></div>
+      <div><label class="mini" for="b1Max">Hoogstens inbrengen</label><input type="number" id="b1Max" placeholder="0" step="500" min="0"></div>
     </div>
     <label class="check" style="margin-top:18px"><input type="checkbox" id="two"> Een tweede koper met eigen bedragen toevoegen</label>
     <div id="b2Box" style="display:none">
@@ -336,9 +336,9 @@ footer b{color:var(--ink-2)}
         <input type="range" id="b2In" min="0" max="500000" step="500" value="0" aria-label="Inbreng tweede koper">
       </div>
       <div class="trio" style="margin-top:13px">
-        <div><label class="mini" for="b2Have">Heeft (optioneel)</label><input type="number" id="b2Have" value="0" step="500" min="0"></div>
-        <div><label class="mini" for="b2Min">Minstens inbrengen</label><input type="number" id="b2Min" value="0" step="500" min="0"></div>
-        <div><label class="mini" for="b2Max">Hoogstens inbrengen</label><input type="number" id="b2Max" value="0" step="500" min="0"></div>
+        <div><label class="mini" for="b2Have">Heeft (optioneel)</label><input type="number" id="b2Have" placeholder="0" step="500" min="0"></div>
+        <div><label class="mini" for="b2Min">Minstens inbrengen</label><input type="number" id="b2Min" placeholder="0" step="500" min="0"></div>
+        <div><label class="mini" for="b2Max">Hoogstens inbrengen</label><input type="number" id="b2Max" placeholder="0" step="500" min="0"></div>
       </div>
     </div>
   </div>
@@ -363,9 +363,9 @@ footer b{color:var(--ink-2)}
       <p class="mini" style="font-size:12.5px; color:var(--ink-2)">Overbruggingskrediet</p>
       <p class="hint" style="margin:5px 0 12px">Nodig als je koopt voordat je eigen woning verkocht is. Je betaalt alleen rente tot de verkoop rond is. Laat op nul als je eerst verkoopt.</p>
       <div class="trio">
-        <div><label class="mini" for="bridgeAmt">Bedrag</label><input type="number" id="bridgeAmt" value="0" step="10000" min="0"></div>
+        <div><label class="mini" for="bridgeAmt">Bedrag</label><input type="number" id="bridgeAmt" placeholder="0" step="10000" min="0"></div>
         <div><label class="mini" for="bridgeRate">Rente (%)</label><input type="number" id="bridgeRate" value="4" step="0.1" min="0"></div>
-        <div><label class="mini" for="bridgeMonths">Aantal maanden</label><input type="number" id="bridgeMonths" value="0" step="1" min="0" max="24"></div>
+        <div><label class="mini" for="bridgeMonths">Aantal maanden</label><input type="number" id="bridgeMonths" placeholder="0" step="1" min="0" max="24"></div>
       </div>
     </div>
   </div>
@@ -373,9 +373,9 @@ footer b{color:var(--ink-2)}
   <div class="card">
     <h2>7 &middot; Inkomen en vaste lasten</h2>
     <div class="pair">
-      <div><label class="mini" for="inc1">Netto inkomen per maand</label><input type="number" id="inc1" value="0" step="50" min="0">
+      <div><label class="mini" for="inc1">Netto inkomen per maand</label><input type="number" id="inc1" placeholder="0" step="50" min="0">
         <span class="sub-hint">Koop je met twee, vul dan het gezamenlijke bedrag in.</span></div>
-      <div><label class="mini" for="debts">Andere maandelijkse kredieten</label><input type="number" id="debts" value="0" step="25" min="0">
+      <div><label class="mini" for="debts">Andere maandelijkse kredieten</label><input type="number" id="debts" placeholder="0" step="25" min="0">
         <span class="sub-hint">Autolening en dergelijke. De bank telt die mee.</span></div>
     </div>
     <div class="field" style="margin-top:16px">
@@ -385,9 +385,9 @@ footer b{color:var(--ink-2)}
       <span class="sub-hint">Wikifin gebruikt ongeveer een derde als vuistregel. Banken wijken daarvan af en wegen ook je beschikbare inkomen en gezinssituatie.</span>
     </div>
     <div class="trio" style="margin-top:16px">
-      <div><label class="mini" for="ovr">Onroerende voorheffing per jaar</label><input type="number" id="ovr" value="0" step="100" min="0"></div>
-      <div><label class="mini" for="fire">Brandverzekering per maand</label><input type="number" id="fire" value="0" step="5" min="0"></div>
-      <div><label class="mini" for="ssv">Schuldsaldo per maand</label><input type="number" id="ssv" value="0" step="5" min="0"></div>
+      <div><label class="mini" for="ovr">Onroerende voorheffing per jaar</label><input type="number" id="ovr" placeholder="0" step="100" min="0"></div>
+      <div><label class="mini" for="fire">Brandverzekering per maand</label><input type="number" id="fire" placeholder="0" step="5" min="0"></div>
+      <div><label class="mini" for="ssv">Schuldsaldo per maand</label><input type="number" id="ssv" placeholder="0" step="5" min="0"></div>
     </div>
   </div>
 
@@ -821,8 +821,12 @@ footer b{color:var(--ink-2)}
     E(p[0]).addEventListener('input',function(){ fromRange(p[0],p[1]); calc(); });
     E(p[1]).addEventListener('input',function(){ fromNum(p[0],p[1]); calc(); });
   });
-  // de invoervakken zonder value-attribuut eenmalig vullen vanuit hun schuifbalk
-  links.forEach(function(p){ if(E(p[1]).value==='') E(p[1]).value=E(p[0]).value; });
+  // Alleen de niet-geldvelden krijgen hun beginwaarde uit de schuifbalk. De bedragen
+  // blijven leeg, zodat er nergens een nul staat die de gebruiker moet wegvegen.
+  ['termN','rateN','ratioN'].forEach(function(id){
+    var r={termN:'term', rateN:'rate', ratioN:'ratio'}[id];
+    if(E(id).value==='') E(id).value=E(r).value;
+  });
   document.querySelectorAll('input[name=oldChoice]').forEach(function(x){ x.addEventListener('change',calc); });
   [['notSeg','not'],['feeSeg','fee']].forEach(function(pr){
     Array.prototype.forEach.call(E(pr[0]).querySelectorAll('button'),function(b){
