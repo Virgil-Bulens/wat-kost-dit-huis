@@ -21,8 +21,23 @@ enkel extern bestand. Ook geen webfonts, dus geen IP-adressen naar derden.
 Tarieven nagekeken op 21 augustus 2026.
 
 - Registratiebelasting Vlaanderen: 2% voor de enige eigen woning, 12% voor
-  overige aankopen, 21% btw op een nieuw gebouw. Het tarief van 1% voor
-  ingrijpende energetische renovatie is afgeschaft op 1 januari 2025.
+  overige aankopen. Het tarief van 1% voor ingrijpende energetische renovatie
+  is afgeschaft op 1 januari 2025.
+- Bij nieuwbouw wordt de prijs gesplitst: btw op het gebouw en, als de grond
+  van een andere verkoper komt, 12% registratiebelasting op de grond. Verkoopt
+  dezelfde verkoper grond en gebouw samen onder het btw-stelsel, dan valt ook
+  de grond onder btw. Het verlaagde tarief van 2% geldt nooit op grond.
+- Btw op het gebouw: 21%, of 6% bij afbraak en heropbouw. Het verlaagde tarief
+  vraagt onder meer afbraak en heropbouw op hetzelfde perceel, de enige eigen
+  woning met eigen domicilie, minstens vijf jaar verblijf en een bewoonbare
+  oppervlakte van maximaal 200 m2. De tool vraagt die voorwaarden apart uit en
+  rekent met 21% zolang er een ontbreekt. De aparte weg naar 6% via langdurige
+  verhuur aan een sociaal verhuurkantoor of woonmaatschappij zit er niet in,
+  net zomin als het tarief van 6% voor renovatie van een woning ouder dan
+  tien jaar.
+- Notariskosten bij nieuwbouw worden op het grondaandeel gerekend: alleen de
+  grond gaat via een notariele akte, het gebouw zit in een
+  aannemingsovereenkomst.
 - Bijkomende vermindering van EUR 1.867 voor een enige eigen bescheiden woning,
   tot EUR 220.000, of EUR 240.000 in de kernsteden en de Vlaamse Rand.
 - Voor verkoopovereenkomsten vanaf 1 januari 2026 moet de koper zich binnen
