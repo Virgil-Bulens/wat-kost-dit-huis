@@ -90,7 +90,7 @@ a:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radi
 .privacy .ic{flex:none; color:var(--pos); font-family:var(--mono); font-weight:700; font-size:13px}
 .privacy b{color:var(--ink); font-weight:700}
 .summary{position:sticky; top:0; z-index:20; background:var(--surface); border-bottom:1px solid var(--line); box-shadow:var(--shadow)}
-.summary-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line)}
+.summary-grid{display:grid; grid-template-columns:repeat(4,1fr) auto; gap:1px; background:var(--line)}
 .tile{background:var(--surface); padding:14px 18px; min-width:0}
 .tile .lab{font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); font-weight:700}
 .tile .val{font-size:clamp(19px,2.5vw,29px); font-weight:700; margin-top:4px; letter-spacing:-.025em;
@@ -99,6 +99,13 @@ a:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radi
 .tile.is-alert .val{color:var(--alert)}
 .tile.is-warn .val{color:var(--warn)}
 .tile.is-pos .val{color:var(--pos)}
+.tile.act{display:flex; align-items:center; justify-content:center; padding:10px 16px}
+.btn{font:inherit; font-size:13px; font-weight:600; display:inline-flex; align-items:center; gap:7px;
+  padding:8px 13px; border:1px solid var(--line-2); border-radius:7px; background:var(--surface-2);
+  color:var(--ink); cursor:pointer; white-space:nowrap}
+.btn:hover{border-color:var(--accent); color:var(--accent)}
+.btn:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.btn svg{flex:none; width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.6}
 
 .cols{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:26px; padding:28px 0 60px; align-items:start}
 .card{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:20px 20px 22px; margin-bottom:18px}
@@ -211,6 +218,9 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
 @media (max-width:900px){
   .cols{grid-template-columns:1fr; gap:0}
   .summary-grid{grid-template-columns:1fr 1fr}
+  /* de balk blijft vastgeplakt, dus de knoprij houdt zich op een smal scherm klein */
+  .tile.act{grid-column:1/-1; padding:8px 14px}
+  .btn{width:100%; justify-content:center; padding:7px 12px; font-size:12.5px}
 }
 @media (max-width:420px){
   .trio, .pair{grid-template-columns:1fr}
@@ -218,6 +228,93 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
   .pin{width:100%; text-align:left}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* De afdruk staat los van de schermopmaak: op papier verschijnt alleen #printdoc, een eigen
+   documentweergave met dezelfde bedragen. Zo blijft de uitlijning voorspelbaar en staat er geen
+   halve schuifbalk of leeg invoervak op papier. */
+#printdoc{display:none}
+
+@media print{
+  /* @page zonder marge: de browser tekent zijn eigen kop- en voetregel (url, titel, datum,
+     bladzijdenummer) in die marge, dus met marge nul valt die weg. De witruimte op elke bladzijde
+     komt daarom uit de thead en de tfoot van de tabel hieronder: die herhaalt de browser zelf op
+     elke bladzijde. Geen paginaformaat opgeven, zodat het gekozen papier blijft gelden. */
+  @page{ margin:0 }
+
+  /* Papier is wit en zwart, ook als het scherm donker staat. Vlakken worden wit: achtergronden
+     drukt een browser alleen af als de gebruiker dat aanvinkt, dus de opmaak leunt op lijnen. */
+  :root, :root[data-theme="dark"], :root:not([data-theme="light"]){
+    --ground:#FFF; --surface:#FFF; --surface-2:#FFF;
+    --ink:#000; --ink-2:#1A1A1A; --muted:#4A4A4A;
+    --line:#C7C7C7; --line-2:#9A9A9A;
+    --accent:#173A63; --accent-soft:#FFF; --accent-ink:#000;
+    --pos:#0A5240; --pos-soft:#FFF;
+    --warn:#6A4406; --warn-soft:#FFF;
+    --alert:#7A2724; --alert-soft:#FFF;
+    --shadow:none;
+  }
+  html,body{background:#FFF; color:#000}
+  body > *{display:none !important}
+  #printdoc{display:block !important}
+  p{orphans:2; widows:2}
+
+  #printdoc{font-family:var(--sans); font-size:9.6pt; line-height:1.42; color:#000}
+  .pd{width:100%; border-collapse:collapse; table-layout:fixed}
+  .pd thead th, .pd tfoot td, .pd tbody td{text-align:left; font-weight:400; vertical-align:top}
+  /* kop en voet herhalen zich op elke bladzijde, en hun opvulling is de bladspiegel */
+  .pd thead th, .pd tfoot td{padding:0}
+  .pd tbody td.pd-cell{padding:0 15mm}
+  .pd-run{display:flex; justify-content:space-between; gap:10mm; padding:13mm 15mm 2mm;
+    font-size:7.6pt; letter-spacing:.09em; text-transform:uppercase; color:#3A3A3A}
+  .pd-run span:first-child{font-weight:700; letter-spacing:.06em; color:#000}
+  .pd-rule{border-top:.5pt solid #8A8A8A; margin:0 15mm 5mm}
+  .pd-foot{padding:4mm 15mm 13mm; margin-top:6mm; border-top:.5pt solid #C7C7C7;
+    font-size:7.4pt; line-height:1.4; color:#3A3A3A}
+
+  .pd-title h1{font-size:19pt; letter-spacing:-.025em; line-height:1.1}
+  .pd-title p{margin:2.5mm 0 0; font-size:9.6pt; color:#2A2A2A}
+
+  .pd-kpi{display:grid; grid-template-columns:repeat(4,1fr); border:.5pt solid #8A8A8A;
+    margin-top:6mm; break-inside:avoid}
+  .pd-kpi > div{padding:3mm 3.5mm; border-left:.5pt solid #8A8A8A; min-width:0}
+  .pd-kpi > div:first-child{border-left:0}
+  .pd-kpi .l{display:block; font-size:7.2pt; letter-spacing:.08em; text-transform:uppercase; color:#3A3A3A; font-weight:700}
+  .pd-kpi .v{display:block; font-size:13pt; font-weight:700; letter-spacing:-.02em; margin-top:.8mm;
+    overflow-wrap:break-word; line-height:1.15}
+  .pd-kpi .s{display:block; font-size:7.2pt; color:#3A3A3A; margin-top:.6mm; line-height:1.3}
+
+  .pd-sec{margin-top:7mm}
+  .pd-sec > h2{font-size:8.4pt; letter-spacing:.11em; text-transform:uppercase; color:var(--accent);
+    font-weight:700; padding-bottom:1.4mm; border-bottom:.6pt solid #8A8A8A; margin-bottom:1mm;
+    break-after:avoid}
+  #printdoc .row{padding:1.5mm 0; font-size:9.2pt; gap:8mm; border-bottom:.4pt dotted #B4B4B4;
+    break-inside:avoid}
+  #printdoc .row .v{font-size:9.6pt; white-space:normal}
+  #printdoc .row .k small{font-size:7.6pt; line-height:1.3}
+  #printdoc .row.tot{border-top:.9pt solid #6A6A6A; margin-top:1.2mm; padding-top:2mm; font-size:10pt}
+  #printdoc .row.tot .v{font-size:11pt}
+  #printdoc .big{border:.7pt solid #4A4A4A; border-radius:0; padding:3mm 4mm; margin:3.5mm 0 1mm;
+    break-inside:avoid}
+  #printdoc .big .k{font-size:9pt}
+  #printdoc .big .v{font-size:15pt}
+  #printdoc .big .v .cur{opacity:.6}
+  #printdoc .note{border:0; border-left:1.4pt solid #8A8A8A; border-radius:0; margin-bottom:2.4mm;
+    padding:.8mm 0 .8mm 3.2mm; font-size:8.8pt; line-height:1.4; gap:0; color:#1A1A1A;
+    break-inside:avoid}
+  #printdoc .note .ic{display:none}
+  #printdoc .note.ok{border-left-color:var(--pos)}
+  #printdoc .note.warn{border-left-color:var(--warn)}
+  #printdoc .note.bad{border-left-width:2pt; border-left-color:var(--alert)}
+  #printdoc .note.info{border-left-color:#B4B4B4}
+  #printdoc .empty{font-size:9pt; padding:1mm 0 0}
+
+  /* het voorbehoud mag over twee bladzijden lopen; in een blok houden zou een bijna lege
+     bladzijde opleveren zodra het er onderaan net niet meer bij past */
+  .pd-fine{margin-top:8mm; font-size:7.8pt; line-height:1.45; color:#2A2A2A}
+  .pd-fine p{margin:0 0 2mm; break-inside:avoid}
+  .pd-fine b{color:#000}
+  .pd-col{padding-top:2mm; border-top:.4pt solid #C7C7C7; color:#3A3A3A}
+}
 </style>
 </head>
 <body>
@@ -248,6 +345,12 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
       <div class="tile"><div class="lab">Te lenen</div><div class="val num" id="s-loan"></div><div class="sub" id="s-ltv"></div></div>
       <div class="tile"><div class="lab">Per maand</div><div class="val num" id="s-pay"></div><div class="sub" id="s-pay-sub"></div></div>
       <div class="tile" id="s-ratio-tile"><div class="lab">Van je inkomen</div><div class="val num" id="s-ratio"></div><div class="sub" id="s-left"></div></div>
+      <div class="tile act">
+        <button type="button" class="btn" id="printBtn" title="Afdrukken of opslaan als pdf, zonder de kop- en voetregel van de browser">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8.5V3.5h10v5M7 17.5H5.5A1.5 1.5 0 0 1 4 16v-4.5A1.5 1.5 0 0 1 5.5 10h13A1.5 1.5 0 0 1 20 11.5V16a1.5 1.5 0 0 1-1.5 1.5H17M7 14.5h10v6H7z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Afdrukken of pdf
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -548,6 +651,38 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
 </footer>
 </div>
 
+<!-- Wat er op papier komt. Alleen dit blok wordt afgedrukt; de rest van de pagina staat in de
+     afdrukstijl op display:none. De tabel is er om de kop en de voet te dragen: browsers herhalen
+     thead en tfoot op elke bladzijde, en dat is de enige plek waar met @page{margin:0} nog
+     witruimte per bladzijde te maken valt. #pd-body wordt gevuld door het script. -->
+<div id="printdoc" aria-hidden="true">
+  <table class="pd">
+    <thead>
+      <tr><th>
+        <div class="pd-run"><span>Wat kost dit huis?</span><span>Rekenhulp voor kopers in Vlaanderen &middot; <span id="pd-date"></span></span></div>
+        <div class="pd-rule"></div>
+      </th></tr>
+    </thead>
+    <tfoot>
+      <tr><td>
+        <div class="pd-foot">Indicatieve schatting van een rekenhulp, geen advies en geen aanbod. Alleen een notaris kan de aankoopkosten exact berekenen; alleen een bank kan een rentevoet toekennen en over een krediet beslissen.</div>
+      </td></tr>
+    </tfoot>
+    <tbody>
+      <tr><td class="pd-cell">
+        <div id="pd-body"></div>
+        <section class="pd-sec pd-fine">
+          <h2>Voorbehoud</h2>
+          <p><b>Dit is een rekenhulp, geen advies en geen aanbod.</b> De uitkomsten zijn indicatieve schattingen. Ze houden geen rekening met je persoonlijke situatie en vormen geen financieel, fiscaal, juridisch of kredietadvies. Deze pagina bemiddelt niet in kredieten en biedt er geen aan.</p>
+          <p><b>Alleen een notaris kan de aankoopkosten exact berekenen</b> en alleen een bank kan een rentevoet toekennen en over een krediet beslissen. De notariskosten, de kosten van de hypotheekakte en de rentevoet zijn hier schattingen. De grenswaarden voor quotiteit en afbetalingslast zijn vuistregels, geen bankregels.</p>
+          <p><b>Geen garantie op juistheid of actualiteit.</b> Tarieven en regels veranderen. Dit zijn de tarieven van Vlaanderen, laatst nagekeken op 21 augustus 2026. Controleer elk bedrag bij je notaris, je bank of de bevoegde overheid voordat je een beslissing neemt of een verbintenis aangaat. Gebruik is op eigen risico; er wordt geen aansprakelijkheid aanvaard voor schade door beslissingen die op deze berekening gebaseerd zijn.</p>
+          <p class="pd-col">Berekend met &ldquo;Wat kost dit huis?&rdquo;, github.com/Virgil-Bulens/wat-kost-dit-huis &middot; &copy; 2026 Virgil Bulens &middot; PolyForm Noncommercial License 1.0.0. Deze pagina is niet van de overheid, een notariaat, een bank of een makelaar.</p>
+        </section>
+      </td></tr>
+    </tbody>
+  </table>
+</div>
+
 <script>
 (function(){
   var eur=new Intl.NumberFormat('nl-BE',{style:'currency',currency:'EUR',maximumFractionDigits:0});
@@ -752,7 +887,7 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     if(kept!==cur) nf.value=String(kept);   // alleen bijstellen als het echt buiten de grenzen lag
   }
 
-  function calc(){
+  function render(){
     E('homeBox').style.display=chk('hasHome')?'block':'none';
     E('oldBox').style.display=chk('hasOld')?'block':'none';
     E('b2Box').style.display=chk('two')?'block':'none';
@@ -969,6 +1104,91 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     E('r-notes').innerHTML=msg;
   }
 
+  // Afdruk en pdf. Papier krijgt een eigen documentweergave, #printdoc, zodat de opmaak van
+  // het scherm er niet in de weg zit: geen schuifbalken, geen lege invoervakken, geen twee
+  // kolommen die halverwege een bladzijde afbreken. De bedragen komen uit dezelfde berekening.
+  // De blokken rechts worden overgenomen zoals ze op het scherm staan; daarboven komt een blok
+  // met de uitgangspunten, want de invulvakken zelf staan niet op papier.
+  function num(x){ return String(x).replace('.',','); }
+  function selTxt(i){ var e=E(i); return e.options[e.selectedIndex].text; }
+  function pdSec(t,h){ return h ? '<section class="pd-sec"><h2>'+t+'</h2>'+h+'</section>' : ''; }
+  function kpi(l,val,sub){
+    return '<div><span class="l">'+l+'</span><span class="v">'+val+'</span><span class="s">'+sub+'</span></div>';
+  }
+
+  function pdBasis(P){
+    var out=row('Aankoopprijs', eur.format(P)+(isNew()?', exclusief btw':''));
+    out+=row('Situatie', selTxt('kind'));
+    if(E('kind').value==='own') out+=row('Ligging', selTxt('zone'));
+    if(isNew()){
+      var L=landShare(P);
+      out+=row('Grondaandeel', L>0 ? (eur.format(L)+' grond, '+eur.format(P-L)+' bouw')
+                                   : 'niet ingevuld, de volle prijs is als bouw gerekend');
+      if(L>0) out+=row('Belasting op de grond', selTxt('landTax'));
+      out+=row('Btw op de bouw', pctLab(vatRate())
+        +(vatPick()==='6'&&vat6Missing().length>0 ? ', want niet alle voorwaarden voor 6% staan aan' : ''));
+    }
+    out+=row('Notariskosten', mode.not==='pct'
+      ? num(v('notVal'))+'% van '+(isNew()&&landShare(P)>0?'het grondaandeel':'de prijs')
+      : eur.format(v('notVal'))+', vast bedrag');
+    out+=row('Akte- en opzoekingskosten', eur.format(v('disb')));
+    if(v('reno')>0) out+=row('Renovatie, meegefinancierd', eur.format(v('reno')));
+    if(v('moving')>0) out+=row('Verhuis en inrichting, zelf betaald', eur.format(v('moving')));
+    if(chk('hasHome')){
+      out+=row('Verkoopprijs huidige woning', eur.format(v('sale')));
+      if(chk('agent')) out+=row('Makelaar', mode.fee==='pct' ? num(v('feeVal'))+'% plus 21% btw'
+                                                             : eur.format(v('feeVal'))+' plus 21% btw');
+    } else {
+      out+=row('Huidige woning', 'geen verkoop mee gerekend');
+    }
+    if(chk('hasOld')) out+=row('Lopend krediet',
+      eur.format(v('oldBal'))+' aan '+num(v('oldRate'))+'%, nog '+v('oldYears')+' jaar',
+      port()?'meegenomen via pandwissel':'afbetaald bij de verkoop');
+    out+=row('Inbreng uit spaargeld', eur.format(v('b1In'))
+      +(chk('two')?', plus '+eur.format(v('b2In'))+' van de tweede koper':''));
+    if(available()>0) out+=row('Spaargeld dat je hebt', eur.format(available()));
+    out+=row('Lening', v('term')+' jaar aan '+v('rate').toFixed(2).replace('.',',')+'% per jaar');
+    out+=row('Kosten hypotheekakte', eur.format(v('mortFix'))+' plus 1% van het geleende bedrag');
+    if(v('bridgeAmt')>0&&v('bridgeMonths')>0)
+      out+=row('Overbruggingskrediet', eur.format(v('bridgeAmt'))+' aan '+num(v('bridgeRate'))
+        +'% over '+v('bridgeMonths')+' maanden');
+    if(v('inc1')>0){
+      out+=row('Netto inkomen per maand', eur.format(v('inc1')));
+      if(v('debts')>0) out+=row('Andere maandelijkse kredieten', eur.format(v('debts')));
+      out+=row('Grens die je aanhoudt', v('ratio')+'% van het inkomen');
+    }
+    return out;
+  }
+
+  function buildPrint(){
+    var P=v('price');
+    E('pd-date').textContent=new Intl.DateTimeFormat('nl-BE',
+      {day:'numeric',month:'long',year:'numeric'}).format(new Date());
+
+    var h='<div class="pd-title"><h1>Wat kost dit huis?</h1><p>'
+      +(P>0 ? deco(selTxt('kind').replace(/\s*\([^)]*\)\s*$/,'')+' van '+eur.format(P))
+            : 'Er is nog geen aankoopprijs ingevuld, dus er valt nog niets te rekenen.')
+      +'</p></div>';
+
+    if(P>0){
+      h+='<div class="pd-kpi">'
+        +kpi('Eigen geld', E('s-cash').innerHTML, E('s-cash-sub').textContent)
+        +kpi('Te lenen', E('s-loan').innerHTML, E('s-ltv').textContent)
+        +kpi('Per maand', E('s-pay').innerHTML, E('s-pay-sub').textContent)
+        +kpi('Van je inkomen', E('s-ratio').textContent, E('s-left').textContent)
+        +'</div>';
+      h+=pdSec('Uitgangspunten', pdBasis(P));
+      if(chk('hasHome')) h+=pdSec('Wat de verkoop opbrengt', E('r-sell').innerHTML);
+      h+=pdSec('Wat de woning kost', E('r-buy').innerHTML);
+      h+=pdSec('De lening', E('r-loan').innerHTML);
+      h+=pdSec('Wat je elke maand betaalt', E('r-month').innerHTML);
+    }
+    h+=pdSec('Aandachtspunten', E('r-notes').innerHTML);
+    E('pd-body').innerHTML=h;
+  }
+
+  function calc(){ render(); buildPrint(); }
+
   // de gekoppelde schuifbalken staan hier niet bij: die krijgen hun eigen luisteraar hieronder
   ['kind','zone','landVal','landTax','v6demo','v6only','v6area','v6five',
    'notVal','disb','reno','moving','hasHome','agent','feeVal','certs',
@@ -995,6 +1215,19 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
       b.addEventListener('click',function(){ swap(pr[1], b.dataset.m); });
     });
   });
+  // De bestandsnaam van een pdf komt bij de meeste browsers uit de documenttitel. Daar zetten we
+  // de datum bij, zodat twee afdrukken van dezelfde pagina niet dezelfde naam krijgen. Dit hangt
+  // aan beforeprint, dus Ctrl+P levert hetzelfde als de knop.
+  var pageTitle=document.title;
+  function stamp(n){ return (n<10?'0':'')+n; }
+  window.addEventListener('beforeprint',function(){
+    var d=new Date();
+    buildPrint();
+    document.title='Wat kost dit huis - overzicht '+d.getFullYear()+'-'+stamp(d.getMonth()+1)+'-'+stamp(d.getDate());
+  });
+  window.addEventListener('afterprint',function(){ document.title=pageTitle; });
+  E('printBtn').addEventListener('click',function(){ window.print(); });
+
   calc();
 })();
 </script>
