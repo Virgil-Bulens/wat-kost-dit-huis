@@ -89,6 +89,51 @@ export async function openPagina(){
     async bestaat(id){ return pg.evaluate(i => !!document.getElementById(i), id); },
     async uitgeschakeld(id){ return pg.evaluate(i => document.getElementById(i).disabled, id); },
 
+    // De afdrukstand aanzetten. Papier heeft een eigen opmaak en een eigen
+    // breedte, dus het venster krijgt de maat van A4 bij 96 dpi; anders breken
+    // de regels op een breedte die op geen enkel blad bestaat. Het overzicht
+    // wordt opnieuw opgebouwd zoals een browser dat voor het afdrukken doet.
+    async afdrukstand(){
+      await pg.setViewportSize({width:794, height:1123});
+      await pg.emulateMedia({media:'print'});
+      await pg.evaluate(() => window.dispatchEvent(new Event('beforeprint')));
+    },
+
+    // De maten van de regels in het afdrukoverzicht: hoe breed het label is, over
+    // hoeveel tekstregels het loopt, en of de regel buiten de bladspiegel valt.
+    // Daarmee is te toetsen hoe de opmaak op papier uitpakt, niet alleen welke
+    // tekst er staat. Het aantal tekstregels komt uit een Range over het label:
+    // een browser geeft daar een rechthoek per regel voor terug, dus een label
+    // dat letter onder letter staat, telt evenveel regels als het letters heeft.
+    async afdrukregels(){
+      return pg.evaluate(() => [...document.querySelectorAll('#printdoc .row')].map(r => {
+        const k = r.querySelector('.k'), v = r.querySelector('.v');
+        const tekst = k.childNodes[0];
+        const bereik = document.createRange();
+        bereik.selectNodeContents(tekst);
+        return {
+          label: tekst.textContent.trim(),
+          labelRegels: bereik.getClientRects().length,
+          labelBreedte: k.getBoundingClientRect().width,
+          waardeBreedte: v.getBoundingClientRect().width,
+          regelBreedte: r.getBoundingClientRect().width,
+          overloop: r.scrollWidth - r.clientWidth
+        };
+      }));
+    },
+
+    // Een waarde in het afdrukoverzicht vervangen. Daarmee is te toetsen hoe de
+    // opmaak zich houdt bij een waarde die langer is dan de regel breed is,
+    // zonder dat er een invoer hoeft te bestaan die zo'n zin oplevert.
+    async zetAfdrukwaarde(label, tekst){
+      await pg.evaluate(([l, t]) => {
+        const regel = [...document.querySelectorAll('#printdoc .row')]
+          .find(r => r.querySelector('.k')?.childNodes[0]?.textContent?.trim() === l);
+        if(!regel) throw new Error('onbekende afdrukregel: ' + l);
+        regel.querySelector('.v').textContent = t;
+      }, [label, tekst]);
+    },
+
     async sluit(){ await pg.close(); }
   };
 }

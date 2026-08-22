@@ -496,6 +496,48 @@ describe('randgevallen en de afdruk', () => {
     geenFouten(p);
     await p.sluit();
   });
+
+  test('op papier wordt geen enkel label tot een letterkolom geknepen', async () => {
+    // De waarde op papier is lang niet altijd een bedrag: bij het verlaagde
+    // tarief en bij de kosten van de kredietakte staat er een halve zin. Nam die
+    // zin haar volle breedte, dan bleef er voor het label niets over en kwam het
+    // letter onder letter te staan, terwijl de waarde zelf van het blad liep.
+    // Deze test kijkt naar de opmaak op bladbreedte, niet naar de tekst.
+    const p = await metPagina({priceN:350000, kind:'own', inc1:3200,
+                               hasHome:true, saleN:260000, agent:true,
+                               hasOld:true, oldBal:90000});
+    await p.afdrukstand();
+    const regels = await p.afdrukregels();
+    assert.ok(regels.length > 10, 'er staan nauwelijks regels op papier');
+    for(const r of regels){
+      assert.ok(r.overloop < 1,
+        'de regel "' + r.label + '" loopt ' + Math.round(r.overloop) + 'px buiten het blad');
+      assert.ok(r.labelRegels <= 2,
+        'het label "' + r.label + '" is over ' + r.labelRegels + ' regels gebroken, '
+        + 'in een kolom van ' + Math.round(r.labelBreedte) + 'px');
+    }
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('een waarde die langer is dan de regel breed is, duwt het label niet weg', async () => {
+    // De vorige test kijkt naar de tekst die er nu staat. Deze toetst de opmaak
+    // zelf: ook een waarde die niet op een regel past, hoort de kolom van het
+    // label te laten staan en binnen het blad af te breken.
+    const p = await metPagina({priceN:350000, kind:'own'});
+    await p.afdrukstand();
+    await p.zetAfdrukwaarde('Situatie',
+      'een waarde die veel te lang is om op een regel te passen en die daarom '
+      + 'over meerdere regels moet afbreken in plaats van de kolom van het label op te eten');
+    const r = (await p.afdrukregels()).find(x => x.label === 'Situatie');
+    assert.ok(r.overloop < 1,
+      'de regel loopt ' + Math.round(r.overloop) + 'px buiten het blad');
+    assert.ok(r.labelRegels <= 2,
+      'het label is over ' + r.labelRegels + ' regels gebroken, '
+      + 'in een kolom van ' + Math.round(r.labelBreedte) + 'px');
+    geenFouten(p);
+    await p.sluit();
+  });
 });
 
 // ---------------------------------------------------------------------------

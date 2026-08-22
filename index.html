@@ -292,7 +292,13 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     break-after:avoid}
   #printdoc .row{padding:1.5mm 0; font-size:9.2pt; gap:8mm; border-bottom:.4pt dotted #B4B4B4;
     break-inside:avoid}
-  #printdoc .row .v{font-size:9.6pt; white-space:normal}
+  /* Op papier is de waarde lang niet altijd een bedrag: soms staat er een halve zin. Met de
+     flex:none van het scherm eist zo'n zin haar volle breedte op, wordt het label tot nul
+     geknepen en komt het letter onder letter te staan. Op papier krijgt de waarde daarom
+     hooguit de rechterkolom en breekt ze daarbinnen af; het label neemt de rest. */
+  #printdoc .row .k{flex:1 1 auto; min-width:0}
+  #printdoc .row .v{flex:0 0 auto; max-width:62%; min-width:0; font-size:9.6pt;
+    white-space:normal; text-align:right; overflow-wrap:break-word}
   #printdoc .row .k small{font-size:7.6pt; line-height:1.3}
   #printdoc .row.sub{border-bottom:0; padding:.6mm 0 .6mm 4mm; font-size:8.4pt}
   #printdoc .row.sub .v{font-size:8.6pt}
@@ -1310,7 +1316,8 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     var out=row('Aankoopprijs', eur.format(P)+(isNew()?', exclusief btw':''));
     out+=row('Situatie', selTxt('kind'));
     if(E('kind').value==='own')
-      out+=row('Verlaagd tarief', 'voorwaardelijk: domicilie binnen drie jaar en minstens een jaar ononderbroken ingeschreven'
+      out+=row('Verlaagd tarief', 'voorwaardelijk',
+        'domicilie binnen drie jaar en minstens een jaar ononderbroken ingeschreven'
         +(chk('hasHome')?'; er is nog een woning te verkopen, dus ook de vrijstelling onder voorwaarde van verkoop':''));
     if(isNew()){
       var L=landShare(P);
@@ -1342,15 +1349,18 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
       +(chk('two')?', plus '+eur.format(v('b2In'))+' van de tweede koper':''));
     if(available()>0) out+=row('Spaargeld dat je hebt', eur.format(available()));
     out+=row('Lening', v('term')+' jaar aan '+v('rate').toFixed(2).replace('.',',')+'% per jaar');
-    out+=row('Kosten kredietakte', eur.format(v('mortFix'))+' vast, plus '+pctLab(RATES.credit.registration)
-      +' registratierecht en 0,3% hypotheekrecht op het kapitaal verhoogd met '+num(v('acc'))+'% aanhorigheden, plus het ereloon volgens barema');
+    out+=row('Kosten kredietakte', eur.format(v('mortFix'))+' vast',
+      'plus '+pctLab(RATES.credit.registration)
+      +' registratierecht en 0,3% hypotheekrecht op het kapitaal verhoogd met '+num(v('acc'))
+      +'% aanhorigheden, plus het ereloon volgens barema');
     if(v('bridgeAmt')>0&&v('bridgeMonths')>0)
       out+=row('Overbruggingskrediet', eur.format(v('bridgeAmt'))+' aan '+num(v('bridgeRate'))
         +'% over '+v('bridgeMonths')+' maanden');
     if(v('inc1')>0){
       out+=row('Netto inkomen per maand', eur.format(v('inc1')));
       if(v('debts')>0) out+=row('Andere maandelijkse kredieten', eur.format(v('debts')));
-      out+=row('Grens die je aanhoudt', v('ratio')+'% van het inkomen, op alles wat er maandelijks aan de woning weggaat');
+      out+=row('Grens die je aanhoudt', v('ratio')+'% van het inkomen',
+        'op alles wat er maandelijks aan de woning weggaat');
     }
     return out;
   }
