@@ -78,6 +78,17 @@ header p{max-width:66ch; color:var(--ink-2); margin:14px 0 0; font-size:16px}
 .disclaimer p:last-child{margin-bottom:0}
 .disclaimer b{font-weight:700}
 .stamp{font-size:11.5px; color:var(--muted); margin-top:10px; font-family:var(--mono)}
+
+a{color:var(--accent); text-decoration:underline; text-underline-offset:2px;
+  text-decoration-thickness:1px; text-decoration-color:var(--line-2)}
+a:hover{text-decoration-color:var(--accent)}
+a:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:3px}
+
+.privacy{display:flex; gap:10px; align-items:baseline; margin:18px 0 0; max-width:none; padding:10px 14px;
+  background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r);
+  font-size:13px; line-height:1.5; color:var(--ink-2)}
+.privacy .ic{flex:none; color:var(--pos); font-family:var(--mono); font-weight:700; font-size:13px}
+.privacy b{color:var(--ink); font-weight:700}
 .summary{position:sticky; top:0; z-index:20; background:var(--surface); border-bottom:1px solid var(--line); box-shadow:var(--shadow)}
 .summary-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line)}
 .tile{background:var(--surface); padding:14px 18px; min-width:0}
@@ -189,6 +200,7 @@ input:focus-visible,select:focus-visible{outline:2px solid var(--accent); outlin
 footer{border-top:1px solid var(--line); padding:22px 0 60px; font-size:12.5px; color:var(--muted); line-height:1.6}
 footer p{margin:0 0 9px; max-width:84ch}
 footer b{color:var(--ink-2)}
+footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--line)}
 
 @media (max-width:900px){
   .cols{grid-template-columns:1fr; gap:0}
@@ -209,6 +221,8 @@ footer b{color:var(--ink-2)}
     <p class="eyebrow">Vlaanderen &middot; tarieven 2026</p>
     <h1>Wat kost dit huis?</h1>
     <p>Alles wat er bij een woningaankoop komt kijken: wat er bovenop de vraagprijs komt, wat je overhoudt als je eerst je eigen woning verkoopt, hoeveel je moet lenen en wat dat elke maand kost. Vul in wat je weet. Elke schuifbalk heeft ook een invoervak, zodat je een exact bedrag kan typen.</p>
+
+    <p class="privacy"><span class="ic">&#10003;</span><span><b>Privé.</b> Alles wat je invult blijft op je eigen toestel; er wordt niets verstuurd of bewaard. <a href="https://github.com/Virgil-Bulens/wat-kost-dit-huis" target="_blank" rel="noreferrer">Bekijk de broncode</a></span></p>
 
     <div class="disclaimer">
       <h2>Lees dit eerst</h2>
@@ -485,6 +499,7 @@ footer b{color:var(--ink-2)}
   <p><b>Privacy.</b> Alles wat je invult, blijft in je browser. Deze pagina bevat geen formulier dat verstuurt, geen fetch of XMLHttpRequest, geen cookies, geen localStorage, geen analytics en geen externe bestanden of webfonts. Er worden dus geen persoonsgegevens door deze pagina verwerkt en er is geen cookiebanner nodig. Zoals bij elke website registreert de hostingpartij wel technische gegevens van de opvraging, waaronder je IP-adres; dat gebeurt buiten deze pagina om en valt onder het privacybeleid van die partij.</p>
   <p><b>Aansprakelijkheid.</b> Deze rekenhulp wordt aangeboden zoals ze is, zonder enige garantie. De auteur aanvaardt geen aansprakelijkheid voor onjuiste of verouderde bedragen, noch voor schade die voortvloeit uit het gebruik ervan. Wie deze pagina verder verspreidt of op een eigen website plaatst, blijft zelf verantwoordelijk voor de juistheid van de informatie tegenover zijn cliënten en voor de beroepsregels die op hem van toepassing zijn.</p>
   <p><b>Bronnen.</b> Tarieven nagekeken op 21 augustus 2026 tegen vlaanderen.be, notaris.be, wikifin.be en economie.fgov.be. Bedragen zijn afgerond op hele euro's.</p>
+  <p class="colophon"><b>Broncode.</b> Deze rekenhulp is één statisch HTML-bestand. De volledige broncode staat op <a href="https://github.com/Virgil-Bulens/wat-kost-dit-huis" target="_blank" rel="noreferrer">GitHub</a>. &copy; 2026 Virgil Bulens, PolyForm Noncommercial License 1.0.0.</p>
 </footer>
 </div>
 
