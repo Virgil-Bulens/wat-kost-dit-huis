@@ -29,6 +29,52 @@ zonder "achtergronden afdrukken" aan te vinken.
 Ctrl+P of cmd+P geeft hetzelfde resultaat als de knop. Afdrukken of bewaren
 als pdf gebeurt volledig in je eigen browser; er wordt niets verstuurd.
 
+## Tests
+
+De rekenhulp zelf heeft geen afhankelijkheden. De tests wel, en dat is een
+ander ding: `playwright` staat als `devDependency` in `package.json` en komt
+nooit in `index.html` terecht. Wie de pagina alleen wil gebruiken of hosten,
+heeft dit alles niet nodig; `index.html` is en blijft op zichzelf genoeg.
+
+```
+npm ci
+npx playwright install chromium
+npm test
+```
+
+De toetsen openen `index.html` in een echte browser, vullen de invoer zoals een
+bezoeker dat doet en lezen de bedragen van het scherm. Dat is bewust: er valt
+niets te importeren uit een enkel HTML-bestand, en zo wordt ook de koppeling
+tussen invoer en berekening getoetst, plus de afdrukweergave en fouten in de
+console.
+
+Waar het kan wordt niet tegen een eerder afgelezen getal getoetst maar tegen een
+onafhankelijke bron, want een test die de pagina met zichzelf vergelijkt
+bevriest ook de fout:
+
+- het rekenvoorbeeld van notaris.be: een gezinswoning van EUR 250.000 kost
+  EUR 9.370 aan aankoopkosten;
+- een doorgerekend voorbeeld van het barema bij EUR 150.000, dat op EUR 1.878,66
+  uitkomt;
+- het voorbeeld van Wikifin voor de maandlast: EUR 100.000 op 20 jaar aan 2%
+  geeft EUR 505,03 per maand en EUR 21.206,35 aan intrest.
+
+Verder wordt getoetst dat de brug naar het kredietbedrag sluit, dat de heffingen
+van de kredietakte op het gewaarborgde bedrag staan, dat het percentage van je
+inkomen en de afgeleide maximumprijs op dezelfde basis staan, dat de
+waarschuwing over het verlaagde tarief verschijnt zodra er nog een woning te
+verkopen is, en dat de pagina geen enkel bestand van buiten laadt en niets
+bewaart.
+
+De suite is nagekeken door de code opzettelijk te breken: het toptarief van het
+barema verschuiven, de heffingen op het kapitaal in plaats van op het
+gewaarborgde bedrag zetten, de zelf betaalde posten weer meefinancieren, de
+maximumprijs weer op de aflossing alleen baseren, en de datum op een van de drie
+plekken laten staan. Elk van die ingrepen maakt de suite rood.
+
+GitHub Actions draait `npm test` bij elke pull request en bij elke push naar
+`main`, zie `.github/workflows/test.yml`.
+
 ## Privacy
 
 Eén statisch HTML-bestand. Geen build, geen afhankelijkheden, geen externe

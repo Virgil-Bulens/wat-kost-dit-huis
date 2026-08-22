@@ -1,0 +1,14 @@
+{
+  "name": "wat-kost-dit-huis",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Rekenhulp voor kandidaat-kopers in Vlaanderen. De rekenhulp zelf is index.html en heeft geen afhankelijkheden; dit bestand bestaat alleen voor de tests.",
+  "license": "SEE LICENSE IN LICENSE",
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.56.1"
+  }
+}
