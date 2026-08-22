@@ -17,7 +17,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Wat kost dit huis?</title>
-<meta name="description" content="Rekenhulp voor kopers in Vlaanderen: registratiebelasting, notariskosten, maandlast en wat haalbaar is met je inkomen.">
+<meta name="description" content="Rekenhulp voor kopers in Vlaanderen: registratiebelasting, btw bij nieuwbouw, notariskosten, maandlast en wat haalbaar is met je inkomen.">
 <meta name="color-scheme" content="light dark">
 <style>
 :root{
@@ -155,6 +155,12 @@ input:focus-visible,select:focus-visible{outline:2px solid var(--accent); outlin
 
 .check{display:flex; gap:9px; align-items:center; font-size:13.5px; color:var(--ink-2); cursor:pointer; margin-bottom:11px}
 .check input{accent-color:var(--accent); width:16px; height:16px; flex:none}
+.check span{min-width:0}
+.subchecks{margin-top:11px; padding:12px 13px 4px; border:1px dashed var(--line-2);
+  border-radius:8px; background:var(--surface-2)}
+.subchecks .check{align-items:flex-start; margin-bottom:9px}
+.subchecks .check:last-of-type{margin-bottom:0}
+.subchecks .sub-hint{margin-top:10px}
 
 .res{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:20px; margin-bottom:18px}
 .res > h2{font-size:12px; letter-spacing:.11em; text-transform:uppercase; color:var(--accent);
@@ -263,7 +269,7 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
       <select id="kind">
         <option value="own" selected>Enige eigen woning (2%)</option>
         <option value="other">Tweede woning of investering (12%)</option>
-        <option value="new">Nieuwbouw (21% btw op het gebouw)</option>
+        <option value="new">Nieuwbouw of afbraak-heropbouw (btw)</option>
       </select>
     </div>
     <div class="field" id="zoneBox">
@@ -273,6 +279,38 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
         <option value="240000">Kernstad of Vlaamse Rand (grens &euro; 240.000)</option>
       </select>
       <span class="sub-hint" id="zoneHint"></span>
+    </div>
+    <div class="field" id="newBox">
+      <span class="mini">Grondaandeel in de prijs
+        <span class="seg" id="landSeg"><button type="button" data-m="pct" aria-pressed="true">%</button><button type="button" data-m="eur" aria-pressed="false">&euro;</button></span>
+      </span>
+      <input type="number" id="landVal" placeholder="0" step="1" min="0" aria-label="Grondaandeel in de prijs">
+      <span class="sub-hint" id="landHint"></span>
+    </div>
+    <div class="field" id="landTaxBox">
+      <label class="mini" for="landTax">Belasting op de grond</label>
+      <select id="landTax">
+        <option value="reg" selected>12% registratiebelasting (andere verkoper)</option>
+        <option value="vat">Btw (dezelfde verkoper als het gebouw)</option>
+      </select>
+      <span class="sub-hint">Verkoopt de bouwheer of promotor de grond en het gebouw samen onder het btw-stelsel, dan valt ook de grond onder btw. Vraag dit na bij de notaris.</span>
+    </div>
+    <div class="field" id="vatBox">
+      <span class="mini" id="vatLab">Btw-tarief op de bouw</span>
+      <div class="radios" role="radiogroup" aria-labelledby="vatLab">
+        <label class="radio"><input type="radio" name="vatRate" value="21" checked>
+          <span><b>21% &middot; gewone nieuwbouw</b><small>Het standaardtarief op een nieuw gebouw.</small></span></label>
+        <label class="radio"><input type="radio" name="vatRate" value="6">
+          <span><b>6% &middot; afbraak en heropbouw</b><small>Alleen als een bestaand gebouw wordt afgebroken en op hetzelfde perceel heropgebouwd, en aan alle voorwaarden hieronder is voldaan.</small></span></label>
+      </div>
+      <div class="subchecks" id="vat6Box">
+        <span class="mini">Vink aan wat klopt. Staat er &eacute;&eacute;n niet aan, dan rekent deze pagina met 21%.</span>
+        <label class="check"><input type="checkbox" id="v6demo"> Een bestaand gebouw wordt afgebroken en op hetzelfde perceel heropgebouwd</label>
+        <label class="check"><input type="checkbox" id="v6only"> Dit wordt mijn enige eigen woning en ik neem er zelf domicilie</label>
+        <label class="check"><input type="checkbox" id="v6area"> De bewoonbare oppervlakte is niet groter dan 200 m&sup2;</label>
+        <label class="check"><input type="checkbox" id="v6five"> Ik blijf er minstens vijf jaar wonen</label>
+        <span class="sub-hint">Er bestaat ook een tweede weg naar 6%: langdurig verhuren aan een sociaal verhuurkantoor of een woonmaatschappij. Die zit hier niet in. Laat je notaris bevestigen welk stelsel op jou van toepassing is.</span>
+      </div>
     </div>
   </div>
 
@@ -477,6 +515,11 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
       <p>Vroeger kon je betaalde registratiebelasting van je vorige woning meenemen naar een nieuwe aankoop. Dat is afgeschaft voor alle aankopen vanaf 1 januari 2024. Reken er niet op.</p>
     </div>
 
+    <div class="cl mid">
+      <h3>Nieuwbouw is twee aankopen</h3>
+      <p>Je koopt grond en je laat bouwen, en de fiscus behandelt die twee apart: registratiebelasting op de grond, btw op de bouw. Vraag de verkoper de opsplitsing schriftelijk, want ze bepaalt hoeveel belasting je betaalt. Gaat het om afbraak en heropbouw, vraag dan ook of het tarief van 6% van toepassing is en onder welke voorwaarden.</p>
+    </div>
+
     <div class="cl">
       <h3>Laat twee keer schatten</h3>
       <p>De waarde van je huidige woning is één mening. Brengt ze tienduizend euro minder op, dan stijgt je lening met datzelfde bedrag. Een tweede schatting kost bijna niets en het is vaak het grootste onzekere getal in de hele rekening.</p>
@@ -494,7 +537,9 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
   <p><b>Dit is een rekenhulp, geen aanbod.</b> De tarieven zijn die van Vlaanderen in 2026. De registratiebelasting ligt vast, de notariskosten en de rentevoet zijn schattingen. Alleen een notaris kan de kosten exact berekenen. Alleen een bank bepaalt de rentevoet en beslist over een krediet.</p>
   <p><b>De korting van &euro; 1.867</b> op een enige eigen bescheiden woning geldt tot een prijs van &euro; 220.000, of &euro; 240.000 in de kernsteden en de Vlaamse Rand. Bij meerdere kopers wordt ze verdeeld naar ieders aandeel. Het oude tarief van 1% voor wie ingrijpend energetisch renoveerde is afgeschaft op 1 januari 2025.</p>
   <p><b>De kosten van de hypotheekakte</b> zijn hier een ruwe schatting. Een kredietakte bevat onder meer registratiebelasting op het gewaarborgde bedrag, inschrijvingskosten, het ereloon van de notaris en uitgaven aan derden. Het gewaarborgde bedrag kan hoger zijn dan het geleende kapitaal. Gebruik de rekenmodule van notaris.be voor een preciezere schatting.</p>
-  <p><b>Bij nieuwbouw</b> betaal je 21% btw op het gebouw. Vul dan de prijs exclusief btw in. Voor de grond kan btw of registratiebelasting gelden, afhankelijk van de voorwaarden. Die opsplitsing zit hier niet in.</p>
+  <p><b>Bij nieuwbouw</b> vul je de prijs exclusief btw in. Die prijs valt uiteen in twee delen die apart belast worden: op het gebouw komt btw, op de grond doorgaans 12% registratiebelasting. Verkoopt dezelfde verkoper de grond en het gebouw samen onder het btw-stelsel, dan valt ook de grond onder btw. Het verlaagde tarief van 2% voor een enige eigen woning geldt nooit op grond.</p>
+  <p><b>Het btw-tarief op het gebouw</b> is 21%, of 6% bij afbraak en heropbouw. Dat verlaagde tarief geldt niet vanzelf. Het vraagt onder meer dat een bestaand gebouw wordt afgebroken en op hetzelfde perceel heropgebouwd, dat de woning je enige eigen woning wordt waar je zelf domicilie neemt en minstens vijf jaar blijft, en dat de bewoonbare oppervlakte niet groter is dan 200 m&sup2;. Daarnaast bestaat er een aparte weg naar 6% voor wie langdurig verhuurt aan een sociaal verhuurkantoor of een woonmaatschappij; die zit hier niet in. Laat je notaris en je aannemer bevestigen welk tarief op jou van toepassing is, want blijkt achteraf dat een voorwaarde niet vervuld is, dan wordt het verschil bij de koper teruggevorderd. Voor renovatie van een woning ouder dan tien jaar bestaat er nog een derde tarief van 6%; het veld voor renovatie in vak 2 rekent daar niets mee, vul er dus het bedrag in dat de aannemer je aanrekent.</p>
+  <p><b>De notariskosten bij nieuwbouw</b> worden hier op het grondaandeel gerekend en niet op de volle prijs. Alleen de grond gaat via een notari&euml;le akte; het gebouw zit in een aannemingsovereenkomst, waar geen ereloon van de notaris op staat. Zolang je geen grondaandeel invult, rekent de pagina op de volle prijs en is de schatting dus te hoog.</p>
   <p><b>De maandlast</b> wordt berekend met de equivalente maandrente, de twaalfde wortel uit de jaarrente. Dat is de Belgische conventie. Ter controle, het voorbeeld van Wikifin: &euro; 100.000 op 20 jaar aan 2% geeft &euro; 505,03 per maand en &euro; 21.206,35 aan intrest. De aankoopkosten zijn geijkt op de infofiche van notaris.be, waar een gezinswoning van &euro; 250.000 in Vlaanderen &euro; 9.370 aan kosten geeft.</p>
   <p><b>Privacy.</b> Alles wat je invult, blijft in je browser. Deze pagina bevat geen formulier dat verstuurt, geen fetch of XMLHttpRequest, geen cookies, geen localStorage, geen analytics en geen externe bestanden of webfonts. Er worden dus geen persoonsgegevens door deze pagina verwerkt en er is geen cookiebanner nodig. Zoals bij elke website registreert de hostingpartij wel technische gegevens van de opvraging, waaronder je IP-adres; dat gebeurt buiten deze pagina om en valt onder het privacybeleid van die partij.</p>
   <p><b>Aansprakelijkheid.</b> Deze rekenhulp wordt aangeboden zoals ze is, zonder enige garantie. De auteur aanvaardt geen aansprakelijkheid voor onjuiste of verouderde bedragen, noch voor schade die voortvloeit uit het gebruik ervan. Wie deze pagina verder verspreidt of op een eigen website plaatst, blijft zelf verantwoordelijk voor de juistheid van de informatie tegenover zijn cliënten en voor de beroepsregels die op hem van toepassing zijn.</p>
@@ -557,38 +602,93 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     rg.value=String(Math.max(parseFloat(rg.min)||0, val));
   }
 
-  var mode={not:'pct', fee:'pct'};
-  function notaryFee(P){ return mode.not==='pct' ? P*(v('notVal')/100) : v('notVal'); }
+  var mode={not:'pct', fee:'pct', land:'pct'};
+
+  function isNew(){ return E('kind').value==='new'; }
+  // Bij nieuwbouw valt de prijs uiteen in grond en gebouw. Het grondaandeel wordt afgekapt
+  // op de prijs zelf, want maxPrice() zoekt ook prijzen op onder een vast ingevuld grondbedrag.
+  function landShare(P){
+    if(!isNew()) return 0;
+    var L = mode.land==='pct' ? P*(v('landVal')/100) : v('landVal');
+    return Math.max(0, Math.min(L, P));
+  }
+  // Alleen de grond gaat via een notariele akte; het gebouw zit in een aannemingsovereenkomst,
+  // waar geen ereloon van de notaris op staat. Zonder ingevuld grondaandeel rekenen we op de
+  // volle prijs, zodat er geen nul komt te staan waar een schatting hoort.
+  function notaryBase(P){
+    if(!isNew()) return P;
+    var L=landShare(P);
+    return L>0 ? L : P;
+  }
+  function notaryFee(P){ return mode.not==='pct' ? notaryBase(P)*(v('notVal')/100) : v('notVal'); }
+
+  // 6% geldt bij afbraak en heropbouw, en enkel als alle voorwaarden samen kloppen
+  var vat6Conds=[['v6demo','de afbraak en heropbouw op hetzelfde perceel'],
+                 ['v6only','de enige eigen woning met eigen domicilie'],
+                 ['v6area','de grens van 200 m&sup2;'],
+                 ['v6five','het verblijf van minstens vijf jaar']];
+  function vatPick(){ return document.querySelector('input[name=vatRate]:checked').value; }
+  function vat6Missing(){
+    return vat6Conds.filter(function(c){ return !chk(c[0]); }).map(function(c){ return c[1]; });
+  }
+  function vatRate(){ return (vatPick()==='6' && vat6Missing().length===0) ? 0.06 : 0.21; }
+  function pctLab(r){ return Math.round(r*100)+'%'; }
   function agentFee(){
     if(!chk('hasHome')||!chk('agent')) return 0;
     var sp=v('sale');
     return mode.fee==='pct' ? sp*(v('feeVal')/100)*1.21 : v('feeVal')*1.21;
   }
+  var segOf={not:['notVal','notSeg'], fee:['feeVal','feeSeg'], land:['landVal','landSeg']};
+  var stepOf={not:[0.05,100], fee:[0.1,100], land:[0.5,1000]};
+  var backTo={not:1.3, fee:3, land:''};
   function swap(which,m){
     if(mode[which]===m) return;
-    var inp=which==='not'?E('notVal'):E('feeVal');
-    var base=which==='not'?v('price'):v('sale');
-    var cur=parseFloat(inp.value)||0;
-    if(m==='eur'){ inp.value=Math.round(base*cur/100); inp.step=100; }
-    else { inp.value=base>0?(cur/base*100).toFixed(2):(which==='not'?1.3:3); inp.step=which==='not'?0.05:0.1; }
+    var inp=E(segOf[which][0]);
+    var base=which==='not'?notaryBase(v('price')):which==='fee'?v('sale'):v('price');
+    var cur=parseFloat(inp.value)||0, blank=inp.value.trim()==='';
+    inp.step = m==='eur' ? stepOf[which][1] : stepOf[which][0];
+    if(!blank) inp.value = m==='eur' ? Math.round(base*cur/100)
+                                    : (base>0?(cur/base*100).toFixed(2):backTo[which]);
     mode[which]=m;
-    var seg=which==='not'?E('notSeg'):E('feeSeg');
+    var seg=E(segOf[which][1]);
     Array.prototype.forEach.call(seg.querySelectorAll('button'),function(b){
       b.setAttribute('aria-pressed', String(b.dataset.m===m));
     });
     calc();
   }
 
-  // registratiebelasting Vlaanderen 2026
+  // registratiebelasting en btw, Vlaanderen 2026. parts is een lijst, want bij nieuwbouw
+  // staan er twee heffingen naast elkaar: btw op de bouw en registratiebelasting op de grond.
   function duty(P){
     var kind=E('kind').value;
-    if(kind==='new') return {amt:P*0.21, lab:'21% btw (nieuwbouw)', cut:0};
+    if(kind==='new'){
+      var land=landShare(P), build=P-land, vr=vatRate(), parts=[], amt=0;
+      if(build>0){
+        amt+=build*vr;
+        parts.push({lab:pctLab(vr)+' btw op de bouw', amt:build*vr,
+          sub: land>0 ? ('op '+eur.format(build)+' bouwwaarde')
+                      : 'geen grondaandeel ingevuld, de volle prijs is als bouw gerekend'});
+      }
+      if(land>0){
+        if(E('landTax').value==='vat'){
+          amt+=land*vr;
+          parts.push({lab:pctLab(vr)+' btw op de grond', amt:land*vr,
+            sub:'op '+eur.format(land)+' grondwaarde, dezelfde verkoper'});
+        } else {
+          amt+=land*0.12;
+          parts.push({lab:'12% registratiebelasting op de grond', amt:land*0.12,
+            sub:'op '+eur.format(land)+' grondwaarde'});
+        }
+      }
+      return {amt:amt, cut:0, parts:parts};
+    }
     if(kind==='own'){
       var tax=P*0.02, cut=0;
       if(P>0 && P<=v('zone')){ cut=Math.min(1867,tax); tax-=cut; }
-      return {amt:tax, lab:'2% registratiebelasting'+(cut>0?', min de korting':''), cut:cut};
+      return {amt:tax, cut:cut, parts:[{lab:'2% registratiebelasting'+(cut>0?', min de korting':''), amt:tax,
+        sub:cut>0?('korting bescheiden woning van '+eur.format(cut)+' toegepast'):''}]};
     }
-    return {amt:P*0.12, lab:'12% registratiebelasting', cut:0};
+    return {amt:P*0.12, cut:0, parts:[{lab:'12% registratiebelasting', amt:P*0.12, sub:''}]};
   }
 
   function port(){ return chk('hasOld') && document.querySelector('input[name=oldChoice]:checked').value==='port'; }
@@ -607,7 +707,7 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
   function available(){ return v('b1Have') + (chk('two')?v('b2Have'):0); }
 
   function model(P){
-    if(P<=0) return {P:0,d:{amt:0,lab:'',cut:0},notary:0,disb:0,reno:0,moving:0,bridge:0,mc:0,
+    if(P<=0) return {P:0,d:{amt:0,cut:0,parts:[]},notary:0,disb:0,reno:0,moving:0,bridge:0,mc:0,
                      funds:0,loan:0,surplus:0,purchaseCosts:0,allExtras:0,total:0};
     var d=duty(P), notary=notaryFee(P), disb=v('disb'), reno=v('reno'), moving=v('moving'), mf=v('mortFix');
     var bridge=v('bridgeAmt')*(v('bridgeRate')/100)/12*v('bridgeMonths');
@@ -657,6 +757,10 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     E('oldBox').style.display=chk('hasOld')?'block':'none';
     E('b2Box').style.display=chk('two')?'block':'none';
     E('zoneBox').style.display=E('kind').value==='own'?'block':'none';
+    E('newBox').style.display=isNew()?'block':'none';
+    E('landTaxBox').style.display=isNew()?'block':'none';
+    E('vatBox').style.display=isNew()?'block':'none';
+    E('vat6Box').style.display=(isNew()&&vatPick()==='6')?'block':'none';
     E('portBox').style.display=port()?'grid':'none';
     E('feeVal').disabled=!chk('agent');
     clampBuyer('b1'); if(chk('two')) clampBuyer('b2');
@@ -696,8 +800,10 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     if(P<=0){ E('r-buy').innerHTML=empty; E('r-loan').innerHTML=empty; E('r-month').innerHTML=empty; }
     else {
       var bh=row('Aankoopprijs', eur.format(P));
-      bh+=row(m.d.lab, eur.format(m.d.amt), m.d.cut>0?('korting bescheiden woning van '+eur.format(m.d.cut)+' toegepast'):'');
-      bh+=row('Notariskosten', eur.format(m.notary), mode.not==='pct'?(v('notVal').toString().replace('.',',')+'% van de prijs, schatting'):'vast bedrag');
+      m.d.parts.forEach(function(pt){ bh+=row(pt.lab, eur.format(pt.amt), pt.sub); });
+      var onLand=isNew()&&landShare(P)>0;
+      bh+=row('Notariskosten', eur.format(m.notary),
+        mode.not==='pct'?(v('notVal').toString().replace('.',',')+'% van '+(onLand?'het grondaandeel':'de prijs')+', schatting'):'vast bedrag');
       bh+=row('Akte- en opzoekingskosten', eur.format(m.disb));
       if(m.bridge>0) bh+=row('Rente overbruggingskrediet', eur.format(m.bridge),
         eur.format(v('bridgeAmt'))+' aan '+v('bridgeRate').toString().replace('.',',')+'% over '+v('bridgeMonths')+' maanden');
@@ -769,8 +875,18 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     rt.className='tile'+(inc<=0?'':(pct>40?' is-alert':pct>33?' is-warn':' is-pos'));
 
     // hints
-    E('notHint').textContent = mode.not==='pct' ? ('= '+eur.format(notaryFee(P)))
-      : (P>0 ? '= '+(v('notVal')/P*100).toFixed(2).replace('.',',')+'% van de prijs' : '');
+    var nBase=notaryBase(P), onLandHint=isNew()&&landShare(P)>0;
+    E('notHint').textContent = mode.not==='pct'
+      ? ('= '+eur.format(notaryFee(P))+(onLandHint?' op het grondaandeel':''))
+      : (nBase>0 ? '= '+(v('notVal')/nBase*100).toFixed(2).replace('.',',')+'% van '+(onLandHint?'het grondaandeel':'de prijs') : '');
+    if(isNew()){
+      var lSh=landShare(P);
+      E('landHint').textContent = mode.land==='pct'
+        ? (P>0&&lSh>0 ? '= '+eur.format(lSh)+' grond en '+eur.format(P-lSh)+' bouw'
+                      : 'Het deel van de prijs dat op de grond zit. Dat staat apart in de verkoopovereenkomst.')
+        : (P>0&&lSh>0 ? '= '+(lSh/P*100).toFixed(1).replace('.',',')+'% van de prijs'
+                      : 'Het bedrag dat op de grond zit. Dat staat apart in de verkoopovereenkomst.');
+    }
     if(chk('hasHome')){
       var sp=v('sale');
       E('feeHint').textContent = mode.fee==='pct' ? ('= '+eur.format(agentFee())+' incl. btw')
@@ -816,8 +932,25 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     }
     if(E('kind').value==='other')
       say('info','?','<b>Aan 12% betaal je '+eur.format(P*0.10)+' meer</b> dan aan het verlaagde tarief van 2%. Ga je er zelf wonen en wordt dit je enige woning, kijk dan na of je aan de voorwaarden voldoet.');
-    if(E('kind').value==='new')
-      say('info','?','<b>Bij nieuwbouw hoort de prijs hier exclusief btw te staan.</b> Voor de grond kan btw of registratiebelasting gelden. Vraag de verkoper hoe de prijs is opgesplitst.');
+    if(isNew()){
+      var Ln=landShare(P), Bn=P-Ln, vr=vatRate(), miss=vat6Missing(),
+          landVat=E('landTax').value==='vat', vatBase=Bn+(landVat?Ln:0);
+      if(Ln<=0)
+        say('warn','~','<b>Er staat geen grondaandeel ingevuld.</b> Daarom rekent deze pagina '+pctLab(vr)+
+            ' btw op de volle prijs. Zit er grond in die prijs, dan is dat te veel gerekend: op de grond geldt doorgaans 12% registratiebelasting. Vul het grondaandeel in bij vak 1, het staat apart in de verkoopovereenkomst.');
+      else if(landVat)
+        say('info','?','<b>De prijs is gesplitst in '+eur.format(Ln)+' grond en '+eur.format(Bn)+' bouw.</b> Beide vallen hier onder '+
+            pctLab(vr)+' btw, omdat dezelfde verkoper grond en gebouw samen verkoopt. Klopt dat niet, zet de grond dan op registratiebelasting.');
+      else
+        say('info','?','<b>De prijs is gesplitst in '+eur.format(Ln)+' grond en '+eur.format(Bn)+' bouw.</b> Op de grond rekent deze pagina 12% registratiebelasting, op de bouw '+
+            pctLab(vr)+' btw.'+(vr>0.12?(' Dat is '+eur.format(Ln*(vr-0.12))+' minder dan '+pctLab(vr)+' btw op het volledige bedrag.'):''));
+      if(vatPick()==='6'&&miss.length>0)
+        say('bad','!','<b>Je koos het tarief van 6%, maar niet alle voorwaarden staan aan.</b> Er ontbreekt nog: '+miss.join(', ')+
+            '. Zolang dat zo is rekent deze pagina met 21%.');
+      else if(vr===0.06)
+        say('ok','&#10003;','<b>Aan 6% betaal je '+eur.format(vatBase*0.15)+' minder btw</b> dan aan 21%. Laat je notaris en je aannemer schriftelijk bevestigen dat je aan alle voorwaarden voldoet: blijkt er achteraf iets niet te kloppen, dan wordt het verschil bij jou teruggevorderd.');
+      say('info','?','<b>Vul bij nieuwbouw de prijs exclusief btw in.</b> De notariskosten staan hier op het grondaandeel, want alleen de grond gaat via een notari&euml;le akte. Het gebouw zit in een aannemingsovereenkomst, waar geen ereloon van de notaris op staat.');
+    }
     if(E('kind').value==='own'&&m.d.cut===0&&P>v('zone')&&P<=v('zone')+40000)
       say('info','?','<b>Net boven de grens.</b> Tot '+eur.format(v('zone'))+' krijg je &euro; 1.867 korting op de registratiebelasting. Je zit daar '+eur.format(P-v('zone'))+' boven.');
     if(term>22&&m.loan>0){
@@ -837,7 +970,8 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
   }
 
   // de gekoppelde schuifbalken staan hier niet bij: die krijgen hun eigen luisteraar hieronder
-  ['kind','zone','notVal','disb','reno','moving','hasHome','agent','feeVal','certs',
+  ['kind','zone','landVal','landTax','v6demo','v6only','v6area','v6five',
+   'notVal','disb','reno','moving','hasHome','agent','feeVal','certs',
    'hasOld','oldBal','oldRate','oldYears','portCost','bonus','two',
    'b1Have','b1Min','b1Max','b2Have','b2Min','b2Max',
    'mortFix','bridgeAmt','bridgeRate','bridgeMonths',
@@ -855,8 +989,8 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     var r={termN:'term', rateN:'rate', ratioN:'ratio'}[id];
     if(E(id).value==='') E(id).value=E(r).value;
   });
-  document.querySelectorAll('input[name=oldChoice]').forEach(function(x){ x.addEventListener('change',calc); });
-  [['notSeg','not'],['feeSeg','fee']].forEach(function(pr){
+  document.querySelectorAll('input[name=oldChoice], input[name=vatRate]').forEach(function(x){ x.addEventListener('change',calc); });
+  [['notSeg','not'],['feeSeg','fee'],['landSeg','land']].forEach(function(pr){
     Array.prototype.forEach.call(E(pr[0]).querySelectorAll('button'),function(b){
       b.addEventListener('click',function(){ swap(pr[1], b.dataset.m); });
     });
