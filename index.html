@@ -181,6 +181,9 @@ input:focus-visible,select:focus-visible{outline:2px solid var(--accent); outlin
 .row .v{white-space:nowrap; flex:none; font-weight:600; font-size:14.5px; color:var(--ink);
   font-variant-numeric:tabular-nums}
 .row.neg .v{color:var(--alert)}
+.row.sub{border-bottom:0; padding:3px 0 3px 15px}
+.row.sub .k{color:var(--muted); font-size:12.5px}
+.row.sub .v{font-size:13px; color:var(--ink-2)}
 .row.tot{border-top:1.5px solid var(--line-2); border-bottom:0; margin-top:6px; padding-top:11px; font-weight:700; font-size:15px}
 .row.tot .v{font-size:17px; font-weight:700}
 .row.tot .k{color:var(--ink)}
@@ -291,6 +294,8 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     break-inside:avoid}
   #printdoc .row .v{font-size:9.6pt; white-space:normal}
   #printdoc .row .k small{font-size:7.6pt; line-height:1.3}
+  #printdoc .row.sub{border-bottom:0; padding:.6mm 0 .6mm 4mm; font-size:8.4pt}
+  #printdoc .row.sub .v{font-size:8.6pt}
   #printdoc .row.tot{border-top:.9pt solid #6A6A6A; margin-top:1.2mm; padding-top:2mm; font-size:10pt}
   #printdoc .row.tot .v{font-size:11pt}
   #printdoc .big{border:.7pt solid #4A4A4A; border-radius:0; padding:3mm 4mm; margin:3.5mm 0 1mm;
@@ -374,14 +379,7 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
         <option value="other">Tweede woning of investering (12%)</option>
         <option value="new">Nieuwbouw of afbraak-heropbouw (btw)</option>
       </select>
-    </div>
-    <div class="field" id="zoneBox">
-      <label class="mini" for="zone">Ligging, voor de korting op een bescheiden woning</label>
-      <select id="zone">
-        <option value="220000" selected>Elders in Vlaanderen (grens &euro; 220.000)</option>
-        <option value="240000">Kernstad of Vlaamse Rand (grens &euro; 240.000)</option>
-      </select>
-      <span class="sub-hint" id="zoneHint"></span>
+      <span class="sub-hint" id="kindHint"></span>
     </div>
     <div class="field" id="newBox">
       <span class="mini">Grondaandeel in de prijs
@@ -419,16 +417,16 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
 
   <div class="card">
     <h2>2 &middot; Kosten bovenop de prijs</h2>
-    <p class="hint">Geijkt op het rekenvoorbeeld van notaris.be: een gezinswoning van &euro; 250.000 in Vlaanderen kost &euro; 9.370 aan aankoopkosten. Het ereloon volgt een dalend wettelijk barema, dus een vast percentage blijft een benadering.</p>
+    <p class="hint">Het ereloon van de notaris volgt het wettelijke degressieve barema per schijf, niet een vast percentage. Geijkt op het rekenvoorbeeld van notaris.be: een gezinswoning van &euro; 250.000 in Vlaanderen kost &euro; 9.370 aan aankoopkosten. Heb je een raming van je eigen notaris, zet het vakje dan op &euro; en typ dat bedrag.</p>
     <div class="pair">
       <div>
-        <span class="mini">Notariskosten (schatting)
-          <span class="seg" id="notSeg"><button type="button" data-m="pct" aria-pressed="true">%</button><button type="button" data-m="eur" aria-pressed="false">&euro;</button></span>
+        <span class="mini">Ereloon notaris
+          <span class="seg" id="notSeg"><button type="button" data-m="pct" aria-pressed="true">barema</button><button type="button" data-m="eur" aria-pressed="false">&euro;</button></span>
         </span>
-        <input type="number" id="notVal" value="1.3" step="0.05" min="0" aria-label="Notariskosten">
+        <input type="number" id="notVal" value="1.3" step="0.05" min="0" aria-label="Ereloon notaris">
         <span class="sub-hint" id="notHint"></span>
       </div>
-      <div><label class="mini" for="disb">Akte- en opzoekingskosten</label><input type="number" id="disb" value="1120" step="50" min="0"></div>
+      <div><label class="mini" for="disb">Akte- en opzoekingskosten</label><input type="number" id="disb" value="1407" step="50" min="0"></div>
     </div>
     <div class="pair" style="margin-top:13px">
       <div><label class="mini" for="reno">Renovatie, mee te financieren</label><input type="number" id="reno" placeholder="0" step="1000" min="0"></div>
@@ -480,6 +478,11 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
         <div><label class="mini" for="portCost">Kosten pandwisselakte</label><input type="number" id="portCost" value="2000" step="250" min="0"></div>
         <div><label class="mini" for="bonus">Woonbonus per jaar</label><input type="number" id="bonus" placeholder="0" step="50" min="0"></div>
       </div>
+      <div id="payoffBox" style="margin-top:13px">
+        <label class="mini" for="release">Handlichting, het doorhalen van de hypotheek</label>
+        <input type="number" id="release" value="800" step="50" min="0">
+        <span class="sub-hint">Betaal je het krediet af bij de verkoop, dan moet de hypothecaire inschrijving op je oude woning doorgehaald worden. Dat gebeurt bij de notaris en kost doorgaans 700 tot 1.200 euro.</span>
+      </div>
     </div>
   </div>
 
@@ -523,9 +526,20 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
         <input type="number" class="pin num" id="rateN" min="0" max="12" step="0.01"></div>
       <input type="range" id="rate" min="0" max="12" step="0.05" value="3.75" aria-label="Rentevoet">
     </div>
-    <div><label class="mini" for="mortFix">Vaste kosten hypotheekakte</label>
-      <input type="number" id="mortFix" value="1900" step="100" min="0">
-      <span class="sub-hint">Bovenop 1% registratiebelasting op het geleende bedrag. Een ruwe schatting, zie de toelichting onderaan.</span></div>
+    <div class="pair">
+      <div><label class="mini" for="mortFix">Vaste kosten kredietakte</label>
+        <input type="number" id="mortFix" value="1200" step="50" min="0">
+        <span class="sub-hint">Aktekosten, de hypothecaire inschrijving, hypotheekstaten en het recht op geschriften. Het registratierecht, het hypotheekrecht en het ereloon komen daar bovenop en worden apart gerekend.</span></div>
+      <div><label class="mini" for="acc">Aanhorigheden (%)</label>
+        <input type="number" id="acc" value="10" step="1" min="0" max="25">
+        <span class="sub-hint">De bank schrijft de hypotheek in voor het kapitaal plus een opslag voor invorderingskosten, doorgaans 5 tot 10%. Het registratierecht van 1% en het hypotheekrecht van 0,3% worden op dat hogere bedrag geheven, niet op het kapitaal.</span></div>
+    </div>
+    <div class="pair" style="margin-top:13px">
+      <div><label class="mini" for="bankFee">Dossierkosten van de bank</label><input type="number" id="bankFee" value="350" step="25" min="0">
+        <span class="sub-hint">Wettelijk geplafonneerd. Zelf te betalen.</span></div>
+      <div><label class="mini" for="valFee">Schatting van de woning</label><input type="number" id="valFee" value="350" step="25" min="0">
+        <span class="sub-hint">Gemiddeld 250 tot 500 euro. Zelf te betalen.</span></div>
+    </div>
 
     <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--line)">
       <p class="mini" style="font-size:12.5px; color:var(--ink-2)">Overbruggingskrediet</p>
@@ -580,7 +594,7 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
 
     <div class="cl mid">
       <h3>Het 2%-tarief is voorwaardelijk</h3>
-      <p>Het verlaagde tarief geldt alleen als dit je enige eigen woning wordt en je je er binnen drie jaar na de akte domicilieert. Voor verkoopovereenkomsten vanaf 1 januari 2026 moet je daar bovendien minstens één jaar ononderbroken ingeschreven blijven, en dat geldt voor elke koper afzonderlijk. Koop je voordat je verkoopt, vraag de notaris dan binnen welke termijn je oude woning weg moet zijn.</p>
+      <p>Het verlaagde tarief geldt alleen als je als natuurlijke persoon de volle eigendom verwerft, dit je enige eigen woning wordt en je je er binnen drie jaar na de akte domicilieert. Voor verkoopovereenkomsten vanaf 1 januari 2026 moet je daar bovendien minstens één jaar ononderbroken ingeschreven blijven, en dat geldt voor elke koper afzonderlijk. Koop je voordat je verkoopt, dan bezit je op de datum van de akte nog een woning en is die voorwaarde niet vervuld. Je kan het tarief dan aanvragen via de vrijstelling onder voorwaarde van verkoop, met twee jaar om je oude woning te verkopen. Laat de notaris bevestigen dat die weg voor jou open staat, want lukt de verkoop niet, dan betaal je het verschil met 12% bij.</p>
     </div>
 
     <div class="cl mid">
@@ -637,16 +651,21 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
 </section>
 
 <footer>
-  <p><b>Dit is een rekenhulp, geen aanbod.</b> De tarieven zijn die van Vlaanderen in 2026. De registratiebelasting ligt vast, de notariskosten en de rentevoet zijn schattingen. Alleen een notaris kan de kosten exact berekenen. Alleen een bank bepaalt de rentevoet en beslist over een krediet.</p>
-  <p><b>De korting van &euro; 1.867</b> op een enige eigen bescheiden woning geldt tot een prijs van &euro; 220.000, of &euro; 240.000 in de kernsteden en de Vlaamse Rand. Bij meerdere kopers wordt ze verdeeld naar ieders aandeel. Het oude tarief van 1% voor wie ingrijpend energetisch renoveerde is afgeschaft op 1 januari 2025.</p>
-  <p><b>De kosten van de hypotheekakte</b> zijn hier een ruwe schatting. Een kredietakte bevat onder meer registratiebelasting op het gewaarborgde bedrag, inschrijvingskosten, het ereloon van de notaris en uitgaven aan derden. Het gewaarborgde bedrag kan hoger zijn dan het geleende kapitaal. Gebruik de rekenmodule van notaris.be voor een preciezere schatting.</p>
+  <p><b>Dit is een rekenhulp, geen aanbod.</b> De tarieven zijn die van Vlaanderen in 2026 en staan in de broncode op één plek bij elkaar, met de datum waarop ze zijn nagekeken. Het ereloon van de notaris volgt het wettelijke barema, de rentevoet is een aanname en de vaste aktekosten zijn een schatting. Alleen een notaris kan de kosten exact berekenen. Alleen een bank bepaalt de rentevoet en beslist over een krediet.</p>
+  <p><b>Het verlaagde tarief van 2% is voorwaardelijk.</b> Deze pagina rekent ermee zodra je die situatie kiest, maar het tarief valt weg als je er niet aan komt, en dan geldt 12%. Je moet als natuurlijke persoon de volle eigendom verwerven, op de datum van de akte geen andere woning of bouwgrond bezitten, je binnen drie jaar op het adres domicilieren en er voor verkoopovereenkomsten vanaf 1 januari 2026 minstens één jaar ononderbroken ingeschreven blijven. Bij meerdere kopers geldt dat voor elke koper afzonderlijk, en een gesplitste aankoop van vruchtgebruik en blote eigendom komt niet in aanmerking. Bezit je nog een woning, dan kan je het tarief aanvragen via de vrijstelling onder voorwaarde van verkoop en heb je twee jaar om die woning te verkopen. Het verschil tussen 2% en 12% is bij een duurdere woning groter dan alle andere kostenposten samen, dus de pagina zet het als apart scenario onder de kosten.</p>
+  <p><b>De korting van &euro; 1.867</b> op een enige eigen bescheiden woning geldt in 2026 tot &eacute;&eacute;n maximumprijs van &euro; 220.000, zonder onderscheid naar ligging. Bij meerdere kopers wordt ze verdeeld naar ieders aandeel. Het oude tarief van 1% voor wie ingrijpend energetisch renoveerde is afgeschaft op 1 januari 2025, en de meeneembaarheid van registratiebelasting is afgeschaft op 1 januari 2024 zonder overgangsregeling; geen van beide zit nog in deze berekening.</p>
+  <p><b>Het ereloon van de notaris</b> volgt het wettelijke degressieve barema en niet een vast percentage. Het rekent per schijf, van 4,56% op de eerste &euro; 7.500 tot 0,57% boven &euro; 64.095, met 21% btw erop. Voor de hele prijs samen komt dat neer op ongeveer 1,4% bij &euro; 125.000 en 1% bij &euro; 250.000: hoe duurder de woning, hoe lager het percentage. Een vast percentage overschat het ereloon dus bij een duurdere woning en onderschat het bij een goedkopere. Heb je een raming van je eigen notaris liggen, zet het vakje dan op euro en typ dat bedrag.</p>
+  <p><b>De kosten van de kredietakte</b> zitten hier uitgesplitst: 1% registratierecht en 0,3% hypotheekrecht op het gewaarborgde bedrag, het ereloon van de notaris volgens barema op het kredietbedrag, en een vast bedrag voor de akte, de hypothecaire inschrijving, de hypotheekstaten en het recht op geschriften. Het gewaarborgde bedrag is hoger dan het geleende kapitaal: de bank schrijft de hypotheek in voor het kapitaal plus aanhorigheden, doorgaans 5 tot 10%, en de twee heffingen worden op dat hogere bedrag geheven. Die kosten hangen af van het kredietbedrag en zitten er zelf in, dus de pagina lost dat rond. Het ereloon van de kredietakte is een benadering binnen enkele procenten; gebruik de rekenmodule van notaris.be voor een preciezere schatting.</p>
+  <p><b>Dossierkosten en schattingskosten</b> zijn kosten van de bank en geen aktekosten. Ze staan apart, want je betaalt ze met eigen geld en ze gaan niet in de lening. De dossierkosten zijn wettelijk geplafonneerd; de schatting kost gemiddeld 250 tot 500 euro.</p>
+  <p><b>De handlichting</b> is het doorhalen van de hypothecaire inschrijving op je oude woning. Betaal je het krediet af bij de verkoop, dan is dat een aparte akte bij de notaris, doorgaans 700 tot 1.200 euro. Ze staat in mindering op wat de verkoop opbrengt.</p>
   <p><b>Bij nieuwbouw</b> vul je de prijs exclusief btw in. Die prijs valt uiteen in twee delen die apart belast worden: op het gebouw komt btw, op de grond doorgaans 12% registratiebelasting. Verkoopt dezelfde verkoper de grond en het gebouw samen onder het btw-stelsel, dan valt ook de grond onder btw. Het verlaagde tarief van 2% voor een enige eigen woning geldt nooit op grond.</p>
   <p><b>Het btw-tarief op het gebouw</b> is 21%, of 6% bij afbraak en heropbouw. Dat verlaagde tarief geldt niet vanzelf. Het vraagt onder meer dat een bestaand gebouw wordt afgebroken en op hetzelfde perceel heropgebouwd, dat de woning je enige eigen woning wordt waar je zelf domicilie neemt en minstens vijf jaar blijft, en dat de bewoonbare oppervlakte niet groter is dan 200 m&sup2;. Daarnaast bestaat er een aparte weg naar 6% voor wie langdurig verhuurt aan een sociaal verhuurkantoor of een woonmaatschappij; die zit hier niet in. Laat je notaris en je aannemer bevestigen welk tarief op jou van toepassing is, want blijkt achteraf dat een voorwaarde niet vervuld is, dan wordt het verschil bij de koper teruggevorderd. Voor renovatie van een woning ouder dan tien jaar bestaat er nog een derde tarief van 6%; het veld voor renovatie in vak 2 rekent daar niets mee, vul er dus het bedrag in dat de aannemer je aanrekent.</p>
-  <p><b>De notariskosten bij nieuwbouw</b> worden hier op het grondaandeel gerekend en niet op de volle prijs. Alleen de grond gaat via een notari&euml;le akte; het gebouw zit in een aannemingsovereenkomst, waar geen ereloon van de notaris op staat. Zolang je geen grondaandeel invult, rekent de pagina op de volle prijs en is de schatting dus te hoog.</p>
+  <p><b>Het ereloon bij nieuwbouw</b> wordt hier op het grondaandeel gerekend en niet op de volle prijs. Alleen de grond gaat via een notari&euml;le akte; het gebouw zit in een aannemingsovereenkomst, waar geen ereloon van de notaris op staat. Zolang je geen grondaandeel invult, rekent de pagina op de volle prijs en is de schatting dus te hoog.</p>
   <p><b>De maandlast</b> wordt berekend met de equivalente maandrente, de twaalfde wortel uit de jaarrente. Dat is de Belgische conventie. Ter controle, het voorbeeld van Wikifin: &euro; 100.000 op 20 jaar aan 2% geeft &euro; 505,03 per maand en &euro; 21.206,35 aan intrest. De aankoopkosten zijn geijkt op de infofiche van notaris.be, waar een gezinswoning van &euro; 250.000 in Vlaanderen &euro; 9.370 aan kosten geeft.</p>
+  <p><b>Het deel van je inkomen</b> staat er twee keer, want de twee getallen zeggen iets anders. Het eerste is de aflossing alleen, kapitaal en intrest. Het tweede is alles wat er maandelijks aan de woning weggaat, dus met de brandverzekering, de schuldsaldoverzekering en de onroerende voorheffing erbij. Het kerncijfer bovenaan en de afgeleide maximale aankoopprijs staan op dat tweede getal, want dat is waar een bank naar kijkt, samen met wat er overblijft om van te leven.</p>
   <p><b>Privacy.</b> Alles wat je invult, blijft in je browser. Deze pagina bevat geen formulier dat verstuurt, geen fetch of XMLHttpRequest, geen cookies, geen localStorage, geen analytics en geen externe bestanden of webfonts. Er worden dus geen persoonsgegevens door deze pagina verwerkt en er is geen cookiebanner nodig. Zoals bij elke website registreert de hostingpartij wel technische gegevens van de opvraging, waaronder je IP-adres; dat gebeurt buiten deze pagina om en valt onder het privacybeleid van die partij.</p>
   <p><b>Aansprakelijkheid.</b> Deze rekenhulp wordt aangeboden zoals ze is, zonder enige garantie. De auteur aanvaardt geen aansprakelijkheid voor onjuiste of verouderde bedragen, noch voor schade die voortvloeit uit het gebruik ervan. Wie deze pagina verder verspreidt of op een eigen website plaatst, blijft zelf verantwoordelijk voor de juistheid van de informatie tegenover zijn cliënten en voor de beroepsregels die op hem van toepassing zijn.</p>
-  <p><b>Bronnen.</b> Tarieven nagekeken op 21 augustus 2026 tegen vlaanderen.be, notaris.be, wikifin.be en economie.fgov.be. Bedragen zijn afgerond op hele euro's.</p>
+  <p><b>Bronnen.</b> Tarieven nagekeken op 22 augustus 2026 tegen vlaanderen.be, notaris.be, wikifin.be en economie.fgov.be. Het barema van de koopakte is getoetst op een doorgerekend voorbeeld van &euro; 150.000, dat uitkomt op &euro; 1.878,66 aan ereloon. Bedragen zijn afgerond op hele euro's.</p>
   <p class="colophon"><b>Broncode.</b> Deze rekenhulp is één statisch HTML-bestand. De volledige broncode staat op <a href="https://github.com/Virgil-Bulens/wat-kost-dit-huis" target="_blank" rel="noreferrer">GitHub</a>. &copy; 2026 Virgil Bulens, PolyForm Noncommercial License 1.0.0.</p>
 </footer>
 </div>
@@ -739,6 +758,47 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
 
   var mode={not:'pct', fee:'pct', land:'pct'};
 
+  // Tarieven, drempels en ingangsdatums op een plek, zodat een jaarwissel een
+  // wijziging op een regel is en niet een zoektocht door het bestand. Bewust een
+  // objectliteral in dit bestand en geen apart tarievenbestand: de pagina is een
+  // enkel statisch HTML-bestand zonder externe verzoeken, en dat is precies wat
+  // de privacybelofte draagt. Een tweede bestand zou een extra verzoek zijn.
+  var RATES={
+    asOf:'22 augustus 2026',
+    duty:{own:0.02, other:0.12, land:0.12},        // Vlaanderen 2026
+    vatOnFees:0.21,
+    // Enige eigen bescheiden woning. Vanaf 2026 één maximumprijs, zonder onderscheid
+    // naar ligging: het oude verschil tussen de kernsteden en de Vlaamse Rand en de
+    // rest van Vlaanderen is er niet meer.
+    modest:{cut:1867, max:220000},
+    // Ereloon koopakte, degressief per schijf (KB 16/12/1950). Boven de laatste grens
+    // geldt het marginale tarief. Controle op een gepubliceerd voorbeeld van een
+    // koopakte van 150.000: 342 + 285 + 285 + 264,96 + 212,04 + 489,66 = 1.878,66.
+    // Tegencontrole op notaris.be, dat het ereloon aangeeft als ongeveer 1,3% bij
+    // 125.000, 1% bij 200.000 en 0,9% bij 250.000: dit barema geeft 1,39%, 1,08% en
+    // 0,98%. Het is dus degressief van ruim 1,3% naar het marginale 0,57%.
+    notaryScale:[[7500,0.0456],[17500,0.0285],[30000,0.0228],[45495,0.0171],[64095,0.0114],[Infinity,0.0057]],
+    // Ereloon kredietakte, lager dan dat van de koopakte. Het eerste tarief van 1,88%
+    // is gepubliceerd; de schijven daaronder volgen dezelfde degressie. Bij een krediet
+    // van 200.000 geeft dit 892 tegen een elders gepubliceerde 914 excl. btw, dus deze
+    // post is een benadering binnen enkele procenten en geen exact barema.
+    creditScale:[[7500,0.0188],[17500,0.01175],[30000,0.0094],[45495,0.00705],[64095,0.0047],[Infinity,0.00235]],
+    // Kredietakte: het registratierecht en het hypotheekrecht worden geheven op het
+    // gewaarborgde bedrag, dus op het kapitaal plus de aanhorigheden.
+    credit:{registration:0.01, mortgage:0.003},
+    prepayment:0.25,        // wederbeleggingsvergoeding: wettelijk maximaal drie maanden interest
+    saleDeadlineYears:2     // vrijstelling onder voorwaarde van verkoop
+  };
+  // Degressief barema: elke schijf aan haar eigen tarief, zoals de belastingschijven.
+  function scaleFee(scale, base){
+    var t=0, lo=0;
+    for(var i=0;i<scale.length && base>lo;i++){
+      t+=(Math.min(base,scale[i][0])-lo)*scale[i][1];
+      lo=scale[i][0];
+    }
+    return t;
+  }
+
   function isNew(){ return E('kind').value==='new'; }
   // Bij nieuwbouw valt de prijs uiteen in grond en gebouw. Het grondaandeel wordt afgekapt
   // op de prijs zelf, want maxPrice() zoekt ook prijzen op onder een vast ingevuld grondbedrag.
@@ -755,7 +815,24 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     var L=landShare(P);
     return L>0 ? L : P;
   }
-  function notaryFee(P){ return mode.not==='pct' ? notaryBase(P)*(v('notVal')/100) : v('notVal'); }
+  // Het ereloon volgt het wettelijke degressieve barema. Een vast bedrag blijft
+  // mogelijk als override, voor wie een raming van zijn eigen notaris heeft liggen.
+  function notaryFee(P){
+    if(mode.not==='eur') return v('notVal');
+    return scaleFee(RATES.notaryScale, notaryBase(P))*(1+RATES.vatOnFees);
+  }
+  // Kosten van de kredietakte. De bank schrijft de hypotheek in voor het kapitaal plus
+  // aanhorigheden; het registratierecht en het hypotheekrecht worden op dat hogere
+  // bedrag geheven. Het ereloon staat op het kredietbedrag zelf.
+  function creditDeed(loan){
+    if(loan<=0) return {total:0, reg:0, mort:0, fee:0, fix:0, secured:0};
+    var secured=loan*(1+v('acc')/100);
+    var reg=secured*RATES.credit.registration;
+    var mort=secured*RATES.credit.mortgage;
+    var fee=scaleFee(RATES.creditScale, loan)*(1+RATES.vatOnFees);
+    var fix=v('mortFix');
+    return {total:reg+mort+fee+fix, reg:reg, mort:mort, fee:fee, fix:fix, secured:secured};
+  }
 
   // 6% geldt bij afbraak en heropbouw, en enkel als alle voorwaarden samen kloppen
   var vat6Conds=[['v6demo','de afbraak en heropbouw op hetzelfde perceel'],
@@ -773,11 +850,26 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     var sp=v('sale');
     return mode.fee==='pct' ? sp*(v('feeVal')/100)*1.21 : v('feeVal')*1.21;
   }
-  var segOf={not:['notVal','notSeg'], fee:['feeVal','feeSeg'], land:['landVal','landSeg']};
-  var stepOf={not:[0.05,100], fee:[0.1,100], land:[0.5,1000]};
-  var backTo={not:1.3, fee:3, land:''};
+  // Het ereloon staat hier niet bij: dat schakelt tussen barema en een vast bedrag
+  // en heeft geen omrekening tussen procent en euro nodig, zie swap() hieronder.
+  var segOf={fee:['feeVal','feeSeg'], land:['landVal','landSeg']};
+  var stepOf={fee:[0.1,100], land:[0.5,1000]};
+  var backTo={fee:3, land:''};
   function swap(which,m){
     if(mode[which]===m) return;
+    if(which==='not'){
+      // Het barema rekent zelf, dus in die stand is het invoervak niet in gebruik.
+      // Bij het omschakelen naar een vast bedrag vullen we de baremawaarde voor,
+      // zodat er iets bruikbaars staat om vanaf te vertrekken.
+      var nv=E('notVal');
+      if(m==='eur'){ nv.value=String(Math.round(notaryFee(v('price')))); nv.step=100; }
+      mode.not=m;
+      nv.disabled = m!=='eur';
+      Array.prototype.forEach.call(E('notSeg').querySelectorAll('button'),function(b){
+        b.setAttribute('aria-pressed', String(b.dataset.m===m));
+      });
+      calc(); return;
+    }
     var inp=E(segOf[which][0]);
     var base=which==='not'?notaryBase(v('price')):which==='fee'?v('sale'):v('price');
     var cur=parseFloat(inp.value)||0, blank=inp.value.trim()==='';
@@ -810,30 +902,40 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
           parts.push({lab:pctLab(vr)+' btw op de grond', amt:land*vr,
             sub:'op '+eur.format(land)+' grondwaarde, dezelfde verkoper'});
         } else {
-          amt+=land*0.12;
-          parts.push({lab:'12% registratiebelasting op de grond', amt:land*0.12,
+          amt+=land*RATES.duty.land;
+          parts.push({lab:pctLab(RATES.duty.land)+' registratiebelasting op de grond', amt:land*RATES.duty.land,
             sub:'op '+eur.format(land)+' grondwaarde'});
         }
       }
-      return {amt:amt, cut:0, parts:parts};
+      return {amt:amt, cut:0, alt:amt, atRisk:false, parts:parts};
     }
     if(kind==='own'){
-      var tax=P*0.02, cut=0;
-      if(P>0 && P<=v('zone')){ cut=Math.min(1867,tax); tax-=cut; }
-      return {amt:tax, cut:cut, parts:[{lab:'2% registratiebelasting'+(cut>0?', min de korting':''), amt:tax,
+      var tax=P*RATES.duty.own, cut=0;
+      if(P>0 && P<=RATES.modest.max){ cut=Math.min(RATES.modest.cut,tax); tax-=cut; }
+      // Valt het verlaagde tarief weg, dan geldt het standaardtarief en verdwijnt ook
+      // de korting op de bescheiden woning: die hangt aan het tarief voor de enige
+      // eigen woning. atRisk staat aan zodra er nog een woning te verkopen is, want
+      // dan is de voorwaarde op de datum van de akte niet vervuld.
+      return {amt:tax, cut:cut, alt:P*RATES.duty.other, atRisk:chk('hasHome'),
+        parts:[{lab:pctLab(RATES.duty.own)+' registratiebelasting'+(cut>0?', min de korting':''), amt:tax,
         sub:cut>0?('korting bescheiden woning van '+eur.format(cut)+' toegepast'):''}]};
     }
-    return {amt:P*0.12, cut:0, parts:[{lab:'12% registratiebelasting', amt:P*0.12, sub:''}]};
+    var full=P*RATES.duty.other;
+    return {amt:full, cut:0, alt:full, atRisk:false,
+      parts:[{lab:pctLab(RATES.duty.other)+' registratiebelasting', amt:full, sub:''}]};
   }
 
   function port(){ return chk('hasOld') && document.querySelector('input[name=oldChoice]:checked').value==='port'; }
 
   // kan negatief zijn bij onderwaarde; niet afkappen
   function repaidOld(){ return (chk('hasHome') && chk('hasOld') && !port()) ? v('oldBal') : 0; }
-  function penaltyOld(){ return (chk('hasHome') && chk('hasOld') && !port()) ? v('oldBal')*(v('oldRate')/100)*0.25 : 0; }
+  function penaltyOld(){ return (chk('hasHome') && chk('hasOld') && !port()) ? v('oldBal')*(v('oldRate')/100)*RATES.prepayment : 0; }
+  // Betaal je het oude krediet af bij de verkoop, dan moet de hypothecaire inschrijving
+  // op die woning doorgehaald worden. Dat is een aparte akte met eigen kosten.
+  function releaseCost(){ return (chk('hasHome') && chk('hasOld') && !port()) ? v('release') : 0; }
   function netSale(){
     if(!chk('hasHome')) return 0;
-    var out=v('sale')-agentFee()-v('certs')-repaidOld()-penaltyOld();
+    var out=v('sale')-agentFee()-v('certs')-repaidOld()-penaltyOld()-releaseCost();
     if(chk('hasOld') && port()) out-=v('portCost');
     return out;
   }
@@ -841,22 +943,43 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
   function contributions(){ return v('b1In') + (chk('two')?v('b2In'):0); }
   function available(){ return v('b1Have') + (chk('two')?v('b2Have'):0); }
 
+  // Posten die je met eigen geld betaalt en die dus niet meegefinancierd worden.
+  function ownPaidCosts(){ return v('moving')+v('bankFee')+v('valFee'); }
+
   function model(P){
-    if(P<=0) return {P:0,d:{amt:0,cut:0,parts:[]},notary:0,disb:0,reno:0,moving:0,bridge:0,mc:0,
-                     funds:0,loan:0,surplus:0,purchaseCosts:0,allExtras:0,total:0};
-    var d=duty(P), notary=notaryFee(P), disb=v('disb'), reno=v('reno'), moving=v('moving'), mf=v('mortFix');
+    if(P<=0) return {P:0,d:{amt:0,cut:0,alt:0,atRisk:false,parts:[]},notary:0,disb:0,reno:0,
+                     moving:0,ownPaid:0,bridge:0,mc:0,cd:creditDeed(0),
+                     funds:0,loan:0,surplus:0,purchaseCosts:0,financedCosts:0,allExtras:0,total:0};
+    var d=duty(P), notary=notaryFee(P), disb=v('disb'), reno=v('reno'), moving=v('moving');
+    var ownPaid=ownPaidCosts();
     var bridge=v('bridgeAmt')*(v('bridgeRate')/100)/12*v('bridgeMonths');
     var financed=P+d.amt+notary+disb+reno+bridge;
-    var funds=contributions()+netSale()-moving;
-    var gap=financed-funds, loan=0, mc=0, surplus=0;
-    if(gap>0){ loan=(gap+mf)/(1-0.01); mc=loan*0.01+mf; } else { surplus=-gap; }
+    var funds=contributions()+netSale()-ownPaid;
+    var gap=financed-funds, loan=0, surplus=0, cd=creditDeed(0);
+    if(gap>0){
+      // De kosten van de kredietakte hangen af van het kredietbedrag en zitten er zelf
+      // in. Dat was met een vast percentage nog in één stap op te lossen, maar het
+      // ereloon volgt een barema en is dus niet lineair. Het marginale tarief is klein,
+      // ruim onder twee procent, dus deze iteratie convergeert per stap met minstens
+      // die factor: na twintig stappen ligt het ver voorbij de cent.
+      loan=gap;
+      for(var it=0; it<24; it++) loan=gap+creditDeed(loan).total;
+      cd=creditDeed(loan);
+    } else { surplus=-gap; }
+    var mc=cd.total;
     var purchaseCosts=d.amt+notary+disb+mc+bridge;
-    var allExtras=purchaseCosts+reno+moving;
-    return {P:P,d:d,notary:notary,disb:disb,reno:reno,moving:moving,bridge:bridge,mc:mc,
-            funds:funds,loan:loan,surplus:surplus,purchaseCosts:purchaseCosts,
+    var financedCosts=purchaseCosts+reno;
+    var allExtras=financedCosts+ownPaid;
+    return {P:P,d:d,notary:notary,disb:disb,reno:reno,moving:moving,ownPaid:ownPaid,
+            bridge:bridge,mc:mc,cd:cd,funds:funds,loan:loan,surplus:surplus,
+            purchaseCosts:purchaseCosts,financedCosts:financedCosts,
             allExtras:allExtras,total:P+allExtras};
   }
 
+  // cap is de ruimte die er per maand is voor de nieuwe lening alleen: het deel van het
+  // inkomen dat je aanhoudt, min de andere kredieten, min een lopend krediet dat je
+  // meeneemt, min de vaste woonkosten. Zo staat deze afleiding op dezelfde basis als
+  // het percentage dat de pagina toont.
   function maxPrice(cap,r,y){
     if(cap<=0) return 0;
     var lo=10000, hi=3000000;
@@ -891,7 +1014,7 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     E('homeBox').style.display=chk('hasHome')?'block':'none';
     E('oldBox').style.display=chk('hasOld')?'block':'none';
     E('b2Box').style.display=chk('two')?'block':'none';
-    E('zoneBox').style.display=E('kind').value==='own'?'block':'none';
+    E('payoffBox').style.display=(chk('hasOld')&&!port())?'block':'none';
     E('newBox').style.display=isNew()?'block':'none';
     E('landTaxBox').style.display=isNew()?'block':'none';
     E('vatBox').style.display=isNew()?'block':'none';
@@ -907,7 +1030,12 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     var bonusM=(port()&&v('oldYears')>0)?v('bonus')/12:0;
     var fixed=v('fire')+v('ssv')+v('ovr')/12;
     var repayGross=pay+payOld, totalOut=repayGross+fixed;
-    var cap=Math.max(0,inc*ratio-v('debts'));
+    // Twee percentages, want ze zeggen iets anders. Het eerste is de aflossing alleen,
+    // het tweede is alles wat er maandelijks aan de woning weggaat. Banken kijken naar
+    // de totale last en naar wat er overblijft, dus de afgeleide maximumprijs staat op
+    // die tweede basis: alleen zo trekken het getoonde percentage en die prijs samen op.
+    var pctRepay=inc>0?repayGross/inc*100:0, pctTotal=inc>0?totalOut/inc*100:0;
+    var cap=Math.max(0,inc*ratio-v('debts')-payOld-fixed);
     var mx=maxPrice(cap,r,term);
     var known=available();
     var buffer=known>0?(known-contributions()):0;
@@ -925,6 +1053,7 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
       if(repaidOld()>0){
         sh+=row('Krediet afgelost','&minus;'+eur.format(repaidOld()),'','neg');
         if(penaltyOld()>0) sh+=row('Wederbeleggingsvergoeding','&minus;'+eur.format(penaltyOld()),'wettelijk maximaal drie maanden interest','neg');
+        if(releaseCost()>0) sh+=row('Handlichting','&minus;'+eur.format(releaseCost()),'de hypotheek op je oude woning doorhalen','neg');
       }
       if(chk('hasOld')&&port()&&v('portCost')>0) sh+=row('Kosten pandwisselakte','&minus;'+eur.format(v('portCost')),'krediet blijft lopen','neg');
       sh+=row('Houd je over', eur.format(netSale()), netSale()<0?'negatief: je houdt een restschuld over':'','tot');
@@ -937,24 +1066,51 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
       var bh=row('Aankoopprijs', eur.format(P));
       m.d.parts.forEach(function(pt){ bh+=row(pt.lab, eur.format(pt.amt), pt.sub); });
       var onLand=isNew()&&landShare(P)>0;
-      bh+=row('Notariskosten', eur.format(m.notary),
-        mode.not==='pct'?(v('notVal').toString().replace('.',',')+'% van '+(onLand?'het grondaandeel':'de prijs')+', schatting'):'vast bedrag');
+      bh+=row('Ereloon notaris', eur.format(m.notary),
+        mode.not==='pct'?('wettelijk barema op '+(onLand?'het grondaandeel':'de prijs')+', plus 21% btw'):'vast bedrag dat je zelf invulde');
       bh+=row('Akte- en opzoekingskosten', eur.format(m.disb));
       if(m.bridge>0) bh+=row('Rente overbruggingskrediet', eur.format(m.bridge),
         eur.format(v('bridgeAmt'))+' aan '+v('bridgeRate').toString().replace('.',',')+'% over '+v('bridgeMonths')+' maanden');
-      if(m.mc>0) bh+=row('Hypotheekakte', eur.format(m.mc),'ruwe schatting, zie de toelichting onderaan');
+      if(m.mc>0){
+        bh+=row('Kredietakte', eur.format(m.mc),'op een hypotheek van '+eur.format(m.cd.secured)+', kapitaal plus aanhorigheden');
+        bh+=row('waarvan registratierecht', eur.format(m.cd.reg), pctLab(RATES.credit.registration)+' van het gewaarborgde bedrag','sub');
+        bh+=row('waarvan hypotheekrecht', eur.format(m.cd.mort),'0,3% van het gewaarborgde bedrag','sub');
+        bh+=row('waarvan ereloon', eur.format(m.cd.fee),'wettelijk barema, plus 21% btw','sub');
+        bh+=row('waarvan vaste kosten', eur.format(m.cd.fix),'akte, inschrijving, hypotheekstaten','sub');
+      }
       bh+=row('Kosten van de aankoop', eur.format(m.purchaseCosts), ((m.purchaseCosts/P*100).toFixed(1).replace('.',',')+'% van de prijs'),'tot');
       if(m.reno>0) bh+=row('Renovatie, meegefinancierd', eur.format(m.reno));
-      if(m.moving>0) bh+=row('Verhuis en inrichting, zelf betaald', eur.format(m.moving));
-      bh+=row('Alles samen', eur.format(m.total),'','tot');
+      // De zelf betaalde posten staan hier apart en niet in de lijn erboven, want ze
+      // gaan van je eigen geld af in plaats van in de lening. Zo trekken de getallen
+      // die je naast elkaar ziet ook echt van elkaar af tot het kredietbedrag.
+      if(m.ownPaid>0){
+        bh+=row('Mee te financieren', eur.format(P+m.financedCosts),'prijs plus de kosten hierboven','tot');
+        if(m.moving>0) bh+=row('Verhuis en inrichting', eur.format(m.moving),'zelf te betalen');
+        if(v('bankFee')>0) bh+=row('Dossierkosten van de bank', eur.format(v('bankFee')),'zelf te betalen');
+        if(v('valFee')>0) bh+=row('Schatting van de woning', eur.format(v('valFee')),'zelf te betalen');
+      }
+      bh+=row('Alles samen', eur.format(m.total),m.ownPaid>0?'te financieren plus zelf te betalen':'','tot');
+      if(m.d.alt>m.d.amt)
+        bh+=row('Als het tarief van '+pctLab(RATES.duty.own)+' wegvalt','+ '+eur.format(m.d.alt-m.d.amt),
+          'dan geldt '+pctLab(RATES.duty.other)+' en verdwijnt ook de korting'+(m.d.atRisk?'; zie de aandachtspunten':''));
       E('r-buy').innerHTML=bh;
 
       var lh='';
       if(chk('hasHome')) lh+=row('Netto uit de verkoop', eur.format(netSale()));
       lh+=row('Je inbreng uit spaargeld', eur.format(v('b1In')));
       if(chk('two')) lh+=row('Inbreng tweede koper', eur.format(v('b2In')));
-      if(m.moving>0) lh+=row('Verhuis en inrichting','&minus;'+eur.format(m.moving),'','neg');
+      if(m.moving>0) lh+=row('Verhuis en inrichting','&minus;'+eur.format(m.moving),'zelf betaald','neg');
+      if(v('bankFee')>0) lh+=row('Dossierkosten van de bank','&minus;'+eur.format(v('bankFee')),'zelf betaald','neg');
+      if(v('valFee')>0) lh+=row('Schatting van de woning','&minus;'+eur.format(v('valFee')),'zelf betaald','neg');
       lh+=row('Eigen geld samen', eur.format(m.funds),'','tot');
+      // De brug expliciet maken: wat er te financieren is, min het eigen geld, is het
+      // kredietbedrag. Zonder deze twee lijnen trekken de getallen die de gebruiker
+      // naast elkaar ziet niet van elkaar af tot het bedrag eronder.
+      if(m.loan>0){
+        lh+='<div style="height:14px"></div>';
+        lh+=row('Mee te financieren', eur.format(P+m.financedCosts),'prijs plus de kosten die in de lening gaan');
+        lh+=row('Eigen geld dat daarvan afgaat','&minus;'+eur.format(m.funds),'','neg');
+      }
       lh+='<div class="big"><div class="k">'+(m.loan>0?'Te lenen':'Je hoeft niets te lenen')+'</div><div class="v">'+
           deco(m.loan>0?eur.format(m.loan):eur.format(m.surplus)+' over')+'</div></div>';
       if(m.loan>0){
@@ -990,6 +1146,9 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
         mh+='<div style="height:14px"></div>';
         mh+=row('Netto inkomen', eur.format(inc));
         if(v('debts')>0) mh+=row('Andere kredieten','&minus;'+eur.format(v('debts')),'','neg');
+        mh+=row('Deel van je inkomen, aflossing alleen', pctRepay.toFixed(0)+' %','wat er naar kapitaal en intrest gaat');
+        if(fixed>0) mh+=row('Deel van je inkomen, alle woonkosten', pctTotal.toFixed(0)+' %',
+          'inclusief verzekeringen en onroerende voorheffing; dit is de basis voor de maximumprijs');
         mh+=row('Blijft over om van te leven', eur.format(inc-totalOut-v('debts')),'na alle woonkosten en kredieten','tot');
       }
       E('r-month').innerHTML=mh;
@@ -1002,18 +1161,24 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
       : (buffer>0?('buffer die overblijft: '+eur.format(buffer)):'geen buffer over');
     E('s-loan').innerHTML=deco(P>0?(m.loan>0?eur.format(m.loan):eur.format(0)):eur.format(0));
     E('s-ltv').textContent=(P>0&&m.loan>0)?((m.loan/P*100).toFixed(0)+'% van de aankoopprijs'):(P>0?eur.format(m.surplus)+' teveel':'vul een prijs in');
-    E('s-pay').innerHTML=deco(eur.format(repayGross));
-    E('s-pay-sub').textContent=payOld>0?('aflossing, eerste '+v('oldYears')+' jaar'):'aflossing, zonder verzekeringen';
-    E('s-ratio').textContent=inc>0?((repayGross/inc*100).toFixed(0)+' %'):'—';
+    // De kop-KPI's staan op de totale uitstroom zodra er vaste woonkosten ingevuld zijn,
+    // op dezelfde basis als het percentage en als de afgeleide maximumprijs.
+    E('s-pay').innerHTML=deco(eur.format(fixed>0?totalOut:repayGross));
+    E('s-pay-sub').textContent=(fixed>0?'alles samen, met verzekeringen en voorheffing':'aflossing, zonder verzekeringen')
+      +(payOld>0?', eerste '+v('oldYears')+' jaar':'');
+    E('s-ratio').textContent=inc>0?(pctTotal.toFixed(0)+' %'):'—';
     E('s-left').textContent=inc>0?(eur.format(inc-totalOut-v('debts'))+' blijft over'):'vul je inkomen in';
-    var rt=E('s-ratio-tile'), pct=inc>0?repayGross/inc*100:0;
+    var rt=E('s-ratio-tile'), pct=pctTotal;
     rt.className='tile'+(inc<=0?'':(pct>40?' is-alert':pct>33?' is-warn':' is-pos'));
 
     // hints
     var nBase=notaryBase(P), onLandHint=isNew()&&landShare(P)>0;
     E('notHint').textContent = mode.not==='pct'
-      ? ('= '+eur.format(notaryFee(P))+(onLandHint?' op het grondaandeel':''))
-      : (nBase>0 ? '= '+(v('notVal')/nBase*100).toFixed(2).replace('.',',')+'% van '+(onLandHint?'het grondaandeel':'de prijs') : '');
+      ? (nBase>0 ? ('= '+eur.format(notaryFee(P))+' incl. btw, oftewel '+(notaryFee(P)/nBase*100).toFixed(2).replace('.',',')+'% van '
+                    +(onLandHint?'het grondaandeel':'de prijs')+'. Het barema is degressief, dus dat percentage daalt als de prijs stijgt.')
+                 : 'Het wettelijke barema rekent per schijf. Vul een prijs in bij vak 1.')
+      : (nBase>0 ? '= '+(v('notVal')/nBase*100).toFixed(2).replace('.',',')+'% van '+(onLandHint?'het grondaandeel':'de prijs')
+                    +'. Het barema zou '+eur.format(scaleFee(RATES.notaryScale,nBase)*(1+RATES.vatOnFees))+' geven.' : '');
     if(isNew()){
       var lSh=landShare(P);
       E('landHint').textContent = mode.land==='pct'
@@ -1027,8 +1192,10 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
       E('feeHint').textContent = mode.fee==='pct' ? ('= '+eur.format(agentFee())+' incl. btw')
         : (sp>0 ? '= '+(v('feeVal')/sp*100).toFixed(2).replace('.',',')+'% plus btw' : '');
     }
-    E('zoneHint').textContent = m.d.cut>0 ? ('korting van '+eur.format(m.d.cut)+' toegepast')
-      : (P>0 ? 'geen korting: de prijs ligt boven '+eur.format(v('zone')) : '');
+    E('kindHint').textContent = E('kind').value!=='own' ? ''
+      : (m.d.cut>0 ? 'korting bescheiden woning van '+eur.format(m.d.cut)+' toegepast'
+        : (P>0 ? 'geen korting: de prijs ligt boven '+eur.format(RATES.modest.max)
+               : 'tot '+eur.format(RATES.modest.max)+' krijg je '+eur.format(RATES.modest.cut)+' korting'));
 
     // aandachtspunten
     var msg='';
@@ -1040,7 +1207,7 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     }
     if(chk('hasHome')&&netSale()<0)
       say('bad','!','<b>Je huidige woning brengt minder op dan wat er nog op openstaat.</b> Er blijft '+eur.format(netSale())+
-          ' over, dus je neemt een restschuld mee. Reken ook op de kosten om de hypotheek op te heffen.');
+          ' over, dus je neemt een restschuld mee. De kosten om de hypotheek door te halen zitten daar al in.');
     if(m.funds<m.purchaseCosts)
       say('bad','!','<b>Je eigen geld dekt de kosten van de aankoop niet.</b> Die bedragen '+eur.format(m.purchaseCosts)+
           ' en banken lenen ze zelden mee. Je hebt '+eur.format(m.funds)+' beschikbaar, dus je komt '+eur.format(m.purchaseCosts-m.funds)+' tekort.');
@@ -1051,12 +1218,14 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
       else say('ok','&#10003;','<b>Je leent '+ltv.toFixed(0)+'% van de aankoopprijs.</b> Onder 80% bieden banken doorgaans hun scherpste tarieven.');
     }
     if(inc>0&&m.loan>0){
-      var p2=repayGross/inc*100, rest=inc-totalOut-v('debts');
-      if(p2>40) say('warn','~','<b>'+p2.toFixed(0)+'% van je netto inkomen gaat naar afbetalen.</b> Dat is een hoge last. De bank weegt daarbij je beschikbare inkomen, je andere schulden en je gezinssituatie. Een langere looptijd of meer eigen geld verlaagt dit.');
-      else if(p2>33) say('info','?','<b>'+p2.toFixed(0)+'% van je netto inkomen gaat naar afbetalen.</b> Wikifin houdt ongeveer een derde aan als vuistregel. Sommige banken gaan hoger, maar wegen dan zwaarder wat er overblijft.');
+      var p2=pctTotal, rest=inc-totalOut-v('debts');
+      var split=fixed>0 ? (' Daarvan is '+pctRepay.toFixed(0)+'% de aflossing zelf; de rest zijn de verzekeringen en de onroerende voorheffing.') : '';
+      if(p2>40) say('warn','~','<b>'+p2.toFixed(0)+'% van je netto inkomen gaat naar wonen.</b>'+split+' Dat is een hoge last. De bank weegt daarbij je beschikbare inkomen, je andere schulden en je gezinssituatie. Een langere looptijd of meer eigen geld verlaagt dit.');
+      else if(p2>33) say('info','?','<b>'+p2.toFixed(0)+'% van je netto inkomen gaat naar wonen.</b>'+split+' Wikifin houdt ongeveer een derde aan als vuistregel. Sommige banken gaan hoger, maar wegen dan zwaarder wat er overblijft.');
       if(rest<1300) say('warn','~','<b>Er blijft '+eur.format(rest)+' per maand over.</b> Banken toetsen dat bedrag apart. De grens van &euro; 1.300 is een vuistregel, geen bankregel.');
       say('info','?','Op basis van alleen deze inkomensregel kom je uit op een aankoopprijs van ongeveer <b>'+eur.format(mx)+
-          '</b>. Dat is geen kredietbelofte: een bank weegt ook de schatting, je andere schulden en je gezinssituatie.');
+          '</b>. Die grens staat op alles wat er maandelijks weggaat'+(fixed>0?', dus met de verzekeringen en de onroerende voorheffing erbij':'')+
+          ', op dezelfde basis als het percentage hierboven. Dat is geen kredietbelofte: een bank weegt ook de schatting, je andere schulden en je gezinssituatie.');
     }
     if(known>0&&buffer<10000&&contributions()>0)
       say('warn','~','<b>Je houdt '+eur.format(buffer)+' achter de hand.</b> Elke tienduizend euro die je niet inbrengt kost ruw vijftig euro per maand extra aan lening, en dat is goedkope verzekering tegen onverwachte kosten in het eerste jaar.');
@@ -1065,8 +1234,17 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
       say('info','?','<b>De pandwissel levert netto ongeveer '+eur.format(gain)+' op</b> aan woonbonus min de aktekosten. Maar je betaalt '+eur.format(payOld)+
           ' per maand extra zolang dat krediet loopt, en de bank telt dat mee bij je leenruimte. Vraag wat ze lenen met en zonder dat krediet.');
     }
+    if(E('kind').value==='own'){
+      var extra=m.d.alt-m.d.amt;
+      if(m.d.atRisk)
+        say('bad','!','<b>Je koopt terwijl je nog een woning bezit, en daar loopt het verlaagde tarief op vast.</b> Voor '+pctLab(RATES.duty.own)+' mag je op de datum van de akte geen andere woning of bouwgrond bezitten. Je kan het tarief wel aanvragen via de vrijstelling onder voorwaarde van verkoop, en dan heb je '
+            +RATES.saleDeadlineYears+' jaar om je oude woning kwijt te raken. Lukt dat niet, dan geldt het standaardtarief van '+pctLab(RATES.duty.other)+' en betaal je '+eur.format(extra)
+            +' meer registratiebelasting. Dat is meer dan alle andere kostenposten van deze aankoop samen. Zorg dat je verkoop rond is, of dat je die '+eur.format(extra)+' achter de hand hebt.');
+      say('info','?','<b>Het tarief van '+pctLab(RATES.duty.own)+' is voorwaardelijk, niet vanzelfsprekend.</b> Je moet als natuurlijke persoon de volle eigendom verwerven, je binnen drie jaar na de akte op dat adres domicilieren en er sinds 1 januari 2026 minstens één jaar ononderbroken ingeschreven blijven. Bij meerdere kopers geldt dat voor elke koper afzonderlijk, en een gesplitste aankoop van vruchtgebruik en blote eigendom komt niet in aanmerking. Valt het tarief weg, dan kost deze aankoop '
+          +eur.format(extra)+' meer.');
+    }
     if(E('kind').value==='other')
-      say('info','?','<b>Aan 12% betaal je '+eur.format(P*0.10)+' meer</b> dan aan het verlaagde tarief van 2%. Ga je er zelf wonen en wordt dit je enige woning, kijk dan na of je aan de voorwaarden voldoet.');
+      say('info','?','<b>Aan '+pctLab(RATES.duty.other)+' betaal je '+eur.format(P*(RATES.duty.other-RATES.duty.own))+' meer</b> dan aan het verlaagde tarief van '+pctLab(RATES.duty.own)+'. Ga je er zelf wonen en wordt dit je enige woning, kijk dan na of je aan de voorwaarden voldoet.');
     if(isNew()){
       var Ln=landShare(P), Bn=P-Ln, vr=vatRate(), miss=vat6Missing(),
           landVat=E('landTax').value==='vat', vatBase=Bn+(landVat?Ln:0);
@@ -1086,8 +1264,8 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
         say('ok','&#10003;','<b>Aan 6% betaal je '+eur.format(vatBase*0.15)+' minder btw</b> dan aan 21%. Laat je notaris en je aannemer schriftelijk bevestigen dat je aan alle voorwaarden voldoet: blijkt er achteraf iets niet te kloppen, dan wordt het verschil bij jou teruggevorderd.');
       say('info','?','<b>Vul bij nieuwbouw de prijs exclusief btw in.</b> De notariskosten staan hier op het grondaandeel, want alleen de grond gaat via een notari&euml;le akte. Het gebouw zit in een aannemingsovereenkomst, waar geen ereloon van de notaris op staat.');
     }
-    if(E('kind').value==='own'&&m.d.cut===0&&P>v('zone')&&P<=v('zone')+40000)
-      say('info','?','<b>Net boven de grens.</b> Tot '+eur.format(v('zone'))+' krijg je &euro; 1.867 korting op de registratiebelasting. Je zit daar '+eur.format(P-v('zone'))+' boven.');
+    if(E('kind').value==='own'&&m.d.cut===0&&P>RATES.modest.max&&P<=RATES.modest.max+40000)
+      say('info','?','<b>Net boven de grens.</b> Tot '+eur.format(RATES.modest.max)+' krijg je '+eur.format(RATES.modest.cut)+' korting op de registratiebelasting. Je zit daar '+eur.format(P-RATES.modest.max)+' boven.');
     if(term>22&&m.loan>0){
       var p20=ann(m.loan,r,20), i20=p20*240-m.loan, iNow=pay*term*12-m.loan;
       say('info','?','<b>Op 20 jaar zou je '+eur.format(iNow-i20)+' minder intrest betalen</b> dan op '+term+' jaar. De maandlast is dan '+eur.format(p20)+
@@ -1119,7 +1297,9 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
   function pdBasis(P){
     var out=row('Aankoopprijs', eur.format(P)+(isNew()?', exclusief btw':''));
     out+=row('Situatie', selTxt('kind'));
-    if(E('kind').value==='own') out+=row('Ligging', selTxt('zone'));
+    if(E('kind').value==='own')
+      out+=row('Verlaagd tarief', 'voorwaardelijk: domicilie binnen drie jaar en minstens een jaar ononderbroken ingeschreven'
+        +(chk('hasHome')?'; er is nog een woning te verkopen, dus ook de vrijstelling onder voorwaarde van verkoop':''));
     if(isNew()){
       var L=landShare(P);
       out+=row('Grondaandeel', L>0 ? (eur.format(L)+' grond, '+eur.format(P-L)+' bouw')
@@ -1128,12 +1308,14 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
       out+=row('Btw op de bouw', pctLab(vatRate())
         +(vatPick()==='6'&&vat6Missing().length>0 ? ', want niet alle voorwaarden voor 6% staan aan' : ''));
     }
-    out+=row('Notariskosten', mode.not==='pct'
-      ? num(v('notVal'))+'% van '+(isNew()&&landShare(P)>0?'het grondaandeel':'de prijs')
-      : eur.format(v('notVal'))+', vast bedrag');
+    out+=row('Ereloon notaris', mode.not==='pct'
+      ? 'wettelijk barema op '+(isNew()&&landShare(P)>0?'het grondaandeel':'de prijs')+', plus 21% btw'
+      : eur.format(v('notVal'))+', vast bedrag dat je zelf invulde');
     out+=row('Akte- en opzoekingskosten', eur.format(v('disb')));
     if(v('reno')>0) out+=row('Renovatie, meegefinancierd', eur.format(v('reno')));
     if(v('moving')>0) out+=row('Verhuis en inrichting, zelf betaald', eur.format(v('moving')));
+    if(v('bankFee')>0) out+=row('Dossierkosten van de bank, zelf betaald', eur.format(v('bankFee')));
+    if(v('valFee')>0) out+=row('Schatting van de woning, zelf betaald', eur.format(v('valFee')));
     if(chk('hasHome')){
       out+=row('Verkoopprijs huidige woning', eur.format(v('sale')));
       if(chk('agent')) out+=row('Makelaar', mode.fee==='pct' ? num(v('feeVal'))+'% plus 21% btw'
@@ -1143,19 +1325,20 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     }
     if(chk('hasOld')) out+=row('Lopend krediet',
       eur.format(v('oldBal'))+' aan '+num(v('oldRate'))+'%, nog '+v('oldYears')+' jaar',
-      port()?'meegenomen via pandwissel':'afbetaald bij de verkoop');
+      port()?'meegenomen via pandwissel':'afbetaald bij de verkoop, met handlichting van '+eur.format(v('release')));
     out+=row('Inbreng uit spaargeld', eur.format(v('b1In'))
       +(chk('two')?', plus '+eur.format(v('b2In'))+' van de tweede koper':''));
     if(available()>0) out+=row('Spaargeld dat je hebt', eur.format(available()));
     out+=row('Lening', v('term')+' jaar aan '+v('rate').toFixed(2).replace('.',',')+'% per jaar');
-    out+=row('Kosten hypotheekakte', eur.format(v('mortFix'))+' plus 1% van het geleende bedrag');
+    out+=row('Kosten kredietakte', eur.format(v('mortFix'))+' vast, plus '+pctLab(RATES.credit.registration)
+      +' registratierecht en 0,3% hypotheekrecht op het kapitaal verhoogd met '+num(v('acc'))+'% aanhorigheden, plus het ereloon volgens barema');
     if(v('bridgeAmt')>0&&v('bridgeMonths')>0)
       out+=row('Overbruggingskrediet', eur.format(v('bridgeAmt'))+' aan '+num(v('bridgeRate'))
         +'% over '+v('bridgeMonths')+' maanden');
     if(v('inc1')>0){
       out+=row('Netto inkomen per maand', eur.format(v('inc1')));
       if(v('debts')>0) out+=row('Andere maandelijkse kredieten', eur.format(v('debts')));
-      out+=row('Grens die je aanhoudt', v('ratio')+'% van het inkomen');
+      out+=row('Grens die je aanhoudt', v('ratio')+'% van het inkomen, op alles wat er maandelijks aan de woning weggaat');
     }
     return out;
   }
@@ -1190,11 +1373,11 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
   function calc(){ render(); buildPrint(); }
 
   // de gekoppelde schuifbalken staan hier niet bij: die krijgen hun eigen luisteraar hieronder
-  ['kind','zone','landVal','landTax','v6demo','v6only','v6area','v6five',
+  ['kind','landVal','landTax','v6demo','v6only','v6area','v6five',
    'notVal','disb','reno','moving','hasHome','agent','feeVal','certs',
-   'hasOld','oldBal','oldRate','oldYears','portCost','bonus','two',
+   'hasOld','oldBal','oldRate','oldYears','portCost','bonus','release','two',
    'b1Have','b1Min','b1Max','b2Have','b2Min','b2Max',
-   'mortFix','bridgeAmt','bridgeRate','bridgeMonths',
+   'mortFix','acc','bankFee','valFee','bridgeAmt','bridgeRate','bridgeMonths',
    'inc1','debts','ovr','fire','ssv'].forEach(function(i){
     var el=E(i); if(!el) return;
     el.addEventListener('input',calc); el.addEventListener('change',calc);
@@ -1209,6 +1392,8 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     var r={termN:'term', rateN:'rate', ratioN:'ratio'}[id];
     if(E(id).value==='') E(id).value=E(r).value;
   });
+  // Het ereloon komt uit het barema, dus het invoervak staat uit tot je op euro schakelt.
+  E('notVal').disabled = mode.not!=='eur';
   document.querySelectorAll('input[name=oldChoice], input[name=vatRate]').forEach(function(x){ x.addEventListener('change',calc); });
   [['notSeg','not'],['feeSeg','fee'],['landSeg','land']].forEach(function(pr){
     Array.prototype.forEach.call(E(pr[0]).querySelectorAll('button'),function(b){
