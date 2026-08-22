@@ -9,6 +9,26 @@ gezamenlijke bedragen invullen of een tweede koper met eigen bedragen
 toevoegen. Elke schuifbalk heeft een invoervak, zodat je ook een exact bedrag
 kan typen.
 
+## Afdrukken
+
+De knop "Afdrukken of pdf" in de balk bovenaan drukt een eigen overzicht af
+in plaats van de pagina zoals ze op het scherm staat: de vier kerncijfers,
+de uitgangspunten die je invulde, de vier resultaatblokken, de
+aandachtspunten en het voorbehoud. De schuifbalken, de invoervakken en de
+lijst met wat je nog moet uitzoeken staan niet op papier.
+
+Er komt geen kop- of voetregel van de browser op het blad: geen url, geen
+bladzijdenummer en geen datum van de browser. Dat lukt door de paginamarge
+op nul te zetten, want net daar tekent de browser die regels. De witruimte
+rond de tekst komt dan uit een eigen kop- en voetregel, die in een `thead`
+en een `tfoot` zitten omdat browsers die op elke bladzijde herhalen. Staat
+het scherm in het donker, dan drukt het overzicht toch zwart op wit af, en
+de opmaak leunt op lijnen in plaats van gevulde vlakken, zodat ze ook klopt
+zonder "achtergronden afdrukken" aan te vinken.
+
+Ctrl+P of cmd+P geeft hetzelfde resultaat als de knop. Afdrukken of bewaren
+als pdf gebeurt volledig in je eigen browser; er wordt niets verstuurd.
+
 ## Privacy
 
 Eén statisch HTML-bestand. Geen build, geen afhankelijkheden, geen externe
