@@ -346,6 +346,81 @@ describe('betaalbaarheid', () => {
     geenFouten(p);
     await p.sluit();
   });
+
+  test('de maximumprijs houdt rekening met andere kredieten', async () => {
+    // Deze test dekt het gat dat de vorige laat: die rekent zonder andere
+    // kredieten. Met een autolening erbij hoort de maximumprijs te dalen, en
+    // hoort de grens te gelden voor de woonlast plus die kredieten samen. Het
+    // getoonde percentage laat de andere kredieten bewust weg, dus dat percentage
+    // ligt op de maximumprijs lager dan de ingestelde grens; het verschil is
+    // precies wat die kredieten van het inkomen opeisen.
+    const zonder = await metPagina({...situatie, debts:0});
+    const met = await metPagina({...situatie, debts:400});
+
+    const prijs = async p => {
+      const g = (await p.tekst('r-notes')).match(/aankoopprijs van ongeveer\s*€\s*([\d.]+)/);
+      assert.ok(g, 'de afgeleide maximumprijs ontbreekt');
+      return parseInt(g[1].replace(/\./g, ''), 10);
+    };
+    const prijsZonder = await prijs(zonder), prijsMet = await prijs(met);
+    assert.ok(prijsMet < prijsZonder,
+      'met andere kredieten hoort de maximumprijs lager te liggen: '
+      + prijsMet + ' tegen ' + prijsZonder);
+
+    await met.vul({priceN:prijsMet});
+    const m = await met.regels('r-month');
+    const woonlast = m['Deel van je inkomen, alle woonkosten'];
+    const kredieten = 400 / situatie.inc1 * 100;
+    assert.ok(Math.abs(woonlast + kredieten - 33) <= 1,
+      'de woonlast van ' + woonlast + '% plus ' + kredieten.toFixed(0)
+      + '% aan andere kredieten hoort op de ingestelde 33% uit te komen');
+
+    geenFouten(zonder); geenFouten(met);
+    await zonder.sluit(); await met.sluit();
+  });
+
+  test('de vuistregel van een derde wordt tegen de aflossing gelegd', async () => {
+    // Wikifin houdt een derde aan voor de afbetaling zelf en noemt de
+    // verzekeringen en de onroerende voorheffing als kosten die daar bovenop
+    // komen. Ligt de aflossing onder die grens en het totaal erboven, dan mag de
+    // pagina niet melden dat je de vuistregel overschrijdt.
+    const p = await metPagina(situatie);
+    const m = await p.regels('r-month');
+    const aflossing = m['Deel van je inkomen, aflossing alleen'];
+    const totaal = m['Deel van je inkomen, alle woonkosten'];
+    assert.ok(aflossing <= 33 && totaal > 33,
+      'deze test heeft een geval nodig waarin de aflossing onder een derde ligt en '
+      + 'het totaal erboven; nu is dat ' + aflossing + '% en ' + totaal + '%');
+
+    const notes = await p.tekst('r-notes');
+    assert.doesNotMatch(notes, /Wikifin houdt ongeveer een derde/,
+      'de aflossing ligt onder een derde, dus die melding hoort er niet te staan');
+    // Maar de pagina hoort niet te zwijgen over haar eigen kerncijfer: dat het
+    // meevalt is ook een antwoord, en beide getallen horen erin te staan.
+    assert.match(notes, /blijf je onder de vuistregel/);
+    assert.match(notes, new RegExp(aflossing + '% van je netto inkomen gaat naar de aflossing'));
+    assert.match(notes, new RegExp('erbij is het ' + totaal + '%'));
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('boven een derde aflossing wordt de vuistregel wel genoemd, met het totaal erbij', async () => {
+    // Tussen de twee drempels: boven een derde, maar niet zo hoog dat de
+    // waarschuwing over een hoge last de plaats van deze melding inneemt.
+    const p = await metPagina({...situatie, priceN:300000, b1InN:40000});
+    const m = await p.regels('r-month');
+    const aflossing = m['Deel van je inkomen, aflossing alleen'];
+    assert.ok(aflossing > 33 && aflossing <= 40,
+      'deze test heeft een aflossing tussen een derde en 40% nodig, nu ' + aflossing + '%');
+
+    const notes = await p.tekst('r-notes');
+    assert.match(notes, /gaat naar de aflossing/);
+    assert.match(notes, /voor de afbetaling zelf; de verzekeringen en de onroerende voorheffing komen daar bovenop/);
+    assert.match(notes, new RegExp('erbij is het ' + m['Deel van je inkomen, alle woonkosten'] + '%'),
+      'het totaal hoort in dezelfde melding te staan');
+    geenFouten(p);
+    await p.sluit();
+  });
 });
 
 // ---------------------------------------------------------------------------
