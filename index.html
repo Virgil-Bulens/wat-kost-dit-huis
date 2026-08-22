@@ -644,7 +644,7 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
 
     <div class="cl">
       <h3>Een groter huis kost meer in gebruik</h3>
-      <p>Onroerende voorheffing, verwarming, elektriciteit en onderhoud liggen hoger dan in een kleinere woning. Die posten staan in vak 7. Vul er realistische bedragen in, geen optimistische.</p>
+      <p>Onroerende voorheffing, verwarming, elektriciteit en onderhoud liggen hoger dan in een kleinere woning. Alleen de onroerende voorheffing kan je in vak 7 invullen, en die rekent mee. Verwarming, elektriciteit, water, onderhoud en bij een appartement de syndicuskosten zitten niet in deze berekening. Zet daar zelf een bedrag naast voordat je beslist: samen lopen die posten vaak op tot enkele honderden euro's per maand, en ze komen boven het percentage dat deze pagina toont.</p>
     </div>
 
   </div>
@@ -662,7 +662,7 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
   <p><b>Het btw-tarief op het gebouw</b> is 21%, of 6% bij afbraak en heropbouw. Dat verlaagde tarief geldt niet vanzelf. Het vraagt onder meer dat een bestaand gebouw wordt afgebroken en op hetzelfde perceel heropgebouwd, dat de woning je enige eigen woning wordt waar je zelf domicilie neemt en minstens vijf jaar blijft, en dat de bewoonbare oppervlakte niet groter is dan 200 m&sup2;. Daarnaast bestaat er een aparte weg naar 6% voor wie langdurig verhuurt aan een sociaal verhuurkantoor of een woonmaatschappij; die zit hier niet in. Laat je notaris en je aannemer bevestigen welk tarief op jou van toepassing is, want blijkt achteraf dat een voorwaarde niet vervuld is, dan wordt het verschil bij de koper teruggevorderd. Voor renovatie van een woning ouder dan tien jaar bestaat er nog een derde tarief van 6%; het veld voor renovatie in vak 2 rekent daar niets mee, vul er dus het bedrag in dat de aannemer je aanrekent.</p>
   <p><b>Het ereloon bij nieuwbouw</b> wordt hier op het grondaandeel gerekend en niet op de volle prijs. Alleen de grond gaat via een notari&euml;le akte; het gebouw zit in een aannemingsovereenkomst, waar geen ereloon van de notaris op staat. Zolang je geen grondaandeel invult, rekent de pagina op de volle prijs en is de schatting dus te hoog.</p>
   <p><b>De maandlast</b> wordt berekend met de equivalente maandrente, de twaalfde wortel uit de jaarrente. Dat is de Belgische conventie. Ter controle, het voorbeeld van Wikifin: &euro; 100.000 op 20 jaar aan 2% geeft &euro; 505,03 per maand en &euro; 21.206,35 aan intrest. De aankoopkosten zijn geijkt op de infofiche van notaris.be, waar een gezinswoning van &euro; 250.000 in Vlaanderen &euro; 9.370 aan kosten geeft.</p>
-  <p><b>Het deel van je inkomen</b> staat er twee keer, want de twee getallen zeggen iets anders. Het eerste is de aflossing alleen, kapitaal en intrest. Het tweede is alles wat er maandelijks aan de woning weggaat, dus met de brandverzekering, de schuldsaldoverzekering en de onroerende voorheffing erbij. Het kerncijfer bovenaan en de afgeleide maximale aankoopprijs staan op dat tweede getal, want dat is waar een bank naar kijkt, samen met wat er overblijft om van te leven.</p>
+  <p><b>Het deel van je inkomen</b> staat er twee keer, want de twee getallen zeggen iets anders. Het eerste is de aflossing alleen, kapitaal en intrest. Het tweede is alles wat er maandelijks aan de woning weggaat, dus met de brandverzekering, de schuldsaldoverzekering en de onroerende voorheffing erbij. Het kerncijfer bovenaan en de afgeleide maximale aankoopprijs staan op dat tweede getal, want dat is waar een bank naar kijkt, samen met wat er overblijft om van te leven. De vuistregel van een derde wordt wel tegen het eerste getal gelegd, want die gaat over de afbetaling zelf; de verzekeringen en de onroerende voorheffing komen daar volgens diezelfde bron bovenop. Andere maandelijkse kredieten staan niet in die percentages, maar wel in de afgeleide maximale aankoopprijs en in wat er overblijft; een bank telt ze bij je aflossing. En wat er helemaal niet in zit: verwarming, elektriciteit, water, onderhoud en syndicuskosten. Je werkelijke woonlast ligt dus hoger dan het percentage dat hier staat.</p>
   <p><b>Privacy.</b> Alles wat je invult, blijft in je browser. Deze pagina bevat geen formulier dat verstuurt, geen fetch of XMLHttpRequest, geen cookies, geen localStorage, geen analytics en geen externe bestanden of webfonts. Er worden dus geen persoonsgegevens door deze pagina verwerkt en er is geen cookiebanner nodig. Zoals bij elke website registreert de hostingpartij wel technische gegevens van de opvraging, waaronder je IP-adres; dat gebeurt buiten deze pagina om en valt onder het privacybeleid van die partij.</p>
   <p><b>Aansprakelijkheid.</b> Deze rekenhulp wordt aangeboden zoals ze is, zonder enige garantie. De auteur aanvaardt geen aansprakelijkheid voor onjuiste of verouderde bedragen, noch voor schade die voortvloeit uit het gebruik ervan. Wie deze pagina verder verspreidt of op een eigen website plaatst, blijft zelf verantwoordelijk voor de juistheid van de informatie tegenover zijn cliënten en voor de beroepsregels die op hem van toepassing zijn.</p>
   <p><b>Bronnen.</b> Tarieven nagekeken op 22 augustus 2026 tegen vlaanderen.be, notaris.be, wikifin.be en economie.fgov.be. Het barema van de koopakte is getoetst op een doorgerekend voorbeeld van &euro; 150.000, dat uitkomt op &euro; 1.878,66 aan ereloon. Bedragen zijn afgerond op hele euro's.</p>
@@ -1218,14 +1218,26 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
       else say('ok','&#10003;','<b>Je leent '+ltv.toFixed(0)+'% van de aankoopprijs.</b> Onder 80% bieden banken doorgaans hun scherpste tarieven.');
     }
     if(inc>0&&m.loan>0){
-      var p2=pctTotal, rest=inc-totalOut-v('debts');
-      var split=fixed>0 ? (' Daarvan is '+pctRepay.toFixed(0)+'% de aflossing zelf; de rest zijn de verzekeringen en de onroerende voorheffing.') : '';
-      if(p2>40) say('warn','~','<b>'+p2.toFixed(0)+'% van je netto inkomen gaat naar wonen.</b>'+split+' Dat is een hoge last. De bank weegt daarbij je beschikbare inkomen, je andere schulden en je gezinssituatie. Een langere looptijd of meer eigen geld verlaagt dit.');
-      else if(p2>33) say('info','?','<b>'+p2.toFixed(0)+'% van je netto inkomen gaat naar wonen.</b>'+split+' Wikifin houdt ongeveer een derde aan als vuistregel. Sommige banken gaan hoger, maar wegen dan zwaarder wat er overblijft.');
+      // De vuistregel van Wikifin gaat over de maandelijkse afbetaling, en noemt de
+      // verzekeringen en de onroerende voorheffing uitdrukkelijk als kosten die daar
+      // bovenop komen. Dit bericht toetst dus het aflossingspercentage, niet de
+      // totale woonlast: anders staat een getal over alle woonkosten naast een norm
+      // die alleen over de aflossing gaat, en waarschuwt de pagina te vroeg.
+      // Het totaal komt er wel bij, want dat is wat je werkelijk betaalt.
+      var p2=pctRepay, rest=inc-totalOut-v('debts');
+      var erbij=fixed>0 ? (' Met de verzekeringen en de onroerende voorheffing erbij is het '+pctTotal.toFixed(0)+'% van je inkomen.') : '';
+      if(p2>40) say('warn','~','<b>'+p2.toFixed(0)+'% van je netto inkomen gaat naar de aflossing.</b>'+erbij+' Dat is een hoge last. De bank weegt daarbij je beschikbare inkomen, je andere schulden en je gezinssituatie. Een langere looptijd of meer eigen geld verlaagt dit.');
+      else if(p2>33) say('info','?','<b>'+p2.toFixed(0)+'% van je netto inkomen gaat naar de aflossing.</b>'+erbij+' Wikifin houdt ongeveer een derde aan als vuistregel voor de afbetaling zelf; de verzekeringen en de onroerende voorheffing komen daar bovenop. Sommige banken gaan hoger, maar wegen dan zwaarder wat er overblijft.');
+      // Ook zeggen wanneer het meevalt. Zonder deze tak zwijgt de pagina over haar
+      // eigen kerncijfer zodra de aflossing onder de vuistregel blijft, en dat leest
+      // als een ontbrekend antwoord in plaats van als een gunstige uitkomst.
+      else say('ok','&#10003;','<b>'+p2.toFixed(0)+'% van je netto inkomen gaat naar de aflossing.</b>'+erbij+' Daarmee blijf je onder de vuistregel van ongeveer een derde, die Wikifin voor de afbetaling zelf aanhoudt. Een bank weegt daarnaast wat er overblijft om van te leven.');
+      if(v('debts')>0) say('info','?','<b>De vuistregel geldt voor al je kredieten samen.</b> Je andere kredieten van '+eur.format(v('debts'))+' per maand staan hier niet in dat percentage, maar een bank telt ze mee: samen met de aflossing kom je op '+((repayGross+v('debts'))/inc*100).toFixed(0)+'% van je inkomen. De maximale aankoopprijs hieronder houdt er wel rekening mee.');
       if(rest<1300) say('warn','~','<b>Er blijft '+eur.format(rest)+' per maand over.</b> Banken toetsen dat bedrag apart. De grens van &euro; 1.300 is een vuistregel, geen bankregel.');
       say('info','?','Op basis van alleen deze inkomensregel kom je uit op een aankoopprijs van ongeveer <b>'+eur.format(mx)+
           '</b>. Die grens staat op alles wat er maandelijks weggaat'+(fixed>0?', dus met de verzekeringen en de onroerende voorheffing erbij':'')+
-          ', op dezelfde basis als het percentage hierboven. Dat is geen kredietbelofte: een bank weegt ook de schatting, je andere schulden en je gezinssituatie.');
+          (v('debts')>0?', en op je andere kredieten':'')+
+          '. Dat is geen kredietbelofte: een bank weegt ook de schatting, je andere schulden en je gezinssituatie.');
     }
     if(known>0&&buffer<10000&&contributions()>0)
       say('warn','~','<b>Je houdt '+eur.format(buffer)+' achter de hand.</b> Elke tienduizend euro die je niet inbrengt kost ruw vijftig euro per maand extra aan lening, en dat is goedkope verzekering tegen onverwachte kosten in het eerste jaar.');
