@@ -1,0 +1,30 @@
+name: tests
+
+# De rekenhulp is een enkel HTML-bestand, dus er valt niets te bouwen. Wat hier
+# loopt zijn de toetsen op het kostenmodel: ze openen index.html in een echte
+# browser en leggen de bedragen tegen gepubliceerde rekenvoorbeelden.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Afhankelijkheden installeren
+        run: npm ci
+
+      # Alleen Chromium; de tests hebben geen tweede browser nodig.
+      - name: Browser installeren
+        run: npx playwright install --with-deps chromium
+
+      - name: Tests
+        run: npm test
