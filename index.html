@@ -1818,7 +1818,7 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     // terug te halen, dus dan staat het blok er niet.
     E('pd-back').style.display = P>0 ? '' : 'none';
     if(P>0){
-      var terug=CANON+linkFragment();
+      var terug=printBasis()+linkFragment();
       E('pd-link').setAttribute('href',terug);
       E('pd-qr').innerHTML=qrSvg(terug);
     }
@@ -1954,6 +1954,16 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
   // Gevolg: een blad uit een gewijzigde kopie leidt naar de gepubliceerde versie. De
   // datum van de tarieven gaat mee in de link, dus die meldt dat verschil zelf.
   var CANON='https://virgil-bulens.github.io/wat-kost-dit-huis/';
+  // Chromium schrijft geen aanklikbare link in een pdf als het adres alleen in het
+  // fragment verschilt van de pagina die je afdrukt: dat leest hij als een sprong
+  // binnen hetzelfde document, en een sprong naar een fragment bestaat in een pdf
+  // niet. Druk je dus af vanaf de gepubliceerde pagina zelf, dan valt de link stil
+  // weg en houdt het blad alleen de code over. Daarom draagt het blad de andere
+  // schrijfwijze van hetzelfde adres: die twee zijn voor de browser twee documenten
+  // en voor de bezoeker dezelfde pagina.
+  function printBasis(){
+    return location.href.split('#')[0]===CANON ? CANON+'index.html' : CANON;
+  }
   // De sleutel is de id van het veld. Bij een gekoppeld paar is dat de basis-id,
   // want de waarde komt uit het invoervak: dat is de bron van waarheid (zie pairOf).
   var linkNum=['price','sale','b1In','b2In','term','rate','ratio',

@@ -161,6 +161,21 @@ aanklikbaar: Chromium zet er een linkannotatie in, fragment en al. Voor wie
 een pdf bewaart is dat de hele oplossing en is de code overbodig. De code is
 er voor echt papier, waar geen link te volgen valt.
 
+Die annotatie hangt aan één detail. Verschilt het adres van de link alleen in
+het fragment van de pagina die je afdrukt, dan leest Chromium hem als een sprong
+binnen hetzelfde document. Zo'n sprong bestaat in een pdf niet, en de link
+verdwijnt zonder melding. Dat trof precies het geval van een bezoeker: afdrukken
+vanaf de gepubliceerde pagina. Het blad draagt daarom de andere schrijfwijze van
+hetzelfde adres, `…/index.html#…` in plaats van `…/#…`, want dat zijn voor de
+browser twee documenten en voor de bezoeker dezelfde pagina. Een toets opent de
+pagina op haar eigen adres, maakt een pdf en kijkt na of de annotatie er in staat.
+
+Wat het fragment niet overleeft, is een lezer die het weggooit. Sommige
+telefoonscanners en sommige pdf-lezers openen alleen het adres tot het hekje. Dan
+staat er een lege berekening op het scherm. Daar kan deze pagina niets aan doen:
+alles wat een server nooit mag zien, moet achter het hekje staan, en wie dat
+weggooit, gooit de invoer weg.
+
 Beide wijzen naar de gepubliceerde pagina en niet naar `location.href`. Wie
 `index.html` van zijn schijf opent, heeft een `file:`-adres in de balk, en een
 code met dat adres erin is op papier waardeloos. Het adres staat daarom als

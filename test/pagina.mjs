@@ -16,6 +16,11 @@ export const bestand = 'file://' + join(wortel, 'index.html');
 let browser;
 
 export async function startBrowser(){ browser = await chromium.launch(); }
+
+// Het adres van de gepubliceerde pagina. Een toets die het gedrag van de afdruk
+// nakijkt moet de pagina op dat adres kunnen openen, want Chromium behandelt een
+// link naar het eigen document anders dan een link naar buiten.
+export const GEPUBLICEERD = 'https://virgil-bulens.github.io/wat-kost-dit-huis/';
 export async function stopBrowser(){ if(browser) await browser.close(); }
 
 // Eén verse pagina per test, zodat tests elkaar niet beïnvloeden. Elke pagina
@@ -26,6 +31,43 @@ export async function stopBrowser(){ if(browser) await browser.close(); }
 // gedeelde link opent. Dat is de enige manier om het terugzetten te toetsen: de
 // invoer staat achter een hekje, dus ze hoort bij de url en niet bij een handeling
 // op de pagina.
+// Dezelfde pagina, maar geopend op het adres waar ze gepubliceerd staat. Het
+// verzoek gaat niet naar buiten: het wordt onderschept en met het bestand uit deze
+// map beantwoord. Zo is te toetsen wat er gebeurt als iemand vanaf de gepubliceerde
+// pagina afdrukt, zonder netwerk en zonder de uitkomst van een echte server.
+export async function openAlsGepubliceerd(fragment = '', opties = {}){
+  const pg = await browser.newPage(opties);
+  const fouten = [];
+  pg.on('pageerror', e => fouten.push('pageerror: ' + e.message));
+  pg.on('console', m => { if(m.type() === 'error') fouten.push('console: ' + m.text()); });
+  await pg.route(GEPUBLICEERD + '**', route => route.fulfill({
+    path: join(wortel, 'index.html'), contentType: 'text/html; charset=utf-8'
+  }));
+  await pg.goto(GEPUBLICEERD + fragment);
+  return {
+    fouten,
+    async vul(waarden){
+      await pg.evaluate(w => {
+        for(const [id, waarde] of Object.entries(w)){
+          const el = document.getElementById(id);
+          if(!el) throw new Error('onbekend invoerveld: ' + id);
+          if(el.type === 'checkbox') el.checked = !!waarde;
+          else el.value = String(waarde);
+          el.dispatchEvent(new Event('input', {bubbles:true}));
+          el.dispatchEvent(new Event('change', {bubbles:true}));
+        }
+      }, waarden);
+    },
+    async attribuut(selector, naam){
+      return pg.evaluate(([s, n]) => document.querySelector(s)?.getAttribute(n) ?? null, [selector, naam]);
+    },
+    // Het blad als pdf, zoals "afdrukken of pdf" het maakt. De aanklikbare link is
+    // geen tekst maar een annotatie in het bestand, dus die is alleen hier te zien.
+    async pdf(){ return pg.pdf(); },
+    async sluit(){ await pg.close(); }
+  };
+}
+
 export async function openPagina(fragment = '', opties = {}){
   // opties gaan door naar de browser. De toets op de code van de afdruk vraagt een
   // hogere pixeldichtheid: op papier is de code 42 mm, maar een schermafbeelding op

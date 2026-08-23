@@ -11,7 +11,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {dirname, join} from 'node:path';
-import {startBrowser, stopBrowser, openPagina,
+import {startBrowser, stopBrowser, openPagina, openAlsGepubliceerd,
         annuiteit, BAREMA_KOOP, schijfbedrag} from './pagina.mjs';
 import {PNG} from 'pngjs';
 import jsQRmod from 'jsqr';
@@ -1352,6 +1352,33 @@ describe('de weg terug van papier naar de invoer', () => {
     assert.ok(mm / 105 > 0.35, 'een module hoort minstens 0,35 mm te zijn, niet ' + (mm / 105).toFixed(2));
     const blad = await p.maten('#printdoc');
     assert.ok(vak.width <= blad.width, 'de code hoort binnen het blad te vallen');
+    await p.sluit();
+  });
+
+  test('de link blijft aanklikbaar in de pdf, ook vanaf de gepubliceerde pagina', async () => {
+    // Dit is de val: Chromium schrijft geen linkannotatie als het adres alleen in
+    // het fragment verschilt van de pagina die je afdrukt. Wie vanaf de
+    // gepubliceerde pagina afdrukt, houdt dan een blad zonder aanklikbare link
+    // over, en dat is precies het geval van een bezoeker.
+    const p = await openAlsGepubliceerd();
+    await p.vul({priceN:450000, inc1:5200});
+    const href = await p.attribuut('#pd-link', 'href');
+    const pdf = (await p.pdf()).toString('latin1');
+    const uris = [...pdf.matchAll(/\/URI\s*\(([^)]*)\)/g)].map(m => m[1]);
+    assert.ok(uris.includes(href), 'de link van het blad hoort als annotatie in de pdf te staan, gevonden: '
+      + JSON.stringify(uris));
+    assert.match(href, /#v1&price=450000&inc1=5200&asOf=/);
+    await p.sluit();
+  });
+
+  test('het adres op het blad is nooit hetzelfde document als de pagina zelf', async () => {
+    const p = await openAlsGepubliceerd();
+    await p.vul({priceN:250000});
+    const href = await p.attribuut('#pd-link', 'href');
+    assert.notEqual(href.split('#')[0], GEPUBLICEERD,
+      'alleen een ander fragment maakt van de link een sprong binnen het blad');
+    assert.equal(href.split('#')[0], GEPUBLICEERD + 'index.html',
+      'het hoort dezelfde pagina te zijn, anders geschreven');
     await p.sluit();
   });
 
