@@ -15,6 +15,11 @@ on:
     - cron: '0 6 1 * *'
   workflow_dispatch:
 
+# Genoeg om een melding te openen en erop te reageren, en niets meer.
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   bronnen:
     runs-on: ubuntu-latest
@@ -25,6 +30,10 @@ jobs:
         with:
           node-version: '22'
 
-      # Geen npm ci: dit script gebruikt alleen wat in node zelf zit.
+      # Geen npm ci: dit script gebruikt alleen wat in node zelf zit. Vindt het een
+      # dode link, dan opent het zelf een melding en faalt daarna alsnog, zodat de
+      # uitslag ook in de Actions-tab rood staat.
       - name: Bronlinks nakijken
         run: node scripts/bronnen-nakijken.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

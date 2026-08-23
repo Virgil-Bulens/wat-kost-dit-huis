@@ -308,6 +308,9 @@ Tarieven nagekeken op 22 augustus 2026.
   EUR 21.206,35 aan intrest.
 - Niet-conforme keuring van de elektriciteit: de koper herkeurt binnen
   18 maanden na de akte en kiest zelf een erkend organisme.
+- Renovatieverplichting: wie een woning met EPC-label E of F koopt, moet ze binnen
+  zes jaar na de authentieke akte naar minstens label D brengen. Dat geldt voor
+  aankopen vanaf 2023.
 - Wederbeleggingsvergoeding bij vervroegd aflossen: wettelijk maximaal drie
   maanden interest op het terugbetaalde deel.
 - De betaalbaarheidstoets staat op twee bases. Het ene percentage is de
