@@ -1027,8 +1027,13 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     return lo;
   }
 
-  // De inbreng staat op zichzelf. "Je hebt" is optioneel: het begrenst de inbreng
-  // en maakt de buffer zichtbaar, maar je kan ook meteen schuiven of een bedrag typen.
+  // De inbreng staat op zichzelf. "Je hebt", "minstens" en "hoogstens" begrenzen de
+  // schuifbalk en maken de buffer zichtbaar; ze schrijven niet in het invoervak.
+  //
+  // Dat laatste is de hele reden dat deze functie zo voorzichtig is. Ze draait uit
+  // render(), dus bij elke herberekening en ook terwijl iemand in een van die drie
+  // vakjes typt. Wie hier het bedrag bijstelt, wist de inbreng zodra er in "je hebt"
+  // een eerste cijfer staat: op dat moment is "je hebt" letterlijk 1.
   function clampBuyer(pfx){
     var have=v(pfx+'Have'), mnF=v(pfx+'Min'), mxF=v(pfx+'Max');
     var s=E(pfx+'In'), nf=E(pfx+'InN');
@@ -1037,13 +1042,18 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     var hi;
     if(mxF>0) hi=mxF;
     else if(have>0) hi=have;
-    else hi=Math.max(500000,cur);          // niets ingevuld: ruim bereik, typen mag altijd
+    else hi=500000;                        // niets ingevuld: ruim bereik
     if(have>0){ mn=Math.min(mn,have); hi=Math.min(hi,have); }
     if(hi<mn) hi=mn;
+    // De duim moet het bedrag kunnen aanwijzen dat in het vak staat, ook als dat
+    // buiten de gevraagde grenzen valt. Dezelfde regel die fromNum al volgt: typen
+    // mag altijd, het bereik schuift mee. Anders klemt de duim aan een uiteinde en
+    // liegt hij over wat er in het vak staat.
+    mn=Math.min(mn,cur); hi=Math.max(hi,cur);
     s.min=String(mn); s.max=String(hi);
-    var kept=Math.max(mn,Math.min(cur,hi));
-    s.value=String(kept);
-    if(kept!==cur) nf.value=String(kept);   // alleen bijstellen als het echt buiten de grenzen lag
+    // De grove stapgrootte van de balk rondt dit af; daarom leest v() het vak en
+    // niet de balk.
+    s.value=String(cur);
   }
 
   function render(){
@@ -1194,7 +1204,8 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     E('s-cash').innerHTML=deco(eur.format(m.funds));
     E('s-cash-sub').textContent = known<=0
       ? 'vul "je hebt" in voor je buffer'
-      : (buffer>0?('buffer die overblijft: '+eur.format(buffer)):'geen buffer over');
+      : (buffer>0 ? 'buffer die overblijft: '+eur.format(buffer)
+        : (buffer<0 ? eur.format(-buffer)+' meer ingebracht dan je hebt' : 'geen buffer over'));
     E('s-loan').innerHTML=deco(P>0?(m.loan>0?eur.format(m.loan):eur.format(0)):eur.format(0));
     E('s-ltv').textContent=(P>0&&m.loan>0)?((m.loan/P*100).toFixed(0)+'% van de aankoopprijs'):(P>0?eur.format(m.surplus)+' teveel':'vul een prijs in');
     // De kop-KPI's staan op de totale uitstroom zodra er vaste woonkosten ingevuld zijn,
@@ -1284,7 +1295,12 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
           (v('debts')>0?', en op je andere kredieten':'')+
           '. Dat is geen kredietbelofte: een bank weegt ook de schatting, je andere schulden en je gezinssituatie.');
     }
-    if(known>0&&buffer<10000&&contributions()>0)
+    // Sinds clampBuyer de inbreng niet meer bijstelt, kan er meer ingebracht worden
+    // dan er is. Die tegenspraak hoort hardop gezegd te worden en niet stil
+    // weggerekend, en ze is iets anders dan een buffer die krap is.
+    if(known>0&&contributions()>known)
+      say('bad','!','<b>Je brengt '+eur.format(contributions())+' in, maar bij "je hebt" staat '+eur.format(known)+'.</b> Er komt '+eur.format(contributions()-known)+' te kort. Pas de inbreng aan, of vul bij "je hebt" in wat er werkelijk staat.');
+    else if(known>0&&buffer<10000&&contributions()>0)
       say('warn','~','<b>Je houdt '+eur.format(buffer)+' achter de hand.</b> Elke tienduizend euro die je niet inbrengt kost ruw vijftig euro per maand extra aan lening, en dat is goedkope verzekering tegen onverwachte kosten in het eerste jaar.');
     if(port()&&v('oldYears')>0&&v('bonus')>0){
       var gain=v('bonus')*v('oldYears')-v('portCost');

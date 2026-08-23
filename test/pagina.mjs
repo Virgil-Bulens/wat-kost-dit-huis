@@ -65,6 +65,13 @@ export async function openPagina(fragment = ''){
 
     async klik(selector){ await pg.click(selector); },
 
+    // Teken voor teken typen, zoals een bezoeker dat doet. vul() hierboven zet een
+    // waarde in één keer, en dat is precies waarom issue #12 door de suite glipte:
+    // het kwaad gebeurde bij het eerste cijfer, toen "je hebt" nog letterlijk 1 was.
+    async tik(id, tekst){
+      await pg.locator('#' + id).pressSequentially(String(tekst), {delay: 1});
+    },
+
     // De link zoals de knop hem maakt, zonder het pad ervoor: een test kan hem zo
     // vergelijken en hem als fragment aan openPagina meegeven.
     async link(){
@@ -101,6 +108,14 @@ export async function openPagina(fragment = ''){
     // bedrag typt, dus een vijandige link kan er iets onmogelijks in zetten.
     async grens(id){
       return pg.evaluate(i => document.getElementById(i).max, id);
+    },
+
+    // Het bereik van een schuifbalk, als getallen.
+    async bereik(id){
+      return pg.evaluate(i => {
+        const e = document.getElementById(i);
+        return {min: Number(e.min), max: Number(e.max), value: Number(e.value)};
+      }, id);
     },
 
     // De keuze die in een groep radioknoppen aanstaat.
