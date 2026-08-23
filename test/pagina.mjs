@@ -174,6 +174,10 @@ export async function openPagina(fragment = ''){
     async bestaat(id){ return pg.evaluate(i => !!document.getElementById(i), id); },
     async uitgeschakeld(id){ return pg.evaluate(i => document.getElementById(i).disabled, id); },
 
+    // Een vak dat een uitkomst draagt staat op readonly en niet op disabled: het bedrag
+    // hoort leesbaar en selecteerbaar te blijven.
+    async alleenLezen(id){ return pg.evaluate(i => document.getElementById(i).readOnly, id); },
+
     // De afdrukstand aanzetten. Papier heeft een eigen opmaak en een eigen
     // breedte, dus het venster krijgt de maat van A4 bij 96 dpi; anders breken
     // de regels op een breedte die op geen enkel blad bestaat. Het overzicht

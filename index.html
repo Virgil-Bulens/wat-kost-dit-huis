@@ -141,6 +141,9 @@ input[type=range]::-moz-range-thumb{width:17px; height:17px; border-radius:50%; 
   border:2.5px solid var(--surface); box-shadow:0 0 0 1px var(--line-2)}
 input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:4px}
 
+/* Een readonly vak draagt een uitkomst: gedempte achtergrond, maar de tekst blijft
+   op volle sterkte, anders is het bedrag niet te lezen. */
+input.amt[readonly]{background:var(--surface-2); color:var(--ink); cursor:default}
 input.amt,select{width:100%; min-width:0; max-width:100%; padding:8px 10px;
   font:inherit; font-size:14px;
   font-family:var(--mono); font-variant-numeric:tabular-nums;
@@ -1032,7 +1035,10 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     var g=vak(inp.id);
     mode[which]=m;
     inp.setAttribute('data-step', String(m==='eur' ? stepOf[which][1] : stepOf[which][0]));
-    if(which==='not') inp.disabled = m!=='eur';
+    // Geen disabled: in de baremastand staat er nu een uitkomst in, en die hoort
+    // leesbaar en selecteerbaar te blijven. readonly zegt "niet te wijzigen" in plaats
+    // van "niet beschikbaar".
+    if(which==='not') inp.readOnly = m!=='eur';
     if(!isNaN(g)) inp.value=toon(inp.id,g);
     Array.prototype.forEach.call(E(segOf[which][1]).querySelectorAll('button'),function(b){
       b.setAttribute('aria-pressed', String(b.dataset.m===m));
@@ -1368,8 +1374,12 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
 
     // hints
     var nBase=notaryBase(P), onLandHint=isNew()&&landShare(P)>0;
+    // In de baremastand is het vak geen invoer maar een uitkomst: het rekent per schijf
+    // en dan hoort het bedrag dat eruit komt er ook in te staan. Het vak is readonly,
+    // dus hier wordt niets overschreven wat iemand aan het typen is.
+    if(mode.not==='pct') E('notVal').value = nBase>0 ? toon('notVal', Math.round(notaryFee(P))) : '';
     E('notHint').textContent = mode.not==='pct'
-      ? (nBase>0 ? ('= '+eur.format(notaryFee(P))+' incl. btw, oftewel '+(notaryFee(P)/nBase*100).toFixed(2).replace('.',',')+'% van '
+      ? (nBase>0 ? ('incl. btw, oftewel '+(notaryFee(P)/nBase*100).toFixed(2).replace('.',',')+'% van '
                     +(onLandHint?'het grondaandeel':'de prijs')+'. Het barema is degressief, dus dat percentage daalt als de prijs stijgt.')
                  : 'Het wettelijke barema rekent per schijf. Vul een prijs in bij vak 1.')
       : (nBase>0 ? '= '+(v('notVal')/nBase*100).toFixed(2).replace('.',',')+'% van '+(onLandHint?'het grondaandeel':'de prijs')
@@ -1612,6 +1622,11 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
         }
         if(ev.key==='ArrowUp'||ev.key==='ArrowDown'){
           ev.preventDefault();
+          // Een readonly vak draagt een uitkomst en hoort niet met een toets te
+          // verschuiven. render() zet de waarde toch weer terug, dus dit is een gordel
+          // naast de bretellen en geen toets kan het onderscheiden; het staat er omdat
+          // een readonly vak schrijven verkeerd is, niet omdat het hier kwaad kan.
+          if(el.readOnly) return;
           stapMet(el, ev.key==='ArrowUp' ? 1 : -1);
           var basis=paarBasis(el.id);
           if(basis) fromNum(basis,el.id);        // de duim volgt het vak
@@ -1708,6 +1723,9 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     var d=[];
     function zet(k,w){ d.push(k+'='+encodeURIComponent(w)); }
     linkNum.forEach(function(k){
+      // In de baremastand is het ereloon een uitkomst en geen invoer. Zonder deze
+      // uitzondering draagt elke link een bedrag dat niemand heeft ingevuld.
+      if(k==='notVal' && mode.not!=='eur') return;
       var w=linkWaarde(k);
       if(!zelfdeWaarde(w,start.num[k])) zet(k,w);
     });
