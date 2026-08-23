@@ -109,6 +109,15 @@ mee in het verzoek en komt in het logboek van de hostingpartij terecht, en een
 van die velden is het netto maandinkomen. Wat achter een hekje staat, blijft in
 de browser: het gaat niet mee in het verzoek en niet in de verwijzende url.
 
+De beginwaarden waartegen dat "afwijkt" gemeten wordt, komen uit wat de html
+verklaart: `defaultValue`, `defaultChecked` en het attribuut op de schuifbalk.
+Niet uit wat er in de vakken staat als het script begint. Dat verschil is niet
+theoretisch. Een browser die formulierwaarden onthoudt, zet ze bij het herladen
+terug voordat het script draait. Wie dan de vakken leest, neemt de herstelde
+bedragen als beginwaarde, en alles wat daaraan gelijk is valt uit de link. Zo
+droeg een afgedrukt blad een code met alleen het vinkje dat na het herladen
+aanging, zonder aankoopprijs.
+
 De vorm is leesbaar, `#v1&price=450000&term=30&asOf=2026-08-23`, en geen base64
 van json. Dat laatste zou even lang zijn en verbergen wat er in de link zit; wie
 zijn eigen link kan lezen, ziet meteen dat zijn bedragen erin staan. Alleen wat

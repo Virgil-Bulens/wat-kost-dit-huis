@@ -7,6 +7,7 @@
 // de berekening, de afdrukweergave, en fouten in de console.
 
 import {chromium} from 'playwright';
+import {readFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {dirname, join} from 'node:path';
 
@@ -64,6 +65,52 @@ export async function openAlsGepubliceerd(fragment = '', opties = {}){
     // Het blad als pdf, zoals "afdrukken of pdf" het maakt. De aanklikbare link is
     // geen tekst maar een annotatie in het bestand, dus die is alleen hier te zien.
     async pdf(){ return pg.pdf(); },
+    async sluit(){ await pg.close(); }
+  };
+}
+
+// De pagina zoals een browser haar aanbiedt die formulierwaarden onthoudt: de vakken
+// staan al gevuld voordat het eigen script van de pagina begint. Dat is niet te
+// vervalsen door na het laden te vullen, want juist de volgorde is het geval. Daarom
+// wordt het bestand onderschept en gaat er een klein script vóór het script van de
+// pagina, dat de vakken zet zoals een herstellende browser dat doet.
+export async function openMetHersteldeVakken(waarden, fragment = ''){
+  const pg = await browser.newPage();
+  const fouten = [];
+  pg.on('pageerror', e => fouten.push('pageerror: ' + e.message));
+  pg.on('console', m => { if(m.type() === 'error') fouten.push('console: ' + m.text()); });
+  const html = readFileSync(join(wortel, 'index.html'), 'utf8');
+  const zet = Object.entries(waarden).map(([id, w]) =>
+    typeof w === 'boolean'
+      ? `document.getElementById(${JSON.stringify(id)}).checked=${w};`
+      : `document.getElementById(${JSON.stringify(id)}).value=${JSON.stringify(String(w))};`
+  ).join('');
+  const gewijzigd = html.replace('<script>', `<script>${zet}</script><script>`);
+  if(gewijzigd === html) throw new Error('het script van de pagina is niet gevonden');
+  await pg.route('**/index.html*', route => route.fulfill({
+    body: gewijzigd, contentType: 'text/html; charset=utf-8'
+  }));
+  await pg.goto(bestand + fragment);
+  return {
+    fouten,
+    async waarden(ids){
+      return pg.evaluate(list => {
+        const uit = {};
+        for(const id of list){
+          const el = document.getElementById(id);
+          uit[id] = el.type === 'checkbox' ? el.checked : el.value;
+        }
+        return uit;
+      }, ids);
+    },
+    async link(){
+      await pg.click('#linkBtn');
+      const url = await pg.$eval('#linkUrl', e => e.value);
+      return url.slice(url.indexOf('#'));
+    },
+    async attribuut(selector, naam){
+      return pg.evaluate(([s, n]) => document.querySelector(s)?.getAttribute(n) ?? null, [selector, naam]);
+    },
     async sluit(){ await pg.close(); }
   };
 }

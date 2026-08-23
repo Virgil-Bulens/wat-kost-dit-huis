@@ -1978,6 +1978,11 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
   var linkRadio=['vatRate','oldChoice'];
   var linkStand={mNot:'not', mFee:'fee', mLand:'land'};
   var MAX_FRAGMENT=4000, MAX_WAARDE=20;
+  // Drie vakken krijgen hun beginwaarde uit de schuifbalk in plaats van uit een value
+  // in de html; de bedragen blijven leeg, zodat er nergens een nul staat die de
+  // gebruiker moet wegvegen. Eén lijst, want de aanzet onderaan en de beginwaarden van
+  // de link moeten over dezelfde velden hetzelfde zeggen.
+  var UIT_BALK={termN:'term', rateN:'rate', ratioN:'ratio'};
 
   // het invoervak van een gekoppeld paar, of het veld zelf
   function linkVeld(k){ return E(pairOf[k]||k); }
@@ -1992,16 +1997,44 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     return r?r.value:'';
   }
 
-  // De beginwaarden worden opgenomen zodra de pagina staat en voordat een link
-  // wordt teruggezet. Daardoor staat geen enkele beginwaarde hier nog eens
-  // uitgeschreven: een nieuw veld met een value in de html komt er vanzelf goed uit.
+  // De beginwaarden komen uit wat de html verklaart en niet uit wat er in de vakken
+  // staat op het moment dat dit script begint. Dat verschil is niet theoretisch. Een
+  // browser die formulierwaarden onthoudt, zet ze bij het herladen terug voordat dit
+  // script draait. Wie de live waarden als beginwaarde opneemt, neemt dan de
+  // herstelde bedragen op, en alles wat daaraan gelijk is valt uit de link. Zo droeg
+  // een afgedrukt blad een code zonder aankoopprijs: de prijs was hersteld en dus
+  // gelijk aan de beginwaarde, en alleen het vinkje dat daarna aanging kwam er nog in.
+  //
+  // defaultValue en defaultChecked lezen het attribuut uit de html, niet de stand van
+  // het vak. Daardoor staat nog steeds geen enkele beginwaarde hier uitgeschreven: een
+  // nieuw veld met een value in de html komt er vanzelf goed uit.
   var start=null;
+  function beginWaarde(k){
+    var el=linkVeld(k);
+    // Een attribuut op de balk is altijd een kaal getal, dus dat gaat door parseFloat
+    // en niet door de ontleder van de Belgische vorm: '3.75' is daar 3,75 en niet 375.
+    if(UIT_BALK[el.id]) return String(parseFloat(E(UIT_BALK[el.id]).defaultValue)||0);
+    var ruw=el.defaultValue, n=ontleed(ruw, soortVan(el.id));
+    return ruw.trim()==='' || isNaN(n) ? '' : String(n);
+  }
+  function beginRadio(naam){
+    var uit='';
+    Array.prototype.forEach.call(document.querySelectorAll('input[name='+naam+']'),function(r){
+      if(r.defaultChecked) uit=r.value;
+    });
+    return uit;
+  }
+  function beginKeuze(id){
+    var el=E(id), uit=el.options.length?el.options[0].value:'';
+    Array.prototype.forEach.call(el.options,function(o){ if(o.defaultSelected) uit=o.value; });
+    return uit;
+  }
   function neemBeginwaarden(){
     start={num:{}, chk:{}, sel:{}, radio:{}};
-    linkNum.forEach(function(k){ start.num[k]=linkWaarde(k); });
-    linkChk.forEach(function(k){ start.chk[k]=E(k).checked; });
-    linkSel.forEach(function(k){ start.sel[k]=E(k).value; });
-    linkRadio.forEach(function(k){ start.radio[k]=radioWaarde(k); });
+    linkNum.forEach(function(k){ start.num[k]=beginWaarde(k); });
+    linkChk.forEach(function(k){ start.chk[k]=E(k).defaultChecked; });
+    linkSel.forEach(function(k){ start.sel[k]=beginKeuze(k); });
+    linkRadio.forEach(function(k){ start.radio[k]=beginRadio(k); });
   }
 
   // '1.30' en '1.3' zijn hetzelfde bedrag, maar leeg is niet hetzelfde als nul:
@@ -2331,9 +2364,8 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
   });
   // Alleen de niet-geldvelden krijgen hun beginwaarde uit de schuifbalk. De bedragen
   // blijven leeg, zodat er nergens een nul staat die de gebruiker moet wegvegen.
-  ['termN','rateN','ratioN'].forEach(function(id){
-    var r={termN:'term', rateN:'rate', ratioN:'ratio'}[id];
-    if(E(id).value==='') E(id).value=toon(id, parseFloat(E(r).value)||0);
+  Object.keys(UIT_BALK).forEach(function(id){
+    if(E(id).value==='') E(id).value=toon(id, parseFloat(E(UIT_BALK[id]).value)||0);
   });
   // Het ereloon komt uit het barema, dus het invoervak staat uit tot je op euro schakelt.
   applyMode('not', mode.not);

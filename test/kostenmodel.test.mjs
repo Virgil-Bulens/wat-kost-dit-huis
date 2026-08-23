@@ -12,7 +12,7 @@ import {readFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {dirname, join} from 'node:path';
 import {startBrowser, stopBrowser, openPagina, openAlsGepubliceerd,
-        annuiteit, BAREMA_KOOP, schijfbedrag} from './pagina.mjs';
+        openMetHersteldeVakken, annuiteit, BAREMA_KOOP, schijfbedrag} from './pagina.mjs';
 import {PNG} from 'pngjs';
 import jsQRmod from 'jsqr';
 
@@ -1379,6 +1379,26 @@ describe('de weg terug van papier naar de invoer', () => {
       'alleen een ander fragment maakt van de link een sprong binnen het blad');
     assert.equal(href.split('#')[0], GEPUBLICEERD + 'index.html',
       'het hoort dezelfde pagina te zijn, anders geschreven');
+    await p.sluit();
+  });
+
+  test('een browser die de vakken zelf terugzet, maakt de link niet leeg', async () => {
+    // Het geval dat op papier misging. De browser onthield de bedragen en zette ze
+    // terug voordat het script van de pagina begon. De beginwaarden werden toen uit
+    // de vakken gelezen, dus de teruggezette bedragen golden als beginwaarde en
+    // vielen uit de link. Het blad droeg een code zonder aankoopprijs: alleen het
+    // vinkje dat daarna aanging stond er nog in.
+    const p = await openMetHersteldeVakken({priceN:'€ 450.000', inc1:'€ 5.200', termN:'30'});
+    assert.deepEqual(await p.waarden(['priceN','inc1','termN']),
+      {priceN:'€ 450.000', inc1:'€ 5.200', termN:'30'}, 'de teruggezette invoer hoort te blijven staan');
+
+    const frag = await p.link();
+    assert.match(frag, /price=450000/, 'de prijs hoort in de link te staan: ' + frag);
+    assert.match(frag, /inc1=5200/);
+    assert.match(frag, /term=30/);
+    assert.equal(await p.attribuut('#pd-link', 'href'), GEPUBLICEERD + frag,
+      'het blad hoort dezelfde invoer te dragen als de knop');
+    assert.deepEqual(p.fouten, []);
     await p.sluit();
   });
 
