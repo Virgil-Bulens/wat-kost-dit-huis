@@ -34,6 +34,12 @@ decimaalteken. Zo leest een `3.2` van een cijferblok als drie komma twee, en
 loopt het wissen van een cijfer uit `600.000` niet vast op de tussenstand
 `600.00`.
 
+Staat het ereloon van de notaris op barema, dan is dat vak geen invoer maar een
+uitkomst: het barema rekent per schijf en het bedrag dat eruit komt staat er ook
+in, en het volgt de prijs. Zo'n vak staat op `readonly` en niet op `disabled`,
+want het bedrag hoort leesbaar en selecteerbaar te blijven. Het gaat ook niet mee
+in een deelbare link; anders draagt elke link een bedrag dat niemand invulde.
+
 De pijltjestoetsen stappen met de stap van het veld, duizend bij een prijs en een
 honderdste bij een rentevoet. Dat deed `type="number"` zelf en het is hier
 herschreven, want die stappen doen mee in het gebruik.

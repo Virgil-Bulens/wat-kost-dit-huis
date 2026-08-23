@@ -101,17 +101,63 @@ describe('ereloon van de notaris', () => {
 
   test('een vast bedrag in euro overschrijft het barema', async () => {
     const p = await metPagina({priceN:400000, b1InN:2000000});
-    assert.equal(await p.uitgeschakeld('notVal'), true,
-      'in de baremastand hoort het invoervak uit te staan');
+    const uitBarema = euro(schijfbedrag(BAREMA_KOOP, 400000) * BTW);
+
+    // In de baremastand rekent het barema en is het vak niet te wijzigen. Het staat op
+    // readonly en niet op disabled, want er staat een uitkomst in die leesbaar hoort te
+    // blijven.
+    assert.equal(await p.alleenLezen('notVal'), true,
+      'in de baremastand hoort het invoervak niet te wijzigen te zijn');
 
     await p.klik('#notSeg button[data-m="eur"]');
-    assert.equal(await p.uitgeschakeld('notVal'), false);
+    assert.equal(await p.alleenLezen('notVal'), false);
     await p.vul({notVal:5000});
     assert.equal((await p.regels('r-buy'))['Ereloon notaris'], 5000);
 
     await p.klik('#notSeg button[data-m="pct"]');
+    assert.equal((await p.regels('r-buy'))['Ereloon notaris'], uitBarema);
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('in de baremastand staat het berekende ereloon in het vak', async () => {
+    // Het vak stond leeg zolang je het op barema liet staan, en dan lijkt het alsof er
+    // niets berekend wordt. Het barema rekent per schijf, dus het bedrag dat eruit komt
+    // hoort er ook in te staan, en het hoort de prijs te volgen.
+    const p = await metPagina({priceN:250000});
+    const bij = n => '\u20AC ' + new Intl.NumberFormat('nl-BE',
+      {maximumFractionDigits:0}).format(euro(schijfbedrag(BAREMA_KOOP, n) * BTW));
+
+    assert.equal((await p.waarden(['notVal'])).notVal, bij(250000));
+    await p.vul({priceN:400000});
+    assert.equal((await p.waarden(['notVal'])).notVal, bij(400000),
+      'het vak volgt de prijs niet');
+
+    // en het staat gelijk met wat het resultaatblok zegt
     assert.equal((await p.regels('r-buy'))['Ereloon notaris'],
       euro(schijfbedrag(BAREMA_KOOP, 400000) * BTW));
+
+    geenFouten(p);
+    await p.sluit();
+
+    // Zonder prijs valt er niets te rekenen, dan blijft het vak leeg. Dat vraagt een
+    // verse pagina: het invoervak leegmaken laat de schuifbalk staan, en v() valt daar
+    // met opzet op terug, dus dan is er nog steeds een prijs.
+    const leeg = await metPagina();
+    assert.equal((await leeg.waarden(['notVal'])).notVal, '');
+    geenFouten(leeg);
+    await leeg.sluit();
+  });
+
+  test('een uitkomst gaat niet mee in een deelbare link', async () => {
+    // Zou het ereloon in de baremastand meegaan, dan draagt elke link een bedrag dat
+    // niemand heeft ingevuld. In de euro-stand is het wel invoer en gaat het wel mee.
+    const p = await metPagina({priceN:400000});
+    assert.doesNotMatch(await p.link(), /notVal/);
+
+    await p.klik('#notSeg button[data-m="eur"]');
+    await p.vul({notVal:5000});
+    assert.match(await p.link(), /notVal=5000/);
     geenFouten(p);
     await p.sluit();
   });
