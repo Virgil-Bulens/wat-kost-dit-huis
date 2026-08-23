@@ -99,7 +99,17 @@ a:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radi
 .tile.is-alert .val{color:var(--alert)}
 .tile.is-warn .val{color:var(--warn)}
 .tile.is-pos .val{color:var(--pos)}
-.tile.act{display:flex; align-items:center; justify-content:center; padding:10px 16px}
+.tile.act{display:flex; align-items:center; justify-content:center; gap:8px; padding:10px 16px}
+
+/* De strook met de deelbare link. Ze staat in de vastgeplakte balk, dus ze is er
+   alleen zolang iemand ze opvraagt; anders zou de balk blijvend hoger staan. */
+.linkbar{display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  padding:10px 18px; border-top:1px solid var(--line); background:var(--surface-2)}
+.linkbar[hidden]{display:none}
+.linkbar input{flex:1 1 320px; min-width:0; font:inherit; font-size:12.5px;
+  padding:7px 10px; border:1px solid var(--line-2); border-radius:6px;
+  background:var(--surface); color:var(--ink)}
+.linkbar .hint{flex:1 1 100%; font-size:12px; color:var(--muted); margin:0}
 .btn{font:inherit; font-size:13px; font-weight:600; display:inline-flex; align-items:center; gap:7px;
   padding:8px 13px; border:1px solid var(--line-2); border-radius:7px; background:var(--surface-2);
   color:var(--ink); cursor:pointer; white-space:nowrap}
@@ -222,8 +232,9 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
   .cols{grid-template-columns:1fr; gap:0}
   .summary-grid{grid-template-columns:1fr 1fr}
   /* de balk blijft vastgeplakt, dus de knoprij houdt zich op een smal scherm klein */
-  .tile.act{grid-column:1/-1; padding:8px 14px}
-  .btn{width:100%; justify-content:center; padding:7px 12px; font-size:12.5px}
+  .tile.act{grid-column:1/-1; padding:8px 14px; flex-wrap:wrap}
+  .btn{flex:1 1 auto; justify-content:center; padding:7px 12px; font-size:12.5px}
+  .linkbar{padding:8px 14px}
 }
 @media (max-width:420px){
   .trio, .pair{grid-template-columns:1fr}
@@ -336,7 +347,7 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     <h1>Wat kost dit huis?</h1>
     <p>Alles wat er bij een woningaankoop komt kijken: wat er bovenop de vraagprijs komt, wat je overhoudt als je eerst je eigen woning verkoopt, hoeveel je moet lenen en wat dat elke maand kost. Vul in wat je weet. Elke schuifbalk heeft ook een invoervak, zodat je een exact bedrag kan typen.</p>
 
-    <p class="privacy"><span class="ic">&#10003;</span><span><b>Privé.</b> Alles wat je invult blijft op je eigen toestel; er wordt niets verstuurd of bewaard. <a href="https://github.com/Virgil-Bulens/wat-kost-dit-huis" target="_blank" rel="noreferrer">Bekijk de broncode</a></span></p>
+    <p class="privacy"><span class="ic">&#10003;</span><span><b>Privé.</b> Alles wat je invult blijft op je eigen toestel; deze pagina verstuurt en bewaart niets. Maak je een link om te bewaren of te delen, dan staan je bedragen in die link. <a href="https://github.com/Virgil-Bulens/wat-kost-dit-huis" target="_blank" rel="noreferrer">Bekijk de broncode</a></span></p>
 
     <div class="disclaimer">
       <h2>Lees dit eerst</h2>
@@ -361,7 +372,16 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8.5V3.5h10v5M7 17.5H5.5A1.5 1.5 0 0 1 4 16v-4.5A1.5 1.5 0 0 1 5.5 10h13A1.5 1.5 0 0 1 20 11.5V16a1.5 1.5 0 0 1-1.5 1.5H17M7 14.5h10v6H7z" stroke-linecap="round" stroke-linejoin="round"/></svg>
           Afdrukken of pdf
         </button>
+        <button type="button" class="btn" id="linkBtn" title="Een link maken die je invoer meeneemt, om te bewaren of te delen">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13.5a3.5 3.5 0 0 0 5 0l3-3a3.5 3.5 0 0 0-5-5l-1.5 1.5M14 10.5a3.5 3.5 0 0 0-5 0l-3 3a3.5 3.5 0 0 0 5 5L12.5 17" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Link bewaren
+        </button>
       </div>
+    </div>
+    <div class="linkbar" id="linkBar" hidden>
+      <input type="text" id="linkUrl" readonly aria-label="Link met je invoer">
+      <span class="mini" id="linkMsg" role="status" aria-live="polite"></span>
+      <p class="hint">Deze link bevat de bedragen die je invulde. Hij gaat niet naar deze pagina of naar een server, maar wie hem krijgt, ziet je cijfers. Behandel hem als een document.</p>
     </div>
   </div>
 </div>
@@ -669,7 +689,7 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
   <p><b>Het ereloon bij nieuwbouw</b> wordt hier op het grondaandeel gerekend en niet op de volle prijs. Alleen de grond gaat via een notari&euml;le akte; het gebouw zit in een aannemingsovereenkomst, waar geen ereloon van de notaris op staat. Zolang je geen grondaandeel invult, rekent de pagina op de volle prijs en is de schatting dus te hoog.</p>
   <p><b>De maandlast</b> wordt berekend met de equivalente maandrente, de twaalfde wortel uit de jaarrente. Dat is de Belgische conventie. Ter controle, het voorbeeld van Wikifin: &euro; 100.000 op 20 jaar aan 2% geeft &euro; 505,03 per maand en &euro; 21.206,35 aan intrest. De aankoopkosten zijn geijkt op de infofiche van notaris.be, waar een gezinswoning van &euro; 250.000 in Vlaanderen &euro; 9.370 aan kosten geeft.</p>
   <p><b>Het deel van je inkomen</b> staat er twee keer, want de twee getallen zeggen iets anders. Het eerste is de aflossing alleen, kapitaal en intrest. Het tweede is alles wat er maandelijks aan de woning weggaat, dus met de brandverzekering, de schuldsaldoverzekering en de onroerende voorheffing erbij. Het kerncijfer bovenaan en de afgeleide maximale aankoopprijs staan op dat tweede getal, want dat is waar een bank naar kijkt, samen met wat er overblijft om van te leven. De vuistregel van een derde wordt wel tegen het eerste getal gelegd, want die gaat over de afbetaling zelf; de verzekeringen en de onroerende voorheffing komen daar volgens diezelfde bron bovenop. Andere maandelijkse kredieten staan niet in die percentages, maar wel in de afgeleide maximale aankoopprijs en in wat er overblijft; een bank telt ze bij je aflossing. En wat er helemaal niet in zit: verwarming, elektriciteit, water, onderhoud en syndicuskosten. Je werkelijke woonlast ligt dus hoger dan het percentage dat hier staat.</p>
-  <p><b>Privacy.</b> Alles wat je invult, blijft in je browser. Deze pagina bevat geen formulier dat verstuurt, geen fetch of XMLHttpRequest, geen cookies, geen localStorage, geen analytics en geen externe bestanden of webfonts. Er worden dus geen persoonsgegevens door deze pagina verwerkt en er is geen cookiebanner nodig. Zoals bij elke website registreert de hostingpartij wel technische gegevens van de opvraging, waaronder je IP-adres; dat gebeurt buiten deze pagina om en valt onder het privacybeleid van die partij.</p>
+  <p><b>Privacy.</b> Alles wat je invult, blijft in je browser. Deze pagina bevat geen formulier dat verstuurt, geen fetch of XMLHttpRequest, geen cookies, geen localStorage, geen analytics en geen externe bestanden of webfonts. De knop "Link bewaren" maakt een link met je invoer erin. Die invoer staat achter een hekje in de link en niet in een query: wat achter een hekje staat, gaat niet mee in het verzoek naar de server en niet in de verwijzende url, dus ook niet in het logboek van de hostingpartij. De link komt ook niet vanzelf in je adresbalk of je geschiedenis; hij bestaat pas als je op de knop drukt. Wat je zelf met de link doet, is een andere zaak: wie hem krijgt, ziet de bedragen die je invulde. Er worden dus geen persoonsgegevens door deze pagina verwerkt en er is geen cookiebanner nodig. Zoals bij elke website registreert de hostingpartij wel technische gegevens van de opvraging, waaronder je IP-adres; dat gebeurt buiten deze pagina om en valt onder het privacybeleid van die partij.</p>
   <p><b>Aansprakelijkheid.</b> Deze rekenhulp wordt aangeboden zoals ze is, zonder enige garantie. De auteur aanvaardt geen aansprakelijkheid voor onjuiste of verouderde bedragen, noch voor schade die voortvloeit uit het gebruik ervan. Wie deze pagina verder verspreidt of op een eigen website plaatst, blijft zelf verantwoordelijk voor de juistheid van de informatie tegenover zijn cliënten en voor de beroepsregels die op hem van toepassing zijn.</p>
   <p><b>Bronnen.</b> Tarieven nagekeken op 22 augustus 2026 tegen vlaanderen.be, notaris.be, wikifin.be en economie.fgov.be. Het barema van de koopakte is getoetst op een doorgerekend voorbeeld van &euro; 150.000, dat uitkomt op &euro; 1.878,66 aan ereloon. Bedragen zijn afgerond op hele euro's.</p>
   <p class="colophon"><b>Broncode.</b> Deze rekenhulp is één statisch HTML-bestand. De volledige broncode staat op <a href="https://github.com/Virgil-Bulens/wat-kost-dit-huis" target="_blank" rel="noreferrer">GitHub</a>. &copy; 2026 Virgil Bulens, PolyForm Noncommercial License 1.0.0.</p>
@@ -770,7 +790,10 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
   // enkel statisch HTML-bestand zonder externe verzoeken, en dat is precies wat
   // de privacybelofte draagt. Een tweede bestand zou een extra verzoek zijn.
   var RATES={
-    asOf:'22 augustus 2026',
+    // In ISO-vorm, want deze datum gaat mee in een deelbare link en moet daar
+    // machineleesbaar zijn. De datum in het proza op de pagina staat in het
+    // Nederlands; een toets houdt beide gelijk.
+    asOf:'2026-08-22',
     duty:{own:0.02, other:0.12, land:0.12},        // Vlaanderen 2026
     vatOnFees:0.21,
     // Enige eigen bescheiden woning. Vanaf 2026 één maximumprijs, zonder onderscheid
@@ -856,37 +879,44 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     var sp=v('sale');
     return mode.fee==='pct' ? sp*(v('feeVal')/100)*1.21 : v('feeVal')*1.21;
   }
-  // Het ereloon staat hier niet bij: dat schakelt tussen barema en een vast bedrag
-  // en heeft geen omrekening tussen procent en euro nodig, zie swap() hieronder.
-  var segOf={fee:['feeVal','feeSeg'], land:['landVal','landSeg']};
-  var stepOf={fee:[0.1,100], land:[0.5,1000]};
+  // Het ereloon staat er nu ook bij, want elke schakelaar heeft een invoervak en een
+  // knoppenrij. Het schakelt wel tussen barema en een vast bedrag in plaats van
+  // tussen procent en euro, dus het rekent niets om; zie swap() hieronder.
+  var segOf={not:['notVal','notSeg'], fee:['feeVal','feeSeg'], land:['landVal','landSeg']};
+  var stepOf={not:[0.05,100], fee:[0.1,100], land:[0.5,1000]};
   var backTo={fee:3, land:''};
+
+  // De stand aanzetten zonder de waarde aan te raken: de stapgrootte, de knoppen,
+  // en bij het ereloon het invoervak dat in de baremastand niet in gebruik is.
+  // Dit staat los van swap(), want een teruggezette link brengt zijn waarde al in
+  // de juiste eenheid mee en mag dus niet nog eens omgerekend worden.
+  function applyMode(which,m){
+    var inp=E(segOf[which][0]);
+    mode[which]=m;
+    inp.step = m==='eur' ? stepOf[which][1] : stepOf[which][0];
+    if(which==='not') inp.disabled = m!=='eur';
+    Array.prototype.forEach.call(E(segOf[which][1]).querySelectorAll('button'),function(b){
+      b.setAttribute('aria-pressed', String(b.dataset.m===m));
+    });
+  }
+
+  // Op de knop geklikt: de waarde meeverhuizen naar de nieuwe eenheid en dan de
+  // stand aanzetten.
   function swap(which,m){
     if(mode[which]===m) return;
+    var inp=E(segOf[which][0]);
     if(which==='not'){
       // Het barema rekent zelf, dus in die stand is het invoervak niet in gebruik.
       // Bij het omschakelen naar een vast bedrag vullen we de baremawaarde voor,
       // zodat er iets bruikbaars staat om vanaf te vertrekken.
-      var nv=E('notVal');
-      if(m==='eur'){ nv.value=String(Math.round(notaryFee(v('price')))); nv.step=100; }
-      mode.not=m;
-      nv.disabled = m!=='eur';
-      Array.prototype.forEach.call(E('notSeg').querySelectorAll('button'),function(b){
-        b.setAttribute('aria-pressed', String(b.dataset.m===m));
-      });
-      calc(); return;
+      if(m==='eur') inp.value=String(Math.round(notaryFee(v('price'))));
+    } else if(inp.value.trim()!==''){
+      var base=which==='fee'?v('sale'):v('price');
+      var cur=parseFloat(inp.value)||0;
+      inp.value = m==='eur' ? Math.round(base*cur/100)
+                            : (base>0?(cur/base*100).toFixed(2):backTo[which]);
     }
-    var inp=E(segOf[which][0]);
-    var base=which==='not'?notaryBase(v('price')):which==='fee'?v('sale'):v('price');
-    var cur=parseFloat(inp.value)||0, blank=inp.value.trim()==='';
-    inp.step = m==='eur' ? stepOf[which][1] : stepOf[which][0];
-    if(!blank) inp.value = m==='eur' ? Math.round(base*cur/100)
-                                    : (base>0?(cur/base*100).toFixed(2):backTo[which]);
-    mode[which]=m;
-    var seg=E(segOf[which][1]);
-    Array.prototype.forEach.call(seg.querySelectorAll('button'),function(b){
-      b.setAttribute('aria-pressed', String(b.dataset.m===m));
-    });
+    applyMode(which,m);
     calc();
   }
 
@@ -1207,6 +1237,15 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     var msg='';
     function say(c,ic,t){ msg+='<div class="note '+c+'"><span class="ic">'+ic+'</span><span>'+t+'</span></div>'; }
 
+    // Een link bewaart de invoer, niet de uitkomst. Wordt hij geopend nadat de
+    // tarieven zijn nagekeken, dan staan er andere bedragen dan toen hij gemaakt
+    // werd. Dit staat boven de vroege return hieronder, want de waarschuwing
+    // geldt ook als er nog geen prijs is ingevuld.
+    if(linkAsOf && linkAsOf!==RATES.asOf)
+      say('warn','!','<b>Deze link is gemaakt toen de tarieven van '+datumNL(linkAsOf)+' golden.</b> '
+        +'De bedragen hieronder zijn gerekend met de tarieven van '+datumNL(RATES.asOf)
+        +'. Kijk de uitkomst dus opnieuw na.');
+
     if(P<=0){
       say('info','?','Vul een aankoopprijs in bij vak 1. Daarna vult de rest zich aan naarmate je meer gegevens ingeeft.');
       E('r-notes').innerHTML=msg; return;
@@ -1394,6 +1433,165 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
 
   function calc(){ render(); buildPrint(); }
 
+  // --- Bewaarbare en deelbare link ------------------------------------------
+  //
+  // De invoer gaat in de fragmentidentificator, achter een #, en niet in een query
+  // achter een ?. Wat achter een ? staat gaat mee in het verzoek en komt in het
+  // logboek van de hostingpartij terecht, en inc1 is iemands netto maandinkomen.
+  // Een fragment blijft in de browser: het gaat niet mee in het verzoek en niet in
+  // de Referer.
+  //
+  // De vorm is leesbaar, #v1&price=450000&term=30, en geen base64 van json: dat is
+  // even lang en het verbergt voor de bezoeker wat er in zijn eigen link zit.
+  // Alleen wat afwijkt van de beginwaarde gaat mee, dus een gewone link blijft
+  // kort. De v1 vooraan houdt de weg open om de vorm te wijzigen zonder oude links
+  // stil verkeerd te lezen.
+  var LINK_VERSIE='v1';
+  // De sleutel is de id van het veld. Bij een gekoppeld paar is dat de basis-id,
+  // want de waarde komt uit het invoervak: dat is de bron van waarheid (zie pairOf).
+  var linkNum=['price','sale','b1In','b2In','term','rate','ratio',
+               'landVal','notVal','disb','reno','moving','feeVal','certs',
+               'oldBal','oldRate','oldYears','portCost','bonus','release',
+               'b1Have','b1Min','b1Max','b2Have','b2Min','b2Max',
+               'mortFix','acc','bankFee','valFee',
+               'bridgeAmt','bridgeRate','bridgeMonths',
+               'inc1','debts','ovr','fire','ssv'];
+  var linkChk=['v6demo','v6only','v6area','v6five','hasHome','agent','hasOld','two'];
+  var linkSel=['kind','landTax'];
+  var linkRadio=['vatRate','oldChoice'];
+  var linkStand={mNot:'not', mFee:'fee', mLand:'land'};
+  var MAX_FRAGMENT=4000, MAX_WAARDE=20;
+
+  // het invoervak van een gekoppeld paar, of het veld zelf
+  function linkVeld(k){ return E(pairOf[k]||k); }
+  function radioWaarde(naam){
+    var r=document.querySelector('input[name='+naam+']:checked');
+    return r?r.value:'';
+  }
+
+  // De beginwaarden worden opgenomen zodra de pagina staat en voordat een link
+  // wordt teruggezet. Daardoor staat geen enkele beginwaarde hier nog eens
+  // uitgeschreven: een nieuw veld met een value in de html komt er vanzelf goed uit.
+  var start=null;
+  function neemBeginwaarden(){
+    start={num:{}, chk:{}, sel:{}, radio:{}};
+    linkNum.forEach(function(k){ start.num[k]=linkVeld(k).value.trim(); });
+    linkChk.forEach(function(k){ start.chk[k]=E(k).checked; });
+    linkSel.forEach(function(k){ start.sel[k]=E(k).value; });
+    linkRadio.forEach(function(k){ start.radio[k]=radioWaarde(k); });
+  }
+
+  // '1.30' en '1.3' zijn hetzelfde bedrag, maar leeg is niet hetzelfde als nul:
+  // een leeg vak toont zijn placeholder en dat verschil hoort de link te bewaren.
+  function zelfdeWaarde(a,b){
+    if(a===b) return true;
+    if(a===''||b==='') return false;
+    var x=parseFloat(a), y=parseFloat(b);
+    return !isNaN(x) && !isNaN(y) && x===y;
+  }
+
+  function invoerNaarLink(){
+    var d=[];
+    function zet(k,w){ d.push(k+'='+encodeURIComponent(w)); }
+    linkNum.forEach(function(k){
+      var w=linkVeld(k).value.trim();
+      if(!zelfdeWaarde(w,start.num[k])) zet(k,w);
+    });
+    linkChk.forEach(function(k){
+      if(E(k).checked!==start.chk[k]) zet(k,E(k).checked?'1':'0');
+    });
+    linkSel.forEach(function(k){ if(E(k).value!==start.sel[k]) zet(k,E(k).value); });
+    linkRadio.forEach(function(k){
+      var w=radioWaarde(k); if(w!==start.radio[k]) zet(k,w);
+    });
+    Object.keys(linkStand).forEach(function(k){
+      if(mode[linkStand[k]]!=='pct') zet(k,mode[linkStand[k]]);
+    });
+    // De tarievendatum gaat altijd mee, ook in een verder lege link: ze is het
+    // enige waaraan een link van vorig jaar zich later nog kan melden.
+    zet('asOf',RATES.asOf);
+    return location.href.split('#')[0]+'#'+LINK_VERSIE+(d.length?'&'+d.join('&'):'');
+  }
+
+  // Een link komt van buiten, dus elke sleutel wordt afgetoetst tegen de tabel en
+  // elke waarde tegen het veld waar ze in gaat. Wat niet klopt wordt genegeerd en
+  // niet geraden. Zonder dat aftoetsen zet kind=onzin de selectedIndex op -1,
+  // waarna selTxt over options[-1].text valt, en zet een waarde als 1e400 via
+  // fromNum een Infinity in de max van de schuifbalk.
+  var linkAsOf=null;
+  function linkNaarInvoer(){
+    var frag=location.hash.replace(/^#/,'');
+    if(!frag || frag.length>MAX_FRAGMENT) return;
+    var delen=frag.split('&');
+    if(delen.shift()!==LINK_VERSIE) return;
+    var nums={}, standen={};
+    delen.forEach(function(deel){
+      var i=deel.indexOf('=');
+      if(i<1) return;
+      var k=deel.slice(0,i), w;
+      try{ w=decodeURIComponent(deel.slice(i+1)); }catch(e){ return; }
+      if(w.length>MAX_WAARDE) return;
+      if(linkNum.indexOf(k)>=0){ nums[k]=w; return; }
+      if(linkChk.indexOf(k)>=0){ if(w==='0'||w==='1') E(k).checked=(w==='1'); return; }
+      if(linkSel.indexOf(k)>=0){
+        if(Array.prototype.some.call(E(k).options,function(o){ return o.value===w; })) E(k).value=w;
+        return;
+      }
+      if(linkRadio.indexOf(k)>=0){
+        // de waarde niet in een selector zetten: ze komt van buiten
+        Array.prototype.forEach.call(document.querySelectorAll('input[name='+k+']'),function(r){
+          if(r.value===w) r.checked=true;
+        });
+        return;
+      }
+      if(linkStand[k]){ if(w==='pct'||w==='eur') standen[k]=w; return; }
+      if(k==='asOf' && /^\d{4}-\d{2}-\d{2}$/.test(w)) linkAsOf=w;
+    });
+    // De standen eerst, en via applyMode: swap zou de waarde omrekenen, en die
+    // staat in de link al in de juiste eenheid.
+    Object.keys(standen).forEach(function(k){ applyMode(linkStand[k],standen[k]); });
+    Object.keys(nums).forEach(function(k){
+      var el=linkVeld(k), w=nums[k];
+      if(w===''){ el.value=''; }
+      else{
+        if(!/^\d+(\.\d+)?$/.test(w)) return;      // geen exponent, geen Infinity, geen min
+        var x=parseFloat(w);
+        var lo=parseFloat(el.min), hi=parseFloat(el.max);
+        if(!isNaN(lo) && x<lo) x=lo;
+        if(!isNaN(hi) && x>hi) x=hi;             // alleen waar het veld zelf een grens heeft
+        el.value=String(x);
+      }
+      if(pairOf[k]) fromNum(k,pairOf[k]);
+    });
+  }
+
+  var MAANDEN=['januari','februari','maart','april','mei','juni','juli',
+               'augustus','september','oktober','november','december'];
+  function datumNL(iso){
+    var d=iso.split('-');
+    return Number(d[2])+' '+MAANDEN[Number(d[1])-1]+' '+d[0];
+  }
+
+  // De adresbalk wordt bewust niet bijgewerkt terwijl je typt, en er komt niets in
+  // de geschiedenis van de browser: dan zouden de bedragen op elke schermafdruk
+  // staan en in de geschiedenis blijven. De link bestaat pas als iemand erom
+  // vraagt. De toets op de privacybelofte houdt die keuze vast.
+  function toonLink(){
+    var veld=E('linkUrl');
+    veld.value=invoerNaarLink();
+    E('linkBar').hidden=false;
+    // preventScroll: het veld staat in de vastgeplakte balk en is dus al zichtbaar;
+    // zonder dit springt de pagina naar het veld toe. De selectie blijft nodig,
+    // want ctrl+c is de weg die overal werkt.
+    veld.focus({preventScroll:true}); veld.select();
+    function meld(t){ E('linkMsg').textContent=t; }
+    meld('');
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(veld.value).then(function(){ meld('Gekopieerd'); },
+                                                     function(){ meld('Kopieer met ctrl+c'); });
+    } else meld('Kopieer met ctrl+c');
+  }
+
   // de gekoppelde schuifbalken staan hier niet bij: die krijgen hun eigen luisteraar hieronder
   ['kind','landVal','landTax','v6demo','v6only','v6area','v6five',
    'notVal','disb','reno','moving','hasHome','agent','feeVal','certs',
@@ -1415,7 +1613,14 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     if(E(id).value==='') E(id).value=E(r).value;
   });
   // Het ereloon komt uit het barema, dus het invoervak staat uit tot je op euro schakelt.
-  E('notVal').disabled = mode.not!=='eur';
+  applyMode('not', mode.not);
+
+  // Eerst de beginwaarden opnemen, dan pas een link terugzetten: zo weet het
+  // bouwen van een link wat een beginwaarde is, en vecht de aanzet hierboven niet
+  // met wat er uit de link komt.
+  neemBeginwaarden();
+  linkNaarInvoer();
+  E('linkBtn').addEventListener('click',toonLink);
   document.querySelectorAll('input[name=oldChoice], input[name=vatRate]').forEach(function(x){ x.addEventListener('change',calc); });
   [['notSeg','not'],['feeSeg','fee'],['landSeg','land']].forEach(function(pr){
     Array.prototype.forEach.call(E(pr[0]).querySelectorAll('button'),function(b){

@@ -9,6 +9,39 @@ gezamenlijke bedragen invullen of een tweede koper met eigen bedragen
 toevoegen. Elke schuifbalk heeft een invoervak, zodat je ook een exact bedrag
 kan typen.
 
+## Een link bewaren of delen
+
+De knop "Link bewaren" in de balk bovenaan maakt een link waarin je invoer zit,
+om als bladwijzer te bewaren of aan iemand door te sturen. De pagina zelf bewaart
+nog steeds niets: de bezoeker bewaart de link.
+
+De invoer staat achter een hekje en niet in een query. Dat is geen
+schoonheidsfout maar de kern van de zaak: wat achter een vraagteken staat, gaat
+mee in het verzoek en komt in het logboek van de hostingpartij terecht, en een
+van die velden is het netto maandinkomen. Wat achter een hekje staat, blijft in
+de browser: het gaat niet mee in het verzoek en niet in de verwijzende url.
+
+De vorm is leesbaar, `#v1&price=450000&term=30&asOf=2026-08-22`, en geen base64
+van json. Dat laatste zou even lang zijn en verbergen wat er in de link zit; wie
+zijn eigen link kan lezen, ziet meteen dat zijn bedragen erin staan. Alleen wat
+afwijkt van de beginwaarde gaat mee, dus een gewone link blijft kort. De `v1`
+vooraan houdt de weg open om de vorm te wijzigen zonder oude links stil verkeerd
+te lezen.
+
+De datum waarop de tarieven zijn nagekeken gaat altijd mee. Een link bewaart de
+invoer en niet de uitkomst, dus een link van vorig jaar rekent met de tarieven
+van vandaag; klopt die datum niet meer, dan zegt de pagina dat bij de
+aandachtspunten.
+
+De adresbalk wordt niet bijgewerkt terwijl je typt en er komt niets in de
+geschiedenis van de browser. Anders zouden de bedragen op elke schermafdruk staan
+en in de geschiedenis blijven staan. De link bestaat pas als je op de knop drukt.
+Een toets houdt die keuze vast.
+
+Een link die van buiten komt, wordt niet op zijn woord geloofd: elke sleutel gaat
+tegen de lijst met velden en elke waarde tegen het veld waar ze in gaat. Wat niet
+klopt wordt genegeerd, niet geraden.
+
 ## Afdrukken
 
 De knop "Afdrukken of pdf" in de balk bovenaan drukt een eigen overzicht af
@@ -59,7 +92,12 @@ bevriest ook de fout:
 - het voorbeeld van Wikifin voor de maandlast: EUR 100.000 op 20 jaar aan 2%
   geeft EUR 505,03 per maand en EUR 21.206,35 aan intrest.
 
-Verder wordt getoetst dat de brug naar het kredietbedrag sluit, dat de heffingen
+Verder wordt getoetst dat een link met de invoer erin rondgaat, dat hij kort
+blijft zolang de invoer op haar beginwaarden staat, dat een stand op euro niet
+alsnog wordt omgerekend, dat een kapotte of vreemde link niets stukmaakt en de
+pagina op haar beginwaarden laat, dat elk invoerveld in de link past, en dat een
+link met een oudere tarievendatum zich meldt. Daarnaast dat de brug naar het
+kredietbedrag sluit, dat de heffingen
 van de kredietakte op het gewaarborgde bedrag staan, dat het percentage van je
 inkomen en de afgeleide maximumprijs op dezelfde basis staan, dat de
 waarschuwing over het verlaagde tarief verschijnt zodra er nog een woning te
@@ -81,6 +119,10 @@ Eén statisch HTML-bestand. Geen build, geen afhankelijkheden, geen externe
 verzoeken. Wat een bezoeker invult blijft in zijn browser: er is geen `fetch`,
 geen `XMLHttpRequest`, geen formulier, geen cookie, geen `localStorage` en geen
 enkel extern bestand. Ook geen webfonts, dus geen IP-adressen naar derden.
+
+De pagina verstuurt dus niets. Een link die een bezoeker zelf maakt, bevat wel de
+bedragen die hij invulde: die gaan niet naar deze pagina en niet naar een server,
+maar wie de link krijgt, ziet ze. Zie het hoofdstuk over de link hierboven.
 
 ## Tarieven
 

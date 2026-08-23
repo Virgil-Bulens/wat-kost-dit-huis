@@ -21,12 +21,17 @@ export async function stopBrowser(){ if(browser) await browser.close(); }
 // Eén verse pagina per test, zodat tests elkaar niet beïnvloeden. Elke pagina
 // houdt haar eigen lijst met fouten bij; een test die niets anders doet dan de
 // invoer vullen, faalt alsnog als de pagina intern struikelt.
-export async function openPagina(){
+//
+// Met een fragment erbij wordt de pagina geopend zoals iemand een bewaarde of
+// gedeelde link opent. Dat is de enige manier om het terugzetten te toetsen: de
+// invoer staat achter een hekje, dus ze hoort bij de url en niet bij een handeling
+// op de pagina.
+export async function openPagina(fragment = ''){
   const pg = await browser.newPage();
   const fouten = [];
   pg.on('pageerror', e => fouten.push('pageerror: ' + e.message));
   pg.on('console', m => { if(m.type() === 'error') fouten.push('console: ' + m.text()); });
-  await pg.goto(bestand);
+  await pg.goto(bestand + fragment);
 
   return {
     fouten,
@@ -59,6 +64,49 @@ export async function openPagina(){
     },
 
     async klik(selector){ await pg.click(selector); },
+
+    // De link zoals de knop hem maakt, zonder het pad ervoor: een test kan hem zo
+    // vergelijken en hem als fragment aan openPagina meegeven.
+    async link(){
+      await pg.click('#linkBtn');
+      const url = await pg.$eval('#linkUrl', e => e.value);
+      const i = url.indexOf('#');
+      return i < 0 ? '' : url.slice(i);
+    },
+
+    // De waarden van invoervelden, om een rondgang te vergelijken. Bij een
+    // gekoppeld paar hoort het invoervak gelezen te worden: dat is de bron van
+    // waarheid, de schuifbalk rondt af.
+    async waarden(ids){
+      return pg.evaluate(lijst => {
+        const uit = {};
+        for(const id of lijst){
+          const el = document.getElementById(id);
+          if(!el) throw new Error('onbekend invoerveld: ' + id);
+          uit[id] = el.type === 'checkbox' ? el.checked : el.value;
+        }
+        return uit;
+      }, ids);
+    },
+
+    // Welke knop van een schakelaar ingedrukt staat, zodat een test ziet of een
+    // stand uit de link is teruggezet.
+    async stand(seg){
+      return pg.evaluate(s => [...document.querySelectorAll('#' + s + ' button')]
+        .filter(b => b.getAttribute('aria-pressed') === 'true')
+        .map(b => b.dataset.m)[0] ?? '', seg);
+    },
+
+    // De bovengrens van een schuifbalk. Die verschuift zodra iemand een groter
+    // bedrag typt, dus een vijandige link kan er iets onmogelijks in zetten.
+    async grens(id){
+      return pg.evaluate(i => document.getElementById(i).max, id);
+    },
+
+    // De keuze die in een groep radioknoppen aanstaat.
+    async keuze(naam){
+      return pg.evaluate(n => document.querySelector('input[name=' + n + ']:checked')?.value ?? '', naam);
+    },
 
     // De bedragen uit een resultaatblok, op hun label. Bedragen komen terug als
     // getal, zodat een test ermee kan rekenen in plaats van op tekst te matchen.
