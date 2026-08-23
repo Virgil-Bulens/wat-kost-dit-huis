@@ -141,11 +141,11 @@ input[type=range]::-moz-range-thumb{width:17px; height:17px; border-radius:50%; 
   border:2.5px solid var(--surface); box-shadow:0 0 0 1px var(--line-2)}
 input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:4px}
 
-input[type=number],select{width:100%; min-width:0; max-width:100%; padding:8px 10px;
+input.amt,select{width:100%; min-width:0; max-width:100%; padding:8px 10px;
   font:inherit; font-size:14px;
   font-family:var(--mono); font-variant-numeric:tabular-nums;
   background:var(--surface-2); color:var(--ink); border:1px solid var(--line-2); border-radius:7px}
-input[type=number]{appearance:textfield; -moz-appearance:textfield}
+/* de spinknoppen waren hier al weg; de velden zijn nu text, met eigen opmaak */
 select{font-family:var(--sans)}
 input:focus-visible,select:focus-visible{outline:2px solid var(--accent); outline-offset:1px; border-color:var(--accent)}
 .pair{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:11px}
@@ -395,7 +395,7 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     <h2>1 &middot; De woning die je koopt</h2>
     <div class="field">
       <div class="flab"><label for="price">Aankoopprijs</label>
-        <input type="number" class="pin num" id="priceN" min="0" step="1000" placeholder="0"></div>
+        <input type="text" inputmode="decimal" class="amt pin num" id="priceN" data-min="0" data-step="1000" placeholder="&euro; 0"></div>
       <input type="range" id="price" min="0" max="1200000" step="5000" value="0" aria-label="Aankoopprijs">
     </div>
     <div class="field">
@@ -411,7 +411,7 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
       <span class="mini">Grondaandeel in de prijs
         <span class="seg" id="landSeg"><button type="button" data-m="pct" aria-pressed="true">%</button><button type="button" data-m="eur" aria-pressed="false">&euro;</button></span>
       </span>
-      <input type="number" id="landVal" placeholder="0" step="1" min="0" aria-label="Grondaandeel in de prijs">
+      <input class="amt" type="text" inputmode="decimal" id="landVal" placeholder="0" data-step="1" data-min="0" aria-label="Grondaandeel in de prijs">
       <span class="sub-hint" id="landHint"></span>
     </div>
     <div class="field" id="landTaxBox">
@@ -449,14 +449,14 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
         <span class="mini">Ereloon notaris
           <span class="seg" id="notSeg"><button type="button" data-m="pct" aria-pressed="true">barema</button><button type="button" data-m="eur" aria-pressed="false">&euro;</button></span>
         </span>
-        <input type="number" id="notVal" value="1.3" step="0.05" min="0" aria-label="Ereloon notaris">
+        <input class="amt" type="text" inputmode="decimal" id="notVal" placeholder="&euro; 0" data-step="100" data-min="0" aria-label="Ereloon notaris">
         <span class="sub-hint" id="notHint"></span>
       </div>
-      <div><label class="mini" for="disb">Akte- en opzoekingskosten</label><input type="number" id="disb" value="1407" step="50" min="0"></div>
+      <div><label class="mini" for="disb">Akte- en opzoekingskosten</label><input class="amt" type="text" inputmode="decimal" id="disb" value="1407" data-step="50" data-min="0"></div>
     </div>
     <div class="pair" style="margin-top:13px">
-      <div><label class="mini" for="reno">Renovatie, mee te financieren</label><input type="number" id="reno" placeholder="0" step="1000" min="0"></div>
-      <div><label class="mini" for="moving">Verhuis en inrichting, zelf te betalen</label><input type="number" id="moving" placeholder="0" step="500" min="0"></div>
+      <div><label class="mini" for="reno">Renovatie, mee te financieren</label><input class="amt" type="text" inputmode="decimal" id="reno" placeholder="&euro; 0" data-step="1000" data-min="0"></div>
+      <div><label class="mini" for="moving">Verhuis en inrichting, zelf te betalen</label><input class="amt" type="text" inputmode="decimal" id="moving" placeholder="&euro; 0" data-step="500" data-min="0"></div>
     </div>
   </div>
 
@@ -466,7 +466,7 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     <div id="homeBox" style="display:none">
       <div class="field">
         <div class="flab"><label for="sale">Verkoopprijs</label>
-          <input type="number" class="pin num" id="saleN" min="0" step="1000" placeholder="0"></div>
+          <input type="text" inputmode="decimal" class="amt pin num" id="saleN" data-min="0" data-step="1000" placeholder="&euro; 0"></div>
         <input type="range" id="sale" min="0" max="1200000" step="5000" value="0" aria-label="Verkoopprijs">
       </div>
       <label class="check"><input type="checkbox" id="agent" checked> Verkopen via een makelaar</label>
@@ -475,10 +475,10 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
           <span class="mini">Commissie
             <span class="seg" id="feeSeg"><button type="button" data-m="pct" aria-pressed="true">%</button><button type="button" data-m="eur" aria-pressed="false">&euro;</button></span>
           </span>
-          <input type="number" id="feeVal" value="3" step="0.1" min="0" aria-label="Makelaarscommissie">
+          <input class="amt" type="text" inputmode="decimal" id="feeVal" value="3" data-step="0.1" data-min="0" aria-label="Makelaarscommissie">
           <span class="sub-hint" id="feeHint"></span>
         </div>
-        <div><label class="mini" for="certs">Attesten (EPC, keuring, bodem)</label><input type="number" id="certs" value="500" step="50" min="0"></div>
+        <div><label class="mini" for="certs">Attesten (EPC, keuring, bodem)</label><input class="amt" type="text" inputmode="decimal" id="certs" value="500" data-step="50" data-min="0"></div>
       </div>
     </div>
   </div>
@@ -488,9 +488,9 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     <label class="check"><input type="checkbox" id="hasOld"> Ik heb nog een hypothecair krediet lopen</label>
     <div id="oldBox" style="display:none">
       <div class="trio">
-        <div><label class="mini" for="oldBal">Nog openstaand</label><input type="number" id="oldBal" placeholder="0" step="1000" min="0"></div>
-        <div><label class="mini" for="oldRate">Rente per jaar (%)</label><input type="number" id="oldRate" placeholder="0" step="0.05" min="0"></div>
-        <div><label class="mini" for="oldYears">Jaren te gaan</label><input type="number" id="oldYears" placeholder="0" step="1" min="0" max="30"></div>
+        <div><label class="mini" for="oldBal">Nog openstaand</label><input class="amt" type="text" inputmode="decimal" id="oldBal" placeholder="&euro; 0" data-step="1000" data-min="0"></div>
+        <div><label class="mini" for="oldRate">Rente per jaar (%)</label><input class="amt" type="text" inputmode="decimal" id="oldRate" placeholder="0" data-step="0.05" data-min="0"></div>
+        <div><label class="mini" for="oldYears">Jaren te gaan</label><input class="amt" type="text" inputmode="decimal" id="oldYears" placeholder="0" data-step="1" data-min="0" data-max="30"></div>
       </div>
       <div class="field" style="margin-top:15px">
         <div class="radios">
@@ -501,12 +501,12 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
         </div>
       </div>
       <div class="pair" id="portBox" style="margin-top:13px">
-        <div><label class="mini" for="portCost">Kosten pandwisselakte</label><input type="number" id="portCost" value="2000" step="250" min="0"></div>
-        <div><label class="mini" for="bonus">Woonbonus per jaar</label><input type="number" id="bonus" placeholder="0" step="50" min="0"></div>
+        <div><label class="mini" for="portCost">Kosten pandwisselakte</label><input class="amt" type="text" inputmode="decimal" id="portCost" value="2000" data-step="250" data-min="0"></div>
+        <div><label class="mini" for="bonus">Woonbonus per jaar</label><input class="amt" type="text" inputmode="decimal" id="bonus" placeholder="&euro; 0" data-step="50" data-min="0"></div>
       </div>
       <div id="payoffBox" style="margin-top:13px">
         <label class="mini" for="release">Handlichting, het doorhalen van de hypotheek</label>
-        <input type="number" id="release" value="800" step="50" min="0">
+        <input class="amt" type="text" inputmode="decimal" id="release" value="800" data-step="50" data-min="0">
         <span class="sub-hint">Betaal je het krediet af bij de verkoop, dan moet de hypothecaire inschrijving op je oude woning doorgehaald worden. Dat gebeurt bij de notaris en kost doorgaans 700 tot 1.200 euro.</span>
       </div>
     </div>
@@ -517,25 +517,25 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     <p class="hint">Schuif of typ meteen bij "je inbreng" hoeveel eigen geld je in de aankoop stopt. De drie vakjes eronder zijn optioneel: vul "je hebt" in als je wil zien welke buffer er overblijft, en gebruik "minstens" en "hoogstens" om de schuifbalk te begrenzen. Koop je met twee en reken je met gezamenlijke bedragen, laat de tweede koper dan uit.</p>
     <div class="field">
       <div class="flab"><label for="b1In">Je inbreng</label>
-        <input type="number" class="pin num" id="b1InN" min="0" step="500" placeholder="0"></div>
+        <input type="text" inputmode="decimal" class="amt pin num" id="b1InN" data-min="0" data-step="500" placeholder="&euro; 0"></div>
       <input type="range" id="b1In" min="0" max="500000" step="500" value="0" aria-label="Je inbreng">
     </div>
     <div class="trio" style="margin-top:13px">
-      <div><label class="mini" for="b1Have">Je hebt (optioneel)</label><input type="number" id="b1Have" placeholder="0" step="500" min="0"></div>
-      <div><label class="mini" for="b1Min">Minstens inbrengen</label><input type="number" id="b1Min" placeholder="0" step="500" min="0"></div>
-      <div><label class="mini" for="b1Max">Hoogstens inbrengen</label><input type="number" id="b1Max" placeholder="0" step="500" min="0"></div>
+      <div><label class="mini" for="b1Have">Je hebt (optioneel)</label><input class="amt" type="text" inputmode="decimal" id="b1Have" placeholder="&euro; 0" data-step="500" data-min="0"></div>
+      <div><label class="mini" for="b1Min">Minstens inbrengen</label><input class="amt" type="text" inputmode="decimal" id="b1Min" placeholder="&euro; 0" data-step="500" data-min="0"></div>
+      <div><label class="mini" for="b1Max">Hoogstens inbrengen</label><input class="amt" type="text" inputmode="decimal" id="b1Max" placeholder="&euro; 0" data-step="500" data-min="0"></div>
     </div>
     <label class="check" style="margin-top:18px"><input type="checkbox" id="two"> Een tweede koper met eigen bedragen toevoegen</label>
     <div id="b2Box" style="display:none">
       <div class="field">
         <div class="flab"><label for="b2In">Inbreng tweede koper</label>
-          <input type="number" class="pin num" id="b2InN" min="0" step="500" placeholder="0"></div>
+          <input type="text" inputmode="decimal" class="amt pin num" id="b2InN" data-min="0" data-step="500" placeholder="&euro; 0"></div>
         <input type="range" id="b2In" min="0" max="500000" step="500" value="0" aria-label="Inbreng tweede koper">
       </div>
       <div class="trio" style="margin-top:13px">
-        <div><label class="mini" for="b2Have">Heeft (optioneel)</label><input type="number" id="b2Have" placeholder="0" step="500" min="0"></div>
-        <div><label class="mini" for="b2Min">Minstens inbrengen</label><input type="number" id="b2Min" placeholder="0" step="500" min="0"></div>
-        <div><label class="mini" for="b2Max">Hoogstens inbrengen</label><input type="number" id="b2Max" placeholder="0" step="500" min="0"></div>
+        <div><label class="mini" for="b2Have">Heeft (optioneel)</label><input class="amt" type="text" inputmode="decimal" id="b2Have" placeholder="&euro; 0" data-step="500" data-min="0"></div>
+        <div><label class="mini" for="b2Min">Minstens inbrengen</label><input class="amt" type="text" inputmode="decimal" id="b2Min" placeholder="&euro; 0" data-step="500" data-min="0"></div>
+        <div><label class="mini" for="b2Max">Hoogstens inbrengen</label><input class="amt" type="text" inputmode="decimal" id="b2Max" placeholder="&euro; 0" data-step="500" data-min="0"></div>
       </div>
     </div>
   </div>
@@ -544,26 +544,26 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     <h2>6 &middot; De lening</h2>
     <div class="field">
       <div class="flab"><label for="term">Looptijd in jaren</label>
-        <input type="number" class="pin num" id="termN" min="5" max="40" step="1"></div>
+        <input type="text" inputmode="decimal" class="amt pin num" id="termN" data-min="5" data-max="40" data-step="1"></div>
       <input type="range" id="term" min="5" max="40" step="1" value="25" aria-label="Looptijd">
     </div>
     <div class="field">
       <div class="flab"><label for="rate">Rentevoet per jaar (%)</label>
-        <input type="number" class="pin num" id="rateN" min="0" max="12" step="0.01"></div>
+        <input type="text" inputmode="decimal" class="amt pin num" id="rateN" data-min="0" data-max="12" data-step="0.01"></div>
       <input type="range" id="rate" min="0" max="12" step="0.05" value="3.75" aria-label="Rentevoet">
     </div>
     <div class="pair">
       <div><label class="mini" for="mortFix">Vaste kosten kredietakte</label>
-        <input type="number" id="mortFix" value="1200" step="50" min="0">
+        <input class="amt" type="text" inputmode="decimal" id="mortFix" value="1200" data-step="50" data-min="0">
         <span class="sub-hint">Aktekosten, de hypothecaire inschrijving, hypotheekstaten en het recht op geschriften. Het registratierecht, het hypotheekrecht en het ereloon komen daar bovenop en worden apart gerekend.</span></div>
       <div><label class="mini" for="acc">Aanhorigheden (%)</label>
-        <input type="number" id="acc" value="10" step="1" min="0" max="25">
+        <input class="amt" type="text" inputmode="decimal" id="acc" value="10" data-step="1" data-min="0" data-max="25">
         <span class="sub-hint">De bank schrijft de hypotheek in voor het kapitaal plus een opslag voor invorderingskosten, doorgaans 5 tot 10%. Het registratierecht van 1% en het hypotheekrecht van 0,3% worden op dat hogere bedrag geheven, niet op het kapitaal.</span></div>
     </div>
     <div class="pair" style="margin-top:13px">
-      <div><label class="mini" for="bankFee">Dossierkosten van de bank</label><input type="number" id="bankFee" value="350" step="25" min="0">
+      <div><label class="mini" for="bankFee">Dossierkosten van de bank</label><input class="amt" type="text" inputmode="decimal" id="bankFee" value="350" data-step="25" data-min="0">
         <span class="sub-hint">Wettelijk geplafonneerd. Zelf te betalen.</span></div>
-      <div><label class="mini" for="valFee">Schatting van de woning</label><input type="number" id="valFee" value="350" step="25" min="0">
+      <div><label class="mini" for="valFee">Schatting van de woning</label><input class="amt" type="text" inputmode="decimal" id="valFee" value="350" data-step="25" data-min="0">
         <span class="sub-hint">Gemiddeld 250 tot 500 euro. Zelf te betalen.</span></div>
     </div>
 
@@ -571,9 +571,9 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
       <p class="mini" style="font-size:12.5px; color:var(--ink-2)">Overbruggingskrediet</p>
       <p class="hint" style="margin:5px 0 12px">Nodig als je koopt voordat je eigen woning verkocht is. Je betaalt alleen rente tot de verkoop rond is. Laat op nul als je eerst verkoopt.</p>
       <div class="trio">
-        <div><label class="mini" for="bridgeAmt">Bedrag</label><input type="number" id="bridgeAmt" placeholder="0" step="10000" min="0"></div>
-        <div><label class="mini" for="bridgeRate">Rente (%)</label><input type="number" id="bridgeRate" value="4" step="0.1" min="0"></div>
-        <div><label class="mini" for="bridgeMonths">Aantal maanden</label><input type="number" id="bridgeMonths" placeholder="0" step="1" min="0" max="24"></div>
+        <div><label class="mini" for="bridgeAmt">Bedrag</label><input class="amt" type="text" inputmode="decimal" id="bridgeAmt" placeholder="&euro; 0" data-step="10000" data-min="0"></div>
+        <div><label class="mini" for="bridgeRate">Rente (%)</label><input class="amt" type="text" inputmode="decimal" id="bridgeRate" value="4" data-step="0.1" data-min="0"></div>
+        <div><label class="mini" for="bridgeMonths">Aantal maanden</label><input class="amt" type="text" inputmode="decimal" id="bridgeMonths" placeholder="0" data-step="1" data-min="0" data-max="24"></div>
       </div>
     </div>
   </div>
@@ -581,21 +581,21 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
   <div class="card">
     <h2>7 &middot; Inkomen en vaste lasten</h2>
     <div class="pair">
-      <div><label class="mini" for="inc1">Netto inkomen per maand</label><input type="number" id="inc1" placeholder="0" step="50" min="0">
+      <div><label class="mini" for="inc1">Netto inkomen per maand</label><input class="amt" type="text" inputmode="decimal" id="inc1" placeholder="&euro; 0" data-step="50" data-min="0">
         <span class="sub-hint">Koop je met twee, vul dan het gezamenlijke bedrag in.</span></div>
-      <div><label class="mini" for="debts">Andere maandelijkse kredieten</label><input type="number" id="debts" placeholder="0" step="25" min="0">
+      <div><label class="mini" for="debts">Andere maandelijkse kredieten</label><input class="amt" type="text" inputmode="decimal" id="debts" placeholder="&euro; 0" data-step="25" data-min="0">
         <span class="sub-hint">Autolening en dergelijke. De bank telt die mee.</span></div>
     </div>
     <div class="field" style="margin-top:16px">
       <div class="flab"><label for="ratio">Maximaal deel van je inkomen (%)</label>
-        <input type="number" class="pin num" id="ratioN" min="20" max="50" step="1"></div>
+        <input type="text" inputmode="decimal" class="amt pin num" id="ratioN" data-min="20" data-max="50" data-step="1"></div>
       <input type="range" id="ratio" min="20" max="50" step="1" value="33" aria-label="Maximaal deel van het inkomen">
       <span class="sub-hint">Wikifin gebruikt ongeveer een derde als vuistregel. Banken wijken daarvan af en wegen ook je beschikbare inkomen en gezinssituatie.</span>
     </div>
     <div class="trio" style="margin-top:16px">
-      <div><label class="mini" for="ovr">Onroerende voorheffing per jaar</label><input type="number" id="ovr" placeholder="0" step="100" min="0"></div>
-      <div><label class="mini" for="fire">Brandverzekering per maand</label><input type="number" id="fire" placeholder="0" step="5" min="0"></div>
-      <div><label class="mini" for="ssv">Schuldsaldo per maand</label><input type="number" id="ssv" placeholder="0" step="5" min="0"></div>
+      <div><label class="mini" for="ovr">Onroerende voorheffing per jaar</label><input class="amt" type="text" inputmode="decimal" id="ovr" placeholder="&euro; 0" data-step="100" data-min="0"></div>
+      <div><label class="mini" for="fire">Brandverzekering per maand</label><input class="amt" type="text" inputmode="decimal" id="fire" placeholder="&euro; 0" data-step="5" data-min="0"></div>
+      <div><label class="mini" for="ssv">Schuldsaldo per maand</label><input class="amt" type="text" inputmode="decimal" id="ssv" placeholder="&euro; 0" data-step="5" data-min="0"></div>
     </div>
   </div>
 
@@ -739,15 +739,150 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
   function v(i){
     var t=pairOf[i];
     if(t){
-      var a=parseFloat(E(t).value);
+      var a=vak(t);
       if(!isNaN(a)) return a;
-      var b=parseFloat(E(i).value);
+      var b=parseFloat(E(i).value);      // de schuifbalk zelf draagt een kaal getal
       return isNaN(b)?0:b;
     }
-    var n=parseFloat(E(i).value);
+    var n=vak(i);
     return isNaN(n)?0:n;
   }
   function chk(i){return E(i).checked}
+
+  // --- Opgemaakte invoervakken ----------------------------------------------
+  //
+  // De vakjes zijn text en geen number, en dat kan niet anders. Een number-veld
+  // weigert elke opgemaakte vorm op één na, en die ene is de gevaarlijke: het
+  // aanvaardt "600.000" en leest dat als 600, want voor de specificatie is de punt
+  // een decimaalteken. Dat is precies de Belgische notatie, dus wie hier
+  // duizendpunten in een number-veld zet, deelt stil door duizend.
+  //
+  // Daarom loopt alle invoer door ontleed() en alle weergave door toon(). Nergens
+  // anders mag nog parseFloat op een invoervak staan.
+  var GELD=['priceN','disb','reno','moving','saleN','certs','oldBal','portCost',
+            'bonus','release','b1InN','b1Have','b1Min','b1Max','b2InN','b2Have',
+            'b2Min','b2Max','mortFix','bankFee','valFee','bridgeAmt','inc1','debts',
+            'ovr','fire','ssv','notVal'];
+  var PROCENT=['oldRate','rateN','acc','bridgeRate','ratioN'];
+  // Deze twee wisselen van eenheid met hun schakelaar, dus hun soort hangt van mode af.
+  // notVal staat er niet bij: die schakelt tussen barema en een vast bedrag, en in de
+  // baremastand is het vak uitgeschakeld en wordt het niet gelezen (zie notaryFee).
+  // Als het iets betekent, is het altijd een bedrag.
+  var WISSELT={feeVal:'fee', landVal:'land'};
+  // Aantallen blijven kaal: termN, oldYears en bridgeMonths hebben geen hulp nodig.
+
+  var groep=new Intl.NumberFormat('nl-BE',{maximumFractionDigits:0});
+  var groepPct=new Intl.NumberFormat('nl-BE',{maximumFractionDigits:2});
+
+  function soortVan(id){
+    if(WISSELT[id]) return mode[WISSELT[id]]==='eur' ? 'geld' : 'procent';
+    if(GELD.indexOf(id)>=0) return 'geld';
+    if(PROCENT.indexOf(id)>=0) return 'procent';
+    return null;                      // aantallen en al het andere blijven zoals ze zijn
+  }
+
+  // Het euroteken en de spaties horen bij de weergave en gaan er hier uit. Wat de
+  // punt betekent, beslist het soort veld, en niet een gok op het aantal cijfers
+  // erachter.
+  //
+  // Bij een bedrag is de punt een duizendteken en de komma het decimaalteken, zoals
+  // de weergave het zet. Een gok op "drie cijfers erachter" loopt hier stuk op het
+  // wissen: wie in "600.000" één cijfer weghaalt, staat even op "600.00", en dat zou
+  // dan als zeshonderd gelezen worden in plaats van als zestigduizend.
+  //
+  // Bij een percentage zijn punt en komma beide een decimaalteken. Groeperen komt daar
+  // niet voor, want die getallen blijven onder honderd, en zo leest een 3.2 van een
+  // cijferblok als drie komma twee in plaats van als tweeendertig.
+  function ontleed(t, soort){
+    if(t==null) return NaN;
+    var r=String(t).replace(/[^\d,.\-]/g,'');
+    if(r===''||r==='-') return NaN;
+    var heel, deel='';
+    if(soort==='procent'){
+      var eerste=r.search(/[.,]/);
+      if(eerste>=0){ heel=r.slice(0,eerste); deel=r.slice(eerste+1).replace(/[.,]/g,''); }
+      else heel=r;
+    } else {
+      var k=r.lastIndexOf(',');
+      heel=(k>=0?r.slice(0,k):r);
+      deel=(k>=0?r.slice(k+1):'').replace(/[.,]/g,'');
+    }
+    heel=heel.replace(/[.,]/g,'');
+    if(heel===''&&deel==='') return NaN;
+    var n=parseFloat((heel||'0')+(deel?'.'+deel:''));
+    return isFinite(n) ? n : NaN;
+  }
+  // Een veld uitlezen met de regel die bij zijn soort hoort.
+  function vak(id){ return ontleed(E(id).value, soortVan(id)); }
+  function toon(id,n){
+    var soort=soortVan(id);
+    if(soort==='geld') return '€ ' + groep.format(n);
+    if(soort==='procent') return groepPct.format(n);
+    return String(n);
+  }
+  function attr(el,naam,terug){
+    var a=parseFloat(el.getAttribute('data-'+naam));
+    return isNaN(a) ? terug : a;
+  }
+
+  // Het vak opnieuw opmaken en de cursor terugzetten. De cursor wordt in cijfers
+  // geteld en niet in tekens: zodra er een scheidingsteken bijkomt, klopt een
+  // positie in tekens niet meer.
+  function herschrijf(el){
+    if(!soortVan(el.id)) return;
+    var ruw=el.value;
+    if(ruw==='') return;                       // leeg blijft leeg, de placeholder doet zijn werk
+    var eind=el.selectionStart==null ? ruw.length : el.selectionStart;
+    var cijfersVoor=(ruw.slice(0,eind).match(/\d/g)||[]).length;
+    // Een decimaal in de maak moet blijven staan, anders verdwijnt de komma onder je
+    // vingers op het moment dat je hem zet.
+    var open=/[.,]\d?$/.test(ruw) && soortVan(el.id)==='procent';
+    var staart=open ? ruw.slice(ruw.search(/[.,]\d?$/)).replace('.',',') : '';
+    var n=ontleed(ruw, soortVan(el.id));
+    var nieuw = isNaN(n) ? '' : (open ? toon(el.id,Math.trunc(n))+staart : toon(el.id,n));
+    if(nieuw===ruw) return;
+    el.value=nieuw;
+    var pos=0, gezien=0;
+    while(pos<nieuw.length && gezien<cijfersVoor){ if(/\d/.test(nieuw[pos])) gezien++; pos++; }
+    // niet in het euroteken parkeren
+    var eersteCijfer=nieuw.search(/\d/);
+    if(eersteCijfer>0 && pos<eersteCijfer) pos=eersteCijfer;
+    try{ el.setSelectionRange(pos,pos); }catch(e){}
+  }
+
+  // Backspace op een scheidingsteken wist het cijfer ervóór, en niet het teken zelf.
+  // Zou het teken gewist worden, dan maakt herschrijf() exact dezelfde tekst terug op
+  // en lijkt de cursor vast te zitten.
+  function wisOverScheiding(el,ev){
+    var pos=el.selectionStart;
+    if(pos===null || pos!==el.selectionEnd) return false;      // een selectie wist zichzelf
+    var terug=ev.key==='Backspace';
+    var i=terug ? pos-1 : pos;
+    if(i<0 || i>=el.value.length) return false;
+    if(/\d/.test(el.value[i])) return false;                   // gewoon een cijfer, laat de browser
+    // zoek het eerstvolgende cijfer in de richting waarin gewist wordt
+    while(i>=0 && i<el.value.length && !/\d/.test(el.value[i])) i += terug ? -1 : 1;
+    if(i<0 || i>=el.value.length) { ev.preventDefault(); return true; }   // niets te wissen
+    ev.preventDefault();
+    el.value=el.value.slice(0,i)+el.value.slice(i+1);
+    el.setSelectionRange(i,i);
+    return true;
+  }
+
+  // De pijltjes-stap van een number-veld, zelf herschreven. De stappen doen hier mee:
+  // duizend voor een prijs, vijfhonderd voor een inbreng, vijf honderdsten voor een rente.
+  function stapMet(el,richting){
+    var stap=attr(el,'step',1), n=vak(el.id);
+    if(isNaN(n)) n=0;
+    var uit=n+richting*stap;
+    // afrondingsruis van een stap als 0,05 wegwerken
+    var decimalen=(String(stap).split('.')[1]||'').length;
+    uit=parseFloat(uit.toFixed(decimalen));
+    var lo=attr(el,'min',-Infinity), hi=attr(el,'max',Infinity);
+    if(uit<lo) uit=lo;
+    if(uit>hi) uit=hi;
+    el.value=toon(el.id,uit);
+  }
 
   // Belgische conventie: maandrente is de twaalfde wortel uit de jaarrente
   function ann(P,r,y){
@@ -773,10 +908,10 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
   var links=[['price','priceN'],['sale','saleN'],['b1In','b1InN'],['b2In','b2InN'],
              ['term','termN'],['rate','rateN'],['ratio','ratioN']];
   // schuifbalk versleept: het invoervak volgt
-  function fromRange(r,n){ E(n).value=E(r).value; }
+  function fromRange(r,n){ E(n).value=toon(n, parseFloat(E(r).value)||0); }
   // bedrag getypt: alleen de duimpositie volgt, de getypte waarde blijft onaangeroerd
   function fromNum(r,n){
-    var rg=E(r), val=parseFloat(E(n).value);
+    var rg=E(r), val=vak(n);
     if(isNaN(val)) return;
     if(val>parseFloat(rg.max)) rg.max=String(Math.max(Math.ceil(val/50000)*50000, val));
     rg.value=String(Math.max(parseFloat(rg.min)||0, val));
@@ -883,7 +1018,7 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
   // knoppenrij. Het schakelt wel tussen barema en een vast bedrag in plaats van
   // tussen procent en euro, dus het rekent niets om; zie swap() hieronder.
   var segOf={not:['notVal','notSeg'], fee:['feeVal','feeSeg'], land:['landVal','landSeg']};
-  var stepOf={not:[0.05,100], fee:[0.1,100], land:[0.5,1000]};
+  var stepOf={not:[100,100], fee:[0.1,100], land:[0.5,1000]};
   var backTo={fee:3, land:''};
 
   // De stand aanzetten zonder de waarde aan te raken: de stapgrootte, de knoppen,
@@ -892,9 +1027,13 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
   // de juiste eenheid mee en mag dus niet nog eens omgerekend worden.
   function applyMode(which,m){
     var inp=E(segOf[which][0]);
+    // Eerst lezen met de eenheid die er nu nog staat, dan de stand wisselen, dan
+    // neerzetten met de nieuwe: een percentage krijgt geen euroteken en een bedrag wel.
+    var g=vak(inp.id);
     mode[which]=m;
-    inp.step = m==='eur' ? stepOf[which][1] : stepOf[which][0];
+    inp.setAttribute('data-step', String(m==='eur' ? stepOf[which][1] : stepOf[which][0]));
     if(which==='not') inp.disabled = m!=='eur';
+    if(!isNaN(g)) inp.value=toon(inp.id,g);
     Array.prototype.forEach.call(E(segOf[which][1]).querySelectorAll('button'),function(b){
       b.setAttribute('aria-pressed', String(b.dataset.m===m));
     });
@@ -905,18 +1044,27 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
   function swap(which,m){
     if(mode[which]===m) return;
     var inp=E(segOf[which][0]);
+    // De nieuwe waarde wordt als getal berekend en pas daarna neergezet. Nooit een
+    // tekst met een decimaalpunt in het veld: ontleed() leest die punt als
+    // duizendteken, dus 3.00 zou 300 worden.
+    var uit=null;
     if(which==='not'){
       // Het barema rekent zelf, dus in die stand is het invoervak niet in gebruik.
       // Bij het omschakelen naar een vast bedrag vullen we de baremawaarde voor,
       // zodat er iets bruikbaars staat om vanaf te vertrekken.
-      if(m==='eur') inp.value=String(Math.round(notaryFee(v('price'))));
+      // Terug naar het barema: het vaste bedrag laten staan in een uitgeschakeld vak
+      // suggereert dat er nog mee gerekend wordt, en dat is niet zo.
+      uit = m==='eur' ? Math.round(notaryFee(v('price'))) : '';
     } else if(inp.value.trim()!==''){
       var base=which==='fee'?v('sale'):v('price');
-      var cur=parseFloat(inp.value)||0;
-      inp.value = m==='eur' ? Math.round(base*cur/100)
-                            : (base>0?(cur/base*100).toFixed(2):backTo[which]);
+      var cur=vak(inp.id)||0;
+      uit = m==='eur' ? Math.round(base*cur/100)
+                      : (base>0 ? Math.round(cur/base*10000)/100 : backTo[which]);
     }
+    // Eerst de stand, dan neerzetten: toon() kijkt naar de stand om te weten of er
+    // een euroteken bij hoort.
     applyMode(which,m);
+    if(uit!==null) inp.value = uit==='' ? '' : toon(inp.id,uit);
     calc();
   }
 
@@ -1037,7 +1185,7 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
   function clampBuyer(pfx){
     var have=v(pfx+'Have'), mnF=v(pfx+'Min'), mxF=v(pfx+'Max');
     var s=E(pfx+'In'), nf=E(pfx+'InN');
-    var cur=parseFloat(nf.value); if(isNaN(cur)) cur=parseFloat(s.value)||0;
+    var cur=vak(nf.id); if(isNaN(cur)) cur=parseFloat(s.value)||0;
     var mn=Math.max(0,mnF);
     var hi;
     if(mxF>0) hi=mxF;
@@ -1449,6 +1597,50 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
 
   function calc(){ render(); buildPrint(); }
 
+  // De opgemaakte vakjes: opnieuw opmaken terwijl er getypt wordt, en de
+  // pijltjes-stap die met type="number" wegviel. Dit hangt vóór de luisteraars die
+  // rekenen, zodat calc() een vak leest dat al in zijn eindvorm staat.
+  function koppelOpmaak(){
+    Array.prototype.forEach.call(document.querySelectorAll('input.amt'),function(el){
+      // De pijltjes-stap hangt aan élk vak, ook aan de kale aantallen: die hadden hem
+      // als number-veld ook, en zonder dit zouden looptijd, jaren en maanden hem
+      // stilzwijgend verliezen.
+      el.addEventListener('keydown',function(ev){
+        if(ev.key==='Backspace'||ev.key==='Delete'){
+          if(wisOverScheiding(el,ev)){ herschrijf(el); calc(); }
+          return;
+        }
+        if(ev.key==='ArrowUp'||ev.key==='ArrowDown'){
+          ev.preventDefault();
+          stapMet(el, ev.key==='ArrowUp' ? 1 : -1);
+          var basis=paarBasis(el.id);
+          if(basis) fromNum(basis,el.id);        // de duim volgt het vak
+          calc();
+          return;
+        }
+      });
+      // Opmaken alleen waar er opmaak is; herschrijf() en maakOp() slaan een kaal
+      // veld zelf ook over, maar dan hangt er tenminste geen luisteraar voor niets.
+      if(!soortVan(el.id)) return;
+      el.addEventListener('input',function(){ herschrijf(el); });
+      // De velden met een beginwaarde in de html staan er nog kaal in.
+      maakOp(el);
+    });
+  }
+  // Opmaken zonder cursorwerk. Bij het laden staat er niemand in het veld, en de
+  // cursorlogica van herschrijf() heeft daar niets te zoeken.
+  function maakOp(el){
+    if(!soortVan(el.id)) return;
+    var n=vak(el.id);
+    if(!isNaN(n)) el.value=toon(el.id,n);
+  }
+
+  // de basis-id van een gekoppeld paar, gezocht op het invoervak
+  function paarBasis(id){
+    for(var k in pairOf) if(pairOf[k]===id) return k;
+    return null;
+  }
+
   // --- Bewaarbare en deelbare link ------------------------------------------
   //
   // De invoer gaat in de fragmentidentificator, achter een #, en niet in een query
@@ -1480,6 +1672,12 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
 
   // het invoervak van een gekoppeld paar, of het veld zelf
   function linkVeld(k){ return E(pairOf[k]||k); }
+  // Wat er van een veld in een link gaat: een kaal getal, nooit de opgemaakte tekst.
+  // Anders zou er "€ 600.000" in de url staan en dat leest geen mens en geen machine.
+  function linkWaarde(k){
+    var el=linkVeld(k), n=vak(el.id);
+    return el.value.trim()==='' || isNaN(n) ? '' : String(n);
+  }
   function radioWaarde(naam){
     var r=document.querySelector('input[name='+naam+']:checked');
     return r?r.value:'';
@@ -1491,7 +1689,7 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
   var start=null;
   function neemBeginwaarden(){
     start={num:{}, chk:{}, sel:{}, radio:{}};
-    linkNum.forEach(function(k){ start.num[k]=linkVeld(k).value.trim(); });
+    linkNum.forEach(function(k){ start.num[k]=linkWaarde(k); });
     linkChk.forEach(function(k){ start.chk[k]=E(k).checked; });
     linkSel.forEach(function(k){ start.sel[k]=E(k).value; });
     linkRadio.forEach(function(k){ start.radio[k]=radioWaarde(k); });
@@ -1510,7 +1708,7 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     var d=[];
     function zet(k,w){ d.push(k+'='+encodeURIComponent(w)); }
     linkNum.forEach(function(k){
-      var w=linkVeld(k).value.trim();
+      var w=linkWaarde(k);
       if(!zelfdeWaarde(w,start.num[k])) zet(k,w);
     });
     linkChk.forEach(function(k){
@@ -1572,10 +1770,10 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
       else{
         if(!/^\d+(\.\d+)?$/.test(w)) return;      // geen exponent, geen Infinity, geen min
         var x=parseFloat(w);
-        var lo=parseFloat(el.min), hi=parseFloat(el.max);
-        if(!isNaN(lo) && x<lo) x=lo;
-        if(!isNaN(hi) && x>hi) x=hi;             // alleen waar het veld zelf een grens heeft
-        el.value=String(x);
+        var lo=attr(el,'min',-Infinity), hi=attr(el,'max',Infinity);
+        if(x<lo) x=lo;
+        if(x>hi) x=hi;                           // alleen waar het veld zelf een grens heeft
+        el.value=toon(el.id,x);
       }
       if(pairOf[k]) fromNum(k,pairOf[k]);
     });
@@ -1608,6 +1806,8 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     } else meld('Kopieer met ctrl+c');
   }
 
+  koppelOpmaak();
+
   // de gekoppelde schuifbalken staan hier niet bij: die krijgen hun eigen luisteraar hieronder
   ['kind','landVal','landTax','v6demo','v6only','v6area','v6five',
    'notVal','disb','reno','moving','hasHome','agent','feeVal','certs',
@@ -1626,7 +1826,7 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
   // blijven leeg, zodat er nergens een nul staat die de gebruiker moet wegvegen.
   ['termN','rateN','ratioN'].forEach(function(id){
     var r={termN:'term', rateN:'rate', ratioN:'ratio'}[id];
-    if(E(id).value==='') E(id).value=E(r).value;
+    if(E(id).value==='') E(id).value=toon(id, parseFloat(E(r).value)||0);
   });
   // Het ereloon komt uit het barema, dus het invoervak staat uit tot je op euro schakelt.
   applyMode('not', mode.not);

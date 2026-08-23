@@ -9,6 +9,35 @@ gezamenlijke bedragen invullen of een tweede koper met eigen bedragen
 toevoegen. Elke schuifbalk heeft een invoervak, zodat je ook een exact bedrag
 kan typen.
 
+## De invoervakken
+
+Bedragen staan er opgemaakt in, `€ 600.000` en niet `600000`, en ze groeien mee
+terwijl je typt. Dat laatste is de bedoeling: een scheidingsteken bestaat om
+nullen niet te hoeven tellen, en dat tellen doe je tijdens het typen. Opmaak die
+pas verschijnt als je het veld verlaat, komt na het risico.
+
+Percentages krijgen een decimaalkomma, `3,75`, en geen teken; hun label zegt al
+`(%)`. De drie aantallen, de looptijd en de jaren en maanden, blijven kaal: `30`
+heeft geen hulp nodig.
+
+Daarom zijn de vakjes `type="text"` met `inputmode="decimal"` en geen
+`type="number"`. Een number-veld weigert elke opgemaakte vorm op één na, en die
+ene is de gevaarlijke: het aanvaardt `600.000` en leest dat als 600, want voor de
+specificatie is de punt een decimaalteken. Dat is precies de Belgische notatie,
+dus wie duizendpunten in een number-veld zet, deelt stil door duizend.
+`parseFloat('600.000')` doet hetzelfde.
+
+Alle invoer loopt daarom door één ontleder en alle weergave door één opmaker.
+Wat de punt betekent, beslist het soort veld en niet een gok op het aantal
+cijfers erachter: bij een bedrag is het een duizendteken, bij een percentage een
+decimaalteken. Zo leest een `3.2` van een cijferblok als drie komma twee, en
+loopt het wissen van een cijfer uit `600.000` niet vast op de tussenstand
+`600.00`.
+
+De pijltjestoetsen stappen met de stap van het veld, duizend bij een prijs en een
+honderdste bij een rentevoet. Dat deed `type="number"` zelf en het is hier
+herschreven, want die stappen doen mee in het gebruik.
+
 ## Een link bewaren of delen
 
 De knop "Link bewaren" in de balk bovenaan maakt een link waarin je invoer zit,
@@ -96,7 +125,12 @@ Verder wordt getoetst dat een link met de invoer erin rondgaat, dat hij kort
 blijft zolang de invoer op haar beginwaarden staat, dat een stand op euro niet
 alsnog wordt omgerekend, dat een kapotte of vreemde link niets stukmaakt en de
 pagina op haar beginwaarden laat, dat elk invoerveld in de link past, en dat een
-link met een oudere tarievendatum zich meldt. Ook dat de optionele grensvelden bij
+link met een oudere tarievendatum zich meldt. Ook dat een bedrag meegroeit terwijl je typt, dat backspace op een
+scheidingsteken het cijfer ervóór wist in plaats van het teken zelf, dat een komma
+in de maak blijft staan, dat de cursor op zijn plek in de cijferreeks blijft, dat
+de pijltjestoetsen met de stap van het veld stappen en binnen zijn grenzen
+blijven, en dat de link kale getallen draagt en niet de opmaak. Ook dat de
+optionele grensvelden bij
 je eigen geld alleen de schuifbalk begrenzen en het ingevulde bedrag niet
 verschuiven, ook niet terwijl je erin typt, en dat meer inbrengen dan je hebt
 gezegd wordt in plaats van weggerekend. Daarnaast dat de brug naar het

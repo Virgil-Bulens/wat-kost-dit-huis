@@ -110,6 +110,28 @@ export async function openPagina(fragment = ''){
       return pg.evaluate(i => document.getElementById(i).max, id);
     },
 
+    // Een toets aanslaan in een veld dat de cursor heeft. Nodig om backspace door een
+    // scheidingsteken en de pijltjes-stap te toetsen: dat gedrag zit in keydown en is
+    // met een waarde zetten niet te bereiken.
+    async toets(id, naam, keer){
+      await pg.focus('#' + id);
+      for(let i = 0; i < (keer ?? 1); i++) await pg.keyboard.press(naam);
+    },
+
+    // Typen op de plek waar de cursor staat.
+    async typ(id, tekst){
+      await pg.focus('#' + id);
+      if(String(tekst) !== '') await pg.keyboard.type(String(tekst));
+    },
+
+    // De cursorpositie in een veld, en die zelf zetten. Bij een opgemaakt bedrag
+    // schuift het scheidingsteken, dus de cursor hoort mee te schuiven.
+    async cursor(id){ return pg.evaluate(i => document.getElementById(i).selectionStart, id); },
+    async zetCursor(id, pos){
+      await pg.focus('#' + id);
+      await pg.evaluate(([i, p]) => document.getElementById(i).setSelectionRange(p, p), [id, pos]);
+    },
+
     // Het bereik van een schuifbalk, als getallen.
     async bereik(id){
       return pg.evaluate(i => {

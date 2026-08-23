@@ -542,6 +542,161 @@ describe('randgevallen en de afdruk', () => {
 
 // ---------------------------------------------------------------------------
 
+describe('de opmaak van de invoervakken', () => {
+
+  // De vakjes zijn text en geen number, want een number-veld weigert elke opgemaakte
+  // vorm op één na: het aanvaardt "600.000" en leest dat als 600. Daarom loopt alle
+  // invoer door één ontleder en alle weergave door één opmaker, en daarom staat hier
+  // een toets op elk van beide.
+
+  test('een bedrag groeit mee terwijl je typt', async () => {
+    const p = await metPagina();
+    const gezien = [];
+    await p.typ('priceN', '');
+    for(const teken of '600000'){
+      await p.typ('priceN', teken);
+      gezien.push((await p.waarden(['priceN'])).priceN);
+    }
+    assert.deepEqual(gezien, ['€ 6', '€ 60', '€ 600',
+                              '€ 6.000', '€ 60.000', '€ 600.000']);
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('de velden met een beginwaarde staan bij het laden al opgemaakt', async () => {
+    const p = await metPagina();
+    const w = await p.waarden(['disb', 'mortFix', 'bankFee', 'release', 'rateN', 'termN']);
+    assert.equal(w.disb, '€ 1.407');
+    assert.equal(w.mortFix, '€ 1.200');
+    assert.equal(w.bankFee, '€ 350');
+    assert.equal(w.release, '€ 800');
+    assert.equal(w.rateN, '3,75');          // een percentage, met komma en zonder teken
+    assert.equal(w.termN, '25');            // een aantal blijft kaal
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('backspace op een scheidingsteken wist het cijfer ervoor', async () => {
+    // Zonder dit wist backspace de punt, maakt de opmaak exact dezelfde tekst terug
+    // op, en lijkt de cursor vast te zitten.
+    const p = await metPagina({priceN: 600000});
+    const gezien = [];
+    await p.zetCursor('priceN', (await p.waarden(['priceN'])).priceN.length);
+    for(let i = 0; i < 3; i++){
+      await p.toets('priceN', 'Backspace');
+      gezien.push((await p.waarden(['priceN'])).priceN);
+    }
+    assert.deepEqual(gezien, ['€ 60.000', '€ 6.000', '€ 600']);
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('backspace op het scheidingsteken zelf wist het cijfer ervoor', async () => {
+    // Dit is de plek waar het echt om gaat. Staat de cursor net achter de punt van
+    // "€ 600.000", dan zou een gewone backspace die punt wissen; de opmaak zet er
+    // precies dezelfde tekst voor terug en dan lijkt de cursor vast te zitten. De punt
+    // hoort dus overgeslagen te worden en het cijfer ervóór te verdwijnen.
+    const p = await metPagina({priceN: 600000});
+    assert.equal((await p.waarden(['priceN'])).priceN, '\u20AC 600.000');
+    await p.zetCursor('priceN', 6);            // "€ 600.|000"
+    await p.toets('priceN', 'Backspace');
+    assert.equal((await p.waarden(['priceN'])).priceN, '\u20AC 60.000',
+      'de punt is gewist in plaats van het cijfer ervoor, dus de cursor zit vast');
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('een komma in de maak blijft staan in een percentageveld', async () => {
+    // Wie ontleedt en opnieuw opmaakt, krijgt van "3," een "3" terug en dan verdwijnt
+    // de komma onder je vingers op het moment dat je hem zet.
+    const p = await metPagina();
+    await p.vul({rateN: ''});
+    const gezien = [];
+    for(const teken of '3,75'){
+      await p.typ('rateN', teken);
+      gezien.push((await p.waarden(['rateN'])).rateN);
+    }
+    assert.deepEqual(gezien, ['3', '3,', '3,7', '3,75']);
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('de cursor blijft op zijn plek in de cijferreeks', async () => {
+    // De cursor wordt in cijfers geteld en niet in tekens: zodra er een
+    // scheidingsteken bijkomt, klopt een positie in tekens niet meer.
+    const p = await metPagina({priceN: 600000});
+    await p.zetCursor('priceN', 4);              // "€ 60|0.000", dus na twee cijfers
+    await p.typ('priceN', '9');
+    assert.equal((await p.waarden(['priceN'])).priceN, '€ 6.090.000');
+    // de cursor staat direct achter de 9 die net getypt is
+    assert.equal(await p.cursor('priceN'), 6);
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('de pijltjes stappen met de stap van het veld', async () => {
+    // type="number" deed dit zelf; die stap is hier herschreven. De stappen doen mee:
+    // duizend voor een prijs, een honderdste voor een rentevoet, een jaar voor de looptijd.
+    const p = await metPagina({priceN: 300000});
+    await p.toets('priceN', 'ArrowUp');
+    assert.equal((await p.waarden(['priceN'])).priceN, '€ 301.000');
+    await p.toets('priceN', 'ArrowDown', 2);
+    assert.equal((await p.waarden(['priceN'])).priceN, '€ 299.000');
+    await p.toets('rateN', 'ArrowUp');
+    assert.equal((await p.waarden(['rateN'])).rateN, '3,76');
+    await p.toets('termN', 'ArrowUp');
+    assert.equal((await p.waarden(['termN'])).termN, '26');
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('de pijltjes blijven binnen de grenzen van het veld', async () => {
+    const p = await metPagina({termN: 5});
+    await p.toets('termN', 'ArrowDown', 3);
+    assert.equal((await p.waarden(['termN'])).termN, '5');   // data-min
+    await p.vul({termN: 40});
+    await p.toets('termN', 'ArrowUp', 3);
+    assert.equal((await p.waarden(['termN'])).termN, '40');  // data-max
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('de ontleder leest de Belgische vorm en de vorm van een cijferblok', async () => {
+    // Wat de punt betekent, hangt af van het soort veld. Bij een bedrag is het een
+    // duizendteken, want bedragen worden hier op hele euro's gehouden. Bij een
+    // percentage is het een decimaalteken, want die getallen blijven onder honderd en
+    // worden nooit gegroepeerd; zo leest een 3.2 van een cijferblok als drie komma
+    // twee en niet als tweeendertig, wat een number-veld er wel van maakt.
+    const p = await metPagina();
+    for(const [ingevuld, verwacht] of [['600000', '€ 600.000'],
+                                       ['600.000', '€ 600.000'],
+                                       ['1.000.000', '€ 1.000.000'],
+                                       ['€ 450.000', '€ 450.000']]){
+      await p.vul({priceN: ingevuld});
+      assert.equal((await p.waarden(['priceN'])).priceN, verwacht, 'ingevuld: ' + ingevuld);
+    }
+    // en in een percentageveld leest een punt met één cijfer erachter als decimaal
+    await p.vul({rateN: '3.2'});
+    assert.equal((await p.waarden(['rateN'])).rateN, '3,2');
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('de link draagt kale getallen en niet de opmaak', async () => {
+    // Anders zou er "%E2%82%AC%20600.000" in de url staan, en dat leest geen mens.
+    const p = await metPagina({priceN: 600000, inc1: 3200});
+    const link = await p.link();
+    assert.match(link, /price=600000/);
+    assert.match(link, /inc1=3200/);
+    assert.doesNotMatch(link, /600\.000/);
+    assert.doesNotMatch(link, /%E2%82%AC/);
+    geenFouten(p);
+    await p.sluit();
+  });
+});
+
+// ---------------------------------------------------------------------------
+
 describe('de inbreng en haar grenzen', () => {
 
   // "Je hebt", "minstens" en "hoogstens" begrenzen de schuifbalk. Ze mogen het
@@ -555,7 +710,9 @@ describe('de inbreng en haar grenzen', () => {
       const p = await metPagina({priceN: 300000, b1InN: 50000});
       // teken voor teken, want bij het eerste cijfer stond er 6 in plaats van 600000
       await p.tik(veld, 600000);
-      assert.equal((await p.waarden(['b1InN'])).b1InN, '50000',
+      // Het vak toont een opgemaakt bedrag; dat het er nog staat én dat het opgemaakt
+      // is, staat hier in één regel.
+      assert.equal((await p.waarden(['b1InN'])).b1InN, '\u20AC 50.000',
         'het invullen van "' + naam + '" heeft de inbreng verschoven');
       geenFouten(p);
       await p.sluit();
@@ -565,7 +722,7 @@ describe('de inbreng en haar grenzen', () => {
   test('ook bij de tweede koper blijft de inbreng staan', async () => {
     const p = await metPagina({priceN: 300000, two: true, b2InN: 40000});
     await p.tik('b2Have', 100000);
-    assert.equal((await p.waarden(['b2InN'])).b2InN, '40000');
+    assert.equal((await p.waarden(['b2InN'])).b2InN, '\u20AC 40.000');
     geenFouten(p);
     await p.sluit();
   });
@@ -578,7 +735,7 @@ describe('de inbreng en haar grenzen', () => {
     const balk = await p.bereik('b1In');
     assert.ok(balk.min <= 50000 && 50000 <= balk.max,
       'de inbreng van 50000 valt buiten het bereik ' + JSON.stringify(balk));
-    assert.equal((await p.waarden(['b1InN'])).b1InN, '50000');
+    assert.equal((await p.waarden(['b1InN'])).b1InN, '\u20AC 50.000');
     geenFouten(p);
     await p.sluit();
   });
@@ -679,7 +836,8 @@ describe('de bewaarbare en deelbare link', () => {
     // tegenspreekt; de pagina meldt die tegenspraak in de aandachtspunten.
     const frag = '#v1&price=300000&b1In=50000&b1Have=30000&asOf=' + asOf;
     const p = await openPagina(frag);
-    assert.equal((await p.waarden(['b1InN'])).b1InN, '50000');
+    assert.equal((await p.waarden(['b1InN'])).b1InN, '\u20AC 50.000');
+    // en de link draagt een kaal getal, niet de opgemaakte tekst
     assert.equal(await p.link(), frag);
     geenFouten(p);
     await p.sluit();
@@ -697,7 +855,7 @@ describe('de bewaarbare en deelbare link', () => {
     // link brengt haar al in de juiste eenheid mee. Wie het terugzetten via die
     // knop laat lopen, deelt 60.000 nog eens door de prijs.
     const p = await openPagina('#v1&price=400000&kind=new&mLand=eur&landVal=60000&asOf=' + asOf);
-    assert.equal((await p.waarden(['landVal'])).landVal, '60000');
+    assert.equal((await p.waarden(['landVal'])).landVal, '\u20AC 60.000');
     assert.equal(await p.stand('landSeg'), 'eur');
     geenFouten(p);
     await p.sluit();
@@ -710,7 +868,9 @@ describe('de bewaarbare en deelbare link', () => {
     // verkoopprijs en stond er 9.000 in het vak. De link zegt "beginwaarde", dus
     // hoort er 3 te staan.
     const p = await openPagina('#v1&price=400000&hasHome=1&sale=300000&mFee=eur&asOf=' + asOf);
-    assert.equal((await p.waarden(['feeVal'])).feeVal, '3');
+    // Nog steeds de beginwaarde 3 en niet 9.000; ze staat er nu als bedrag, want de
+    // link zet de stand op euro.
+    assert.equal((await p.waarden(['feeVal'])).feeVal, '\u20AC 3');
     assert.equal(await p.stand('feeSeg'), 'eur');
     geenFouten(p);
     await p.sluit();
