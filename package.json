@@ -6,7 +6,8 @@
   "license": "SEE LICENSE IN LICENSE",
   "type": "module",
   "scripts": {
-    "test": "node --test test/*.test.mjs"
+    "test": "node --test test/*.test.mjs",
+    "bronnen": "node scripts/bronnen-nakijken.mjs"
   },
   "devDependencies": {
     "playwright": "1.56.1"

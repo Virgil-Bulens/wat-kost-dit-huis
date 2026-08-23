@@ -1,0 +1,39 @@
+name: bronnen
+
+# Kijkt na of de links naar de officiële bronnen nog bestaan. Overheidspagina's
+# verhuizen, en een dode link is erger dan geen link.
+#
+# Dit staat los van de toetsen en loopt niet bij elke pull request: een
+# netwerkcontrole is wisselvallig en mag geen werk tegenhouden dat er niets mee te
+# maken heeft. Maandelijks is genoeg, want links verhuizen langzamer dan tarieven.
+#
+# Let op: GitHub laat een schema alleen op de standaardtak lopen, en zet het uit na
+# zestig dagen zonder activiteit in de repository. workflow_dispatch staat erbij om
+# de controle met de hand te kunnen starten.
+on:
+  schedule:
+    - cron: '0 6 1 * *'
+  workflow_dispatch:
+
+# Genoeg om een melding te openen en erop te reageren, en niets meer.
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  bronnen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+
+      # Geen npm ci: dit script gebruikt alleen wat in node zelf zit. Vindt het een
+      # dode link, dan opent het zelf een melding en faalt daarna alsnog, zodat de
+      # uitslag ook in de Actions-tab rood staat.
+      - name: Bronlinks nakijken
+        run: node scripts/bronnen-nakijken.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

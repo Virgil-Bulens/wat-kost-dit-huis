@@ -9,6 +9,59 @@ gezamenlijke bedragen invullen of een tweede koper met eigen bedragen
 toevoegen. Elke schuifbalk heeft een invoervak, zodat je ook een exact bedrag
 kan typen.
 
+## Uitleg bij de begrippen
+
+Naast elk vakjargon staat een vraagteken. Dat klapt een blokje open met uitleg in
+gewone taal en een link naar de bron. Zesentwintig begrippen, van
+registratiebelasting tot wederbeleggingsvergoeding.
+
+Bewust geen `title`-attribuut. Dat is niet met het toetsenbord te bereiken,
+onzichtbaar op een aanraakscherm en het wordt wisselend voorgelezen, maar de reden
+die de knoop doorhakt is eenvoudiger: in een tooltip van de browser kan je niet
+klikken, en de link naar de bron is de helft van de bedoeling. Het is dus een
+echte knop met een blokje dat in de pagina staat. Daardoor hoeft er niets
+gepositioneerd te worden en valt er niets buiten een kaart weg op een smal scherm.
+
+De uitleg staat in één tabel bovenaan het script, `UITLEG`, net zoals `RATES` dat
+voor de tarieven doet. De vraagtekens bij de resultaatregels haken zichzelf aan:
+`row()` kijkt of er een begrip in het label voorkomt. Daardoor hoeft er geen
+enkele aanroep bewerkt te worden, en een nieuwe regel over een bekend begrip krijgt
+zijn uitleg vanzelf.
+
+Bij elke bron staat wélke instantie het is, want officieel is niet één categorie.
+De Vlaamse overheid en de FOD Economie zijn de overheid. Wikifin is van de FSMA,
+de toezichthouder. De Nationale Bank houdt toezicht op de banken. Maar notaris.be
+is van Fednot, de federatie van notarissen, en dat is de sector zelf. Dat verschil
+hoort een lezer te weten voordat hij erop vertrouwt.
+
+De links dragen `rel="noreferrer"`, zodat de bron niet te zien krijgt van welke
+pagina je komt. Ze halen niets op tot je klikt, dus de privacybelofte blijft
+staan. Op papier verdwijnen de vraagtekens en de blokjes: een knop heeft daar geen
+betekenis en het blad is bewust kort.
+
+## Dode links opsporen
+
+Overheidspagina's verhuizen, en een dode link is erger dan geen link. De pagina
+kan dat zelf niet nakijken: dat vraagt een verzoek naar buiten en dat is precies
+wat de privacybelofte uitsluit. Daarom gebeurt het buiten de pagina om:
+
+```
+npm run bronnen
+```
+
+`.github/workflows/bronnen.yml` draait dat maandelijks en op verzoek. Bewust niet
+bij elke pull request: een netwerkcontrole is wisselvallig en mag geen werk
+tegenhouden dat er niets mee te maken heeft. Wat wél in `npm test` zit, is de
+vaste kant ervan — elke bronlink is https, en beide plekken die zo'n link
+opbouwen zetten `rel="noreferrer"`.
+
+Het script leest de links op twee plaatsen: de navigatielinks staan als `<a href>`
+in de html, maar de bronnen staan in de tabel `UITLEG` en worden pas een link als
+iemand uitklapt. Wie alleen naar `<a href>` kijkt, kijkt precies de bronnen niet
+na. Een 403 of 405 geldt niet als dood maar als "niet na te kijken": een deel van
+de overheidssites weert onbekende clients, en anders roept deze controle elke maand
+wolf.
+
 ## De invoervakken
 
 Bedragen staan er opgemaakt in, `€ 600.000` en niet `600000`, en ze groeien mee
@@ -131,7 +184,11 @@ Verder wordt getoetst dat een link met de invoer erin rondgaat, dat hij kort
 blijft zolang de invoer op haar beginwaarden staat, dat een stand op euro niet
 alsnog wordt omgerekend, dat een kapotte of vreemde link niets stukmaakt en de
 pagina op haar beginwaarden laat, dat elk invoerveld in de link past, en dat een
-link met een oudere tarievendatum zich meldt. Ook dat een bedrag meegroeit terwijl je typt, dat backspace op een
+link met een oudere tarievendatum zich meldt. Ook dat elk begrip uit de uitlegtabel ergens op de pagina te openen is en elk
+vraagteken naar een begrip wijst dat bestaat, dat een blokje open- en dichtklapt
+met de bron erin, dat één klik één blokje opent ook als het begrip meermaals
+voorkomt, dat een open uitleg openblijft terwijl je typt, en dat er op papier geen
+vraagtekens of blokjes staan. Ook dat een bedrag meegroeit terwijl je typt, dat backspace op een
 scheidingsteken het cijfer ervóór wist in plaats van het teken zelf, dat een komma
 in de maak blijft staan, dat de cursor op zijn plek in de cijferreeks blijft, dat
 de pijltjestoetsen met de stap van het veld stappen en binnen zijn grenzen
@@ -251,6 +308,9 @@ Tarieven nagekeken op 22 augustus 2026.
   EUR 21.206,35 aan intrest.
 - Niet-conforme keuring van de elektriciteit: de koper herkeurt binnen
   18 maanden na de akte en kiest zelf een erkend organisme.
+- Renovatieverplichting: wie een woning met EPC-label E of F koopt, moet ze binnen
+  zes jaar na de authentieke akte naar minstens label D brengen. Dat geldt voor
+  aankopen vanaf 2023.
 - Wederbeleggingsvergoeding bij vervroegd aflossen: wettelijk maximaal drie
   maanden interest op het terugbetaalde deel.
 - De betaalbaarheidstoets staat op twee bases. Het ene percentage is de

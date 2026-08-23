@@ -588,6 +588,167 @@ describe('randgevallen en de afdruk', () => {
 
 // ---------------------------------------------------------------------------
 
+describe('uitleg bij de begrippen', () => {
+
+  const html = readFileSync(
+    join(dirname(dirname(fileURLToPath(import.meta.url))), 'index.html'), 'utf8');
+
+  // De begrippen uit de tabel in de broncode. Niet uit de pagina gelezen: dan zou
+  // de toets de tabel met zichzelf vergelijken.
+  const tabel = (() => {
+    const van = html.indexOf('var UITLEG={');
+    const tot = html.indexOf('\n  };', van);
+    const blok = html.slice(van, tot);
+    return [...blok.matchAll(/^    '([^']+)':\{/gm)].map(m => m[1]);
+  })();
+
+  // Een scenario dat zoveel mogelijk resultaatregels aanzet, zodat de vraagtekens
+  // die uit row() komen er ook echt staan.
+  const ALLES = {priceN:400000, hasHome:true, saleN:300000, hasOld:true, oldBal:100000,
+                 oldRate:2, oldYears:10, bonus:1500, inc1:3500, ovr:900, fire:25, ssv:30,
+                 bridgeAmt:50000, bridgeMonths:6, b1InN:50000};
+
+  test('de tabel is gevonden en heeft alle velden', () => {
+    assert.ok(tabel.length >= 20, 'maar ' + tabel.length + ' begrippen gevonden');
+    const van = html.indexOf('var UITLEG={');
+    const blok = html.slice(van, html.indexOf('\n  };', van));
+    // elk begrip heeft een tekst, een bron en een url
+    assert.equal((blok.match(/tekst:/g) || []).length, tabel.length);
+    assert.equal((blok.match(/wie:/g) || []).length, tabel.length);
+    assert.equal((blok.match(/url:'https:\/\//g) || []).length, tabel.length,
+      'elke bron hoort een https-url te hebben');
+  });
+
+  test('elk begrip uit de tabel is ergens op de pagina te bereiken', async () => {
+    // Zonder deze toets blijft er uitleg in de tabel staan waar geen enkel
+    // vraagteken naar wijst. Dat is dood gewicht dat niemand ziet.
+    const p = await metPagina(ALLES);
+    const bereikbaar = new Set(await p.begrippen());
+    await p.vul({kind:'new', landVal:80000});          // nieuwbouw zet eigen regels aan
+    for(const t of await p.begrippen()) bereikbaar.add(t);
+
+    const onbereikbaar = tabel.filter(t => !bereikbaar.has(t));
+    assert.deepEqual(onbereikbaar, [],
+      'deze begrippen staan in de tabel maar zijn nergens te openen: ' + onbereikbaar.join(', '));
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('elk vraagteken wijst naar een begrip dat bestaat', async () => {
+    const p = await metPagina(ALLES);
+    const onbekend = (await p.begrippen()).filter(t => !tabel.includes(t));
+    assert.deepEqual(onbekend, [], 'vraagtekens zonder uitleg: ' + onbekend.join(', '));
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('een vraagteken klapt de uitleg met de bron open en weer dicht', async () => {
+    const p = await metPagina({priceN:300000});
+    assert.equal(await p.uitleg('ereloon'), null, 'het blokje staat open voordat er geklikt is');
+
+    await p.klikBegrip('ereloon');
+    const u = await p.uitleg('ereloon');
+    assert.ok(u, 'na de klik staat er geen uitlegblok');
+    assert.equal(u.open, 'true');
+    assert.match(u.tekst, /wettelijk barema/);
+    assert.match(u.bron, /notaris\.be/);
+    assert.match(u.bron, /nagekeken op 22 augustus 2026/);
+    assert.match(u.url, /^https:\/\/www\.notaris\.be\//);
+
+    await p.klikBegrip('ereloon');
+    assert.equal(await p.uitleg('ereloon'), null, 'het blokje gaat niet weer dicht');
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('een open uitleg blijft open terwijl je verder typt', async () => {
+    // De resultaatregels worden bij elke toetsaanslag opnieuw opgebouwd. Zou de
+    // stand in de dom staan in plaats van in openUitleg, dan klapte het blokje
+    // dicht zodra je een cijfer verandert.
+    const p = await metPagina({priceN:300000});
+    await p.klikBegrip('ereloon');
+    await p.vul({priceN:350000});
+    assert.ok(await p.uitleg('ereloon'), 'de uitleg is dichtgeklapt door het typen');
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('de bron zegt welke instantie het is en lekt geen verwijzende url', async () => {
+    // "Officieel" is niet één categorie: de Vlaamse overheid en de FOD zijn de
+    // overheid, Wikifin is de toezichthouder, notaris.be is de sector zelf. En bij
+    // het klikken hoort er geen referrer mee te gaan naar die site.
+    const p = await metPagina({priceN:300000, ovr:900});
+    for(const [term, instantie] of [['ereloon', /Fednot/],
+                                    ['onroerende voorheffing', /Vlaamse overheid/],
+                                    ['registratiebelasting', /Vlaamse overheid/]]){
+      await p.klikBegrip(term);
+      const u = await p.uitleg(term);
+      assert.match(u.bron, instantie, 'bron bij ' + term);
+      assert.equal(u.rel, 'noreferrer', 'de link bij ' + term + ' mist rel=noreferrer');
+      await p.klikBegrip(term);
+    }
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('op papier staan geen vraagtekens en geen uitlegblokken', async () => {
+    // De afdruk kopieert de resultaatblokken. Een knop heeft op papier geen
+    // betekenis en het blad is bewust kort.
+    const p = await metPagina({priceN:300000, inc1:3000});
+    await p.klikBegrip('ereloon');
+    assert.ok(await p.uitleg('ereloon'), 'de uitleg staat niet open op het scherm');
+    await p.afdrukstand();
+    const blad = await p.html('printdoc');
+    assert.doesNotMatch(blad, /button/, 'er staat een knop op papier');
+    assert.doesNotMatch(blad, /uitlegblok/, 'er staat een uitlegblok op papier');
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('één klik opent één blokje, ook als het begrip meermaals voorkomt', async () => {
+    // De stand staat per plek en niet per begrip: "ereloon" staat zowel bij
+    // "Ereloon notaris" als bij "waarvan ereloon" in de kredietakte.
+    const p = await metPagina({priceN:300000});
+    await p.klikBegrip('ereloon');
+    const aantal = await p.aantalUitleg();
+    assert.equal(aantal, 1, 'er staan ' + aantal + ' blokjes open na één klik');
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('elke bronlink is https', () => {
+    // De bronnen staan in de tabel als url:'...' en worden pas een a-element als
+    // iemand uitklapt. Wie alleen naar a-elementen kijkt, kijkt precies de bronnen
+    // niet na: dan blijft er één navigatielink over en lijkt alles in orde.
+    const uitTabel = [...html.matchAll(/\burl:'(https?:[^']+)'/g)].map(m => m[1]);
+    assert.ok(uitTabel.length >= 20, 'maar ' + uitTabel.length + ' bronlinks gevonden');
+    for(const url of uitTabel)
+      assert.ok(url.startsWith('https://'), 'geen https: ' + url);
+
+    // en de navigatielinks in de html
+    for(const m of html.matchAll(/<a href="(https?:[^"]+)"([^>]*)>/g)){
+      const [, url, rest] = m;
+      assert.ok(url.startsWith('https://'), 'geen https: ' + url);
+      assert.match(rest, /rel="noreferrer"/, 'mist rel=noreferrer: ' + url);
+    }
+  });
+
+  test('beide plekken die een bronlink bouwen zetten rel=noreferrer', () => {
+    // De uitleg wordt op twee plekken opgebouwd: uitlegHTML() voor de
+    // resultaatregels en vasteUitleg() voor de vaste velden. Vergeet één van de twee
+    // het, dan lekt de verwijzende url naar de bron van dat halve deel.
+    const script = html.slice(html.lastIndexOf('<script>'), html.lastIndexOf('</script>'));
+    const bouwers = [...script.matchAll(/<a href="'\s*\+\s*u\.url\s*\+\s*'([^']*)/g)]
+      .map(m => m[1]);
+    assert.equal(bouwers.length, 2,
+      'er zijn ' + bouwers.length + ' plekken die een bronlink bouwen, verwacht 2');
+    for(const rest of bouwers)
+      assert.match(rest, /rel="noreferrer"/, 'een bronlink wordt zonder rel=noreferrer gebouwd');
+  });
+});
+
+// ---------------------------------------------------------------------------
+
 describe('de opmaak van de invoervakken', () => {
 
   // De vakjes zijn text en geen number, want een number-veld weigert elke opgemaakte

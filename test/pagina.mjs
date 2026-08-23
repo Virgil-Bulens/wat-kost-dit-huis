@@ -132,6 +132,42 @@ export async function openPagina(fragment = ''){
       await pg.evaluate(([i, p]) => document.getElementById(i).setSelectionRange(p, p), [id, pos]);
     },
 
+    // Alle begrippen waarvoor er op dit moment een vraagteken op de pagina staat.
+    async begrippen(){
+      return pg.evaluate(() => [...new Set([...document.querySelectorAll('button.q')]
+        .map(b => b.getAttribute('data-t')))].sort());
+    },
+
+    // Het uitlegblokje dat bij een begrip openstaat: de tekst, de bron en de link.
+    async uitleg(term){
+      return pg.evaluate(t => {
+        const knop = document.querySelector('button.q[data-t="' + t + '"]');
+        if(!knop) return null;
+        const inRes = !!knop.closest('.res');
+        const houder = inRes ? knop.closest('.row')
+          : (knop.closest('.field, .trio > div, .pair > div, .card > p, h3, li') || knop.parentElement);
+        // op het begrip zoeken, want er kunnen meerdere blokjes naast elkaar staan
+        let blok = houder && houder.nextElementSibling;
+        while(blok && blok.classList && blok.classList.contains('uitlegblok')
+              && blok.getAttribute('data-t') !== t) blok = blok.nextElementSibling;
+        if(!blok || !blok.classList.contains('uitlegblok')
+           || blok.getAttribute('data-t') !== t) return null;
+        const a = blok.querySelector('.bron a');
+        return {tekst: blok.querySelector('p').textContent,
+                bron: blok.querySelector('.bron').textContent,
+                url: a ? a.getAttribute('href') : null,
+                rel: a ? a.getAttribute('rel') : null,
+                open: knop.getAttribute('aria-expanded')};
+      }, term);
+    },
+
+    async klikBegrip(term){ await pg.click('button.q[data-t="' + term + '"]'); },
+
+    // Hoeveel uitlegblokken er op dit moment openstaan.
+    async aantalUitleg(){
+      return pg.evaluate(() => document.querySelectorAll('.uitlegblok').length);
+    },
+
     // Het bereik van een schuifbalk, als getallen.
     async bereik(id){
       return pg.evaluate(i => {
