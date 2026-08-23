@@ -13,6 +13,19 @@ import {fileURLToPath} from 'node:url';
 import {dirname, join} from 'node:path';
 import {startBrowser, stopBrowser, openPagina,
         annuiteit, BAREMA_KOOP, schijfbedrag} from './pagina.mjs';
+import {PNG} from 'pngjs';
+import jsQRmod from 'jsqr';
+
+// De lezer komt van buiten en staat alleen in devDependencies: hij komt nooit in
+// index.html terecht. Zo toetst de suite de gedrukte code tegen een andere
+// implementatie in plaats van tegen de codeerder die haar gemaakt heeft.
+const jsQR = jsQRmod.default ?? jsQRmod;
+function lees(afbeelding){
+  const png = PNG.sync.read(afbeelding);
+  const uit = jsQR(new Uint8ClampedArray(png.data), png.width, png.height);
+  return uit ? uit.data : null;
+}
+const GEPUBLICEERD = 'https://virgil-bulens.github.io/wat-kost-dit-huis/';
 
 before(startBrowser);
 after(stopBrowser);
@@ -1232,6 +1245,101 @@ describe('de bewaarbare en deelbare link', () => {
     const p = await openPagina('#v1&inc1=3000&asOf=2025-01-15');
     assert.match(await p.tekst('r-notes'), /gemaakt toen de tarieven/);
     geenFouten(p);
+    await p.sluit();
+  });
+});
+
+// ---------------------------------------------------------------------------
+
+describe('de weg terug van papier naar de invoer', () => {
+
+  const asOf = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', 'index.html'), 'utf8')
+    .match(/asOf:'([^']+)'/)[1];
+
+  // De afbeelding wordt op vier keer de pixeldichtheid genomen. Dat verandert niets
+  // aan wat er gedrukt wordt: het is dezelfde svg, alleen met genoeg pixels om hem
+  // te kunnen lezen.
+  async function metBlad(fragment){
+    const p = await openPagina(fragment, {deviceScaleFactor: 4});
+    await p.afdrukstand();
+    return p;
+  }
+
+  test('de code op het blad leest terug als de link met dezelfde invoer', async () => {
+    const frag = '#v1&price=450000&sale=300000&b1In=40000&term=30&inc1=5200&hasHome=1&kern=1&asOf='
+      + asOf;
+    const p = await openPagina(frag, {deviceScaleFactor: 4});
+    // niet tegen de tekst hierboven, maar tegen de link die de knop zelf maakt: de
+    // volgorde van de sleutels hoort bij de pagina en niet bij deze toets.
+    const knop = await p.link();
+    await p.afdrukstand();
+    const gelezen = lees(await p.afbeelding('#pd-qr'));
+    assert.equal(gelezen, GEPUBLICEERD + knop);
+    assert.deepEqual(p.fouten, []);
+    await p.sluit();
+  });
+
+  test('ook een volle invoer past in de code', async () => {
+    // Elk veld dat in een link kan, met een bedrag erin: de langste payload die deze
+    // pagina kan maken. Blijkt de gekozen versie te klein, dan faalt hier de lezer.
+    const p = await openPagina('', {deviceScaleFactor: 4});
+    await p.vul({priceN:450000, saleN:300000, b1InN:40000, b2InN:20000, termN:30, rateN:'3,2',
+      ratioN:33, landVal:60000, disb:1407, reno:15000, moving:3000, feeVal:3, certs:500,
+      oldBal:120000, oldRate:'1,9', oldYears:12, portCost:2000, bonus:1520, release:500,
+      b1Have:60000, b1Min:20000, b1Max:80000, b2Have:30000, b2Min:10000, b2Max:40000,
+      mortFix:1200, acc:10, bankFee:500, valFee:300, bridgeAmt:150000, bridgeRate:'4,5',
+      bridgeMonths:6, inc1:5200, debts:350, ovr:1100, fire:35, ssv:45,
+      kern:true, hasHome:true, hasOld:true, two:true});
+    const link = await p.link();
+    await p.afdrukstand();
+    const gelezen = lees(await p.afbeelding('#pd-qr'));
+    assert.ok(link.length > 300, 'deze invoer hoort een lange link te geven, niet ' + link.length);
+    assert.equal(gelezen, GEPUBLICEERD + link);
+    await p.sluit();
+  });
+
+  test('de link op het blad wijst naar de gepubliceerde pagina, niet naar dit bestand', async () => {
+    // Wie het bestand van zijn schijf opent, heeft een file:-adres in de balk. Een
+    // code met dat adres erin is op papier waardeloos, dus het papier draagt het
+    // adres van de gepubliceerde pagina.
+    const p = await metBlad('#v1&price=250000&asOf=' + asOf);
+    const href = await p.attribuut('#pd-link', 'href');
+    assert.equal(href, GEPUBLICEERD + '#v1&price=250000&asOf=' + asOf);
+    assert.equal(lees(await p.afbeelding('#pd-qr')), href, 'de code en de link horen hetzelfde te zeggen');
+    await p.sluit();
+  });
+
+  test('de code is voorgrond, dus ze drukt ook zonder achtergronden af', async () => {
+    const p = await metBlad('#v1&price=250000&asOf=' + asOf);
+    assert.equal(await p.stijl('#pd-qr', 'backgroundImage'), 'none');
+    const vulling = await p.attribuut('#pd-qr svg path', 'fill');
+    assert.equal(vulling, '#000', 'de modules horen een fill op de vorm te hebben');
+    await p.sluit();
+  });
+
+  test('de code staat één keer op het blad en niet in de herhaalde voetregel', async () => {
+    const p = await metBlad('#v1&price=250000&asOf=' + asOf);
+    const aantallen = await p.aantalQr();
+    assert.equal(aantallen.blad, 1, 'één code op het blad');
+    assert.equal(aantallen.voet, 0, 'de voetregel herhaalt op elke bladzijde, dus daar niet');
+    await p.sluit();
+  });
+
+  test('de code is groot genoeg om te lezen en past binnen de bladspiegel', async () => {
+    const p = await metBlad('#v1&price=250000&asOf=' + asOf);
+    const vak = await p.maten('#pd-qr');
+    const mm = vak.width / 96 * 25.4;
+    assert.ok(mm > 35 && mm < 50, 'de code hoort tussen 35 en 50 mm te zijn, niet ' + mm.toFixed(1));
+    // 105 modules: 97 plus vier stille modules aan elke kant
+    assert.ok(mm / 105 > 0.35, 'een module hoort minstens 0,35 mm te zijn, niet ' + (mm / 105).toFixed(2));
+    const blad = await p.maten('#printdoc');
+    assert.ok(vak.width <= blad.width, 'de code hoort binnen het blad te vallen');
+    await p.sluit();
+  });
+
+  test('zonder aankoopprijs staat er geen weg terug', async () => {
+    const p = await metBlad('');
+    assert.equal(await p.zichtbaar('pd-back'), false);
     await p.sluit();
   });
 });
