@@ -1638,10 +1638,23 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
       else say('ok','&#10003;','<b>'+p2.toFixed(0)+'% van je netto inkomen gaat naar de aflossing.</b>'+erbij+' Daarmee blijf je onder de vuistregel van ongeveer een derde, die Wikifin voor de afbetaling zelf aanhoudt. Een bank weegt daarnaast wat er overblijft om van te leven.');
       if(v('debts')>0) say('info','?','<b>De vuistregel geldt voor al je kredieten samen.</b> Je andere kredieten van '+eur.format(v('debts'))+' per maand staan hier niet in dat percentage, maar een bank telt ze mee: samen met de aflossing kom je op '+((repayGross+v('debts'))/inc*100).toFixed(0)+'% van je inkomen. De maximale aankoopprijs hieronder houdt er wel rekening mee.');
       if(rest<1300) say('warn','~','<b>Er blijft '+eur.format(rest)+' per maand over.</b> Banken toetsen dat bedrag apart. De grens van &euro; 1.300 is een vuistregel, geen bankregel.');
+      // Deze grens legt het aangehouden deel van het inkomen op de volledige woonlast,
+      // terwijl het bericht hierboven de vuistregel tegen de aflossing alleen legt.
+      // Twee bases, dus de twee berichten kunnen elkaar lijken tegen te spreken: eerst
+      // "je blijft onder de vuistregel", dan een maximumprijs onder de prijs die er
+      // staat. Dat verschil hoort er expliciet bij, anders leest het als een fout.
+      var mxNote='';
+      if(mx>0&&P>0){
+        if(mx<P-500)
+          mxNote=' Dat ligt '+eur.format(P-mx)+' onder de prijs die je invulde'+
+                 (p2<=33?', ook al blijft de aflossing hierboven onder de vuistregel: die toetst de afbetaling alleen, deze grens toetst alles samen.':'.');
+        else
+          mxNote=' De prijs die je invulde blijft daaronder.';
+      }
       say('info','?','Op basis van alleen deze inkomensregel kom je uit op een aankoopprijs van ongeveer <b>'+eur.format(mx)+
           '</b>. Die grens staat op alles wat er maandelijks weggaat'+(fixed>0?', dus met de verzekeringen en de onroerende voorheffing erbij':'')+
           (v('debts')>0?', en op je andere kredieten':'')+
-          '. Dat is geen kredietbelofte: een bank weegt ook de schatting, je andere schulden en je gezinssituatie.');
+          '.'+mxNote+' Dat is geen kredietbelofte: een bank weegt ook de schatting, je andere schulden en je gezinssituatie.');
     }
     // Sinds clampBuyer de inbreng niet meer bijstelt, kan er meer ingebracht worden
     // dan er is. Die tegenspraak hoort hardop gezegd te worden en niet stil

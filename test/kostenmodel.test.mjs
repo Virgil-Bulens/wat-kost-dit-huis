@@ -459,6 +459,24 @@ describe('betaalbaarheid', () => {
     await p.sluit();
   });
 
+  test('de maximumprijs zegt erbij dat ze op een andere basis staat', async () => {
+    // Twee berichten, twee bases: het bericht over de vuistregel toetst de
+    // aflossing alleen, de maximumprijs toetst de volledige woonlast. Blijft de
+    // aflossing onder de vuistregel terwijl de maximumprijs onder de ingevulde
+    // prijs ligt, dan leest dat als een tegenspraak. Het verschil hoort er dus
+    // met zoveel woorden bij te staan.
+    const p = await metPagina(situatie);
+    const notes = await p.tekst('r-notes');
+    assert.match(notes, /blijf je onder de vuistregel/,
+      'deze situatie hoort onder de vuistregel te blijven');
+    assert.match(notes, /onder de prijs die je invulde/,
+      'de maximumprijs zegt niet dat ze onder de ingevulde prijs ligt');
+    assert.match(notes, /die toetst de afbetaling alleen, deze grens toetst alles samen/,
+      'het verschil in basis staat er niet bij');
+    geenFouten(p);
+    await p.sluit();
+  });
+
   test('de maximumprijs houdt rekening met andere kredieten', async () => {
     // Deze test dekt het gat dat de vorige laat: die rekent zonder andere
     // kredieten. Met een autolening erbij hoort de maximumprijs te dalen, en
