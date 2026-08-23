@@ -296,11 +296,64 @@ describe('registratiebelasting en het verlaagde tarief', () => {
     await p.sluit();
   });
 
-  test('het veld voor de ligging bestaat niet meer', async () => {
-    // Vanaf 2026 is er een maximumprijs, zonder onderscheid naar ligging.
-    const p = await metPagina();
-    assert.equal(await p.bestaat('zone'), false);
+  test('in een kernstad geldt de korting tot EUR 240.000', async () => {
+    // De drempel hangt aan de ligging. Dit is de prijsband waarin de vorige
+    // versie van de pagina de korting liet vallen die er wel was: 1.867 te veel
+    // aan registratiebelasting voor een koper in een kernstad.
+    const p = await metPagina({b1InN:400000});
+
+    await p.vul({priceN:230000});
+    assert.equal((await p.regels('r-buy'))['2% registratiebelasting'], 4600,
+      'zonder het vinkje ligt 230.000 boven de grens van 220.000');
+
+    await p.vul({kern:true});
+    assert.equal((await p.regels('r-buy'))['2% registratiebelasting, min de korting'],
+      4600 - 1867, 'met het vinkje aan hoort de korting er wel te zijn');
+
+    await p.vul({priceN:240000});
+    assert.equal((await p.regels('r-buy'))['2% registratiebelasting, min de korting'],
+      240000 * 0.02 - 1867, 'op de grens zelf hoort de korting nog te gelden');
+
+    await p.vul({priceN:240500});
+    assert.equal((await p.regels('r-buy'))['2% registratiebelasting'], 4810,
+      'boven de hogere grens hoort er ook met het vinkje geen korting te zijn');
+    geenFouten(p);
     await p.sluit();
+  });
+
+  test('tussen de twee grenzen wordt de hogere grens genoemd', async () => {
+    // Wie de lijst van kernsteden niet kent, zet het vinkje niet aan. Dan hoort
+    // de pagina te zeggen dat er een hogere grens bestaat, anders verliest hij
+    // een korting waarvan hij het bestaan niet kent.
+    const p = await metPagina({priceN:230000, b1InN:400000});
+    assert.match(await p.tekst('r-notes'), /kernstad of de Vlaamse Rand ligt de grens op/);
+
+    await p.vul({kern:true});
+    assert.doesNotMatch(await p.tekst('r-notes'), /kernstad of de Vlaamse Rand ligt de grens op/,
+      'staat het vinkje aan, dan is de melding overbodig');
+    await p.sluit();
+  });
+
+  test('het vinkje voor de ligging staat alleen bij de enige eigen woning', async () => {
+    const p = await metPagina({priceN:230000, b1InN:400000});
+    assert.equal(await p.zichtbaar('kernBox'), true);
+
+    await p.vul({kind:'other'});
+    assert.equal(await p.zichtbaar('kernBox'), false);
+    await p.sluit();
+  });
+
+  test('de ligging gaat mee in een deelbare link', async () => {
+    const p = await metPagina({priceN:230000, kern:true});
+    const frag = await p.link();
+    assert.match(frag, /kern=1/);
+    await p.sluit();
+
+    const q = await openPagina(frag);
+    assert.equal((await q.waarden(['kern'])).kern, true);
+    assert.equal((await q.regels('r-buy'))['2% registratiebelasting, min de korting'],
+      4600 - 1867, 'een geopende link hoort met dezelfde grens te rekenen');
+    await q.sluit();
   });
 });
 
@@ -652,7 +705,7 @@ describe('uitleg bij de begrippen', () => {
     assert.equal(u.open, 'true');
     assert.match(u.tekst, /wettelijk barema/);
     assert.match(u.bron, /notaris\.be/);
-    assert.match(u.bron, /nagekeken op 22 augustus 2026/);
+    assert.match(u.bron, /nagekeken op 23 augustus 2026/);
     assert.match(u.url, /^https:\/\/www\.notaris\.be\//);
 
     await p.klikBegrip('ereloon');

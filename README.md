@@ -109,7 +109,7 @@ mee in het verzoek en komt in het logboek van de hostingpartij terecht, en een
 van die velden is het netto maandinkomen. Wat achter een hekje staat, blijft in
 de browser: het gaat niet mee in het verzoek en niet in de verwijzende url.
 
-De vorm is leesbaar, `#v1&price=450000&term=30&asOf=2026-08-22`, en geen base64
+De vorm is leesbaar, `#v1&price=450000&term=30&asOf=2026-08-23`, en geen base64
 van json. Dat laatste zou even lang zijn en verbergen wat er in de link zit; wie
 zijn eigen link kan lezen, ziet meteen dat zijn bedragen erin staan. Alleen wat
 afwijkt van de beginwaarde gaat mee, dus een gewone link blijft kort. De `v1`
@@ -235,7 +235,7 @@ privacybelofte hieronder draagt. Een tweede bestand zou een extra verzoek zijn.
 
 ## Bronnen
 
-Tarieven nagekeken op 22 augustus 2026.
+Tarieven nagekeken op 23 augustus 2026.
 
 - Registratiebelasting Vlaanderen: 2% voor de enige eigen woning, 12% voor
   overige aankopen. Het tarief van 1% voor ingrijpende energetische renovatie
@@ -292,10 +292,13 @@ Tarieven nagekeken op 22 augustus 2026.
 - Notariskosten bij nieuwbouw worden op het grondaandeel gerekend: alleen de
   grond gaat via een notariele akte, het gebouw zit in een
   aannemingsovereenkomst.
-- Bijkomende vermindering van EUR 1.867 voor een enige eigen bescheiden woning,
-  in 2026 tot een maximumprijs van EUR 220.000. Dat is een grens, zonder
-  onderscheid naar ligging; het oude verschil met de kernsteden en de Vlaamse
-  Rand is er niet meer, en het ligging-veld is daarmee uit de invoer.
+- Bijkomende vermindering van EUR 1.867 voor een enige eigen bescheiden woning.
+  De maximumprijs is EUR 220.000, en EUR 240.000 als de woning in de kernsteden
+  of de Vlaamse Rand rond Brussel ligt. Dat onderscheid staat er nog en is niet
+  afgeschaft, dus de invoer heeft een vinkje voor de ligging. De tool kan de
+  gemeente niet zelf kennen: de lijst staat in de regelgeving en de koper zet
+  het vinkje. Staat het uit terwijl de prijs tussen de twee grenzen valt, dan
+  zegt de pagina dat de hogere grens bestaat.
 - Aankoopkosten geijkt op de infofiche van notaris.be: een gezinswoning van
   EUR 250.000 in Vlaanderen kost EUR 9.370 aan aankoopkosten. Die ijking is een
   paar: het barema geeft EUR 2.962,88 aan ereloon inclusief btw, en de akte- en
