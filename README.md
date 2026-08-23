@@ -96,7 +96,10 @@ Verder wordt getoetst dat een link met de invoer erin rondgaat, dat hij kort
 blijft zolang de invoer op haar beginwaarden staat, dat een stand op euro niet
 alsnog wordt omgerekend, dat een kapotte of vreemde link niets stukmaakt en de
 pagina op haar beginwaarden laat, dat elk invoerveld in de link past, en dat een
-link met een oudere tarievendatum zich meldt. Daarnaast dat de brug naar het
+link met een oudere tarievendatum zich meldt. Ook dat de optionele grensvelden bij
+je eigen geld alleen de schuifbalk begrenzen en het ingevulde bedrag niet
+verschuiven, ook niet terwijl je erin typt, en dat meer inbrengen dan je hebt
+gezegd wordt in plaats van weggerekend. Daarnaast dat de brug naar het
 kredietbedrag sluit, dat de heffingen
 van de kredietakte op het gewaarborgde bedrag staan, dat het percentage van je
 inkomen en de afgeleide maximumprijs op dezelfde basis staan, dat de

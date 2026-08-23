@@ -542,6 +542,72 @@ describe('randgevallen en de afdruk', () => {
 
 // ---------------------------------------------------------------------------
 
+describe('de inbreng en haar grenzen', () => {
+
+  // "Je hebt", "minstens" en "hoogstens" begrenzen de schuifbalk. Ze mogen het
+  // bedrag in het invoervak niet aanraken: dat vak is de bron van waarheid, en de
+  // functie die de grenzen zet draait bij elke herberekening, dus ook terwijl er in
+  // een van die drie vakjes getypt wordt.
+  const GRENSVELDEN = [['b1Have', 'je hebt'], ['b1Min', 'minstens'], ['b1Max', 'hoogstens']];
+
+  for(const [veld, naam] of GRENSVELDEN){
+    test(`"${naam}" invullen laat de inbreng staan`, async () => {
+      const p = await metPagina({priceN: 300000, b1InN: 50000});
+      // teken voor teken, want bij het eerste cijfer stond er 6 in plaats van 600000
+      await p.tik(veld, 600000);
+      assert.equal((await p.waarden(['b1InN'])).b1InN, '50000',
+        'het invullen van "' + naam + '" heeft de inbreng verschoven');
+      geenFouten(p);
+      await p.sluit();
+    });
+  }
+
+  test('ook bij de tweede koper blijft de inbreng staan', async () => {
+    const p = await metPagina({priceN: 300000, two: true, b2InN: 40000});
+    await p.tik('b2Have', 100000);
+    assert.equal((await p.waarden(['b2InN'])).b2InN, '40000');
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('de schuifbalk kan het bedrag uit het vak aanwijzen', async () => {
+    // Anders klemt de duim aan een uiteinde en liegt hij over wat er in het vak
+    // staat. De grove stapgrootte rondt de duim af, dus hier wordt getoetst dat het
+    // bedrag binnen het bereik valt en niet dat de duim er exact op staat.
+    const p = await metPagina({priceN: 300000, b1InN: 50000, b1Have: 10000});
+    const balk = await p.bereik('b1In');
+    assert.ok(balk.min <= 50000 && 50000 <= balk.max,
+      'de inbreng van 50000 valt buiten het bereik ' + JSON.stringify(balk));
+    assert.equal((await p.waarden(['b1InN'])).b1InN, '50000');
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('meer inbrengen dan je hebt wordt gezegd, niet weggerekend', async () => {
+    const p = await metPagina({priceN: 300000, b1InN: 50000, b1Have: 30000});
+    const notes = await p.tekst('r-notes');
+    assert.match(notes, /Er komt .*20\.000 te kort/);
+    // en dan niet ook nog de melding over een krappe buffer, die iets anders zegt
+    assert.doesNotMatch(notes, /achter de hand/);
+    assert.match(await p.tekst('s-cash-sub'), /meer ingebracht dan je hebt/);
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('een krappe buffer blijft een krappe buffer', async () => {
+    // De melding over te kort mag de bestaande melding over een krappe buffer niet
+    // verdringen zolang er niets te kort komt.
+    const p = await metPagina({priceN: 300000, b1InN: 50000, b1Have: 55000});
+    const notes = await p.tekst('r-notes');
+    assert.match(notes, /achter de hand/);
+    assert.doesNotMatch(notes, /te kort/);
+    geenFouten(p);
+    await p.sluit();
+  });
+});
+
+// ---------------------------------------------------------------------------
+
 describe('de bewaarbare en deelbare link', () => {
 
   const html = readFileSync(
@@ -601,6 +667,19 @@ describe('de bewaarbare en deelbare link', () => {
     // in de volgorde waarin de tabel de velden opsomt, want die volgorde is vast
     const frag = '#v1&price=380000&sale=250000&term=28&inc1=2800&hasHome=1&asOf=' + asOf;
     const p = await openPagina(frag);
+    assert.equal(await p.link(), frag);
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('een link met meer inbreng dan spaargeld komt ongewijzigd terug', async () => {
+    // Voor de reparatie van #12 stelde clampBuyer de inbreng bij tijdens de eerste
+    // herberekening, dus deze link kwam terug met een andere inbreng dan hij bij zich
+    // had. Een link hoort te zeggen wat hij zegt, ook als de invoer zichzelf
+    // tegenspreekt; de pagina meldt die tegenspraak in de aandachtspunten.
+    const frag = '#v1&price=300000&b1In=50000&b1Have=30000&asOf=' + asOf;
+    const p = await openPagina(frag);
+    assert.equal((await p.waarden(['b1InN'])).b1InN, '50000');
     assert.equal(await p.link(), frag);
     geenFouten(p);
     await p.sluit();
