@@ -109,6 +109,15 @@ mee in het verzoek en komt in het logboek van de hostingpartij terecht, en een
 van die velden is het netto maandinkomen. Wat achter een hekje staat, blijft in
 de browser: het gaat niet mee in het verzoek en niet in de verwijzende url.
 
+De beginwaarden waartegen dat "afwijkt" gemeten wordt, komen uit wat de html
+verklaart: `defaultValue`, `defaultChecked` en het attribuut op de schuifbalk.
+Niet uit wat er in de vakken staat als het script begint. Dat verschil is niet
+theoretisch. Een browser die formulierwaarden onthoudt, zet ze bij het herladen
+terug voordat het script draait. Wie dan de vakken leest, neemt de herstelde
+bedragen als beginwaarde, en alles wat daaraan gelijk is valt uit de link. Zo
+droeg een afgedrukt blad een code met alleen het vinkje dat na het herladen
+aanging, zonder aankoopprijs.
+
 De vorm is leesbaar, `#v1&price=450000&term=30&asOf=2026-08-23`, en geen base64
 van json. Dat laatste zou even lang zijn en verbergen wat er in de link zit; wie
 zijn eigen link kan lezen, ziet meteen dat zijn bedragen erin staan. Alleen wat
@@ -160,6 +169,21 @@ De link is een echte `<a href>`. Druk je het blad af als pdf, dan blijft hij
 aanklikbaar: Chromium zet er een linkannotatie in, fragment en al. Voor wie
 een pdf bewaart is dat de hele oplossing en is de code overbodig. De code is
 er voor echt papier, waar geen link te volgen valt.
+
+Die annotatie hangt aan één detail. Verschilt het adres van de link alleen in
+het fragment van de pagina die je afdrukt, dan leest Chromium hem als een sprong
+binnen hetzelfde document. Zo'n sprong bestaat in een pdf niet, en de link
+verdwijnt zonder melding. Dat trof precies het geval van een bezoeker: afdrukken
+vanaf de gepubliceerde pagina. Het blad draagt daarom de andere schrijfwijze van
+hetzelfde adres, `…/index.html#…` in plaats van `…/#…`, want dat zijn voor de
+browser twee documenten en voor de bezoeker dezelfde pagina. Een toets opent de
+pagina op haar eigen adres, maakt een pdf en kijkt na of de annotatie er in staat.
+
+Wat het fragment niet overleeft, is een lezer die het weggooit. Sommige
+telefoonscanners en sommige pdf-lezers openen alleen het adres tot het hekje. Dan
+staat er een lege berekening op het scherm. Daar kan deze pagina niets aan doen:
+alles wat een server nooit mag zien, moet achter het hekje staan, en wie dat
+weggooit, gooit de invoer weg.
 
 Beide wijzen naar de gepubliceerde pagina en niet naar `location.href`. Wie
 `index.html` van zijn schijf opent, heeft een `file:`-adres in de balk, en een

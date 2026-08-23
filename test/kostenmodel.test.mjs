@@ -11,8 +11,8 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {dirname, join} from 'node:path';
-import {startBrowser, stopBrowser, openPagina,
-        annuiteit, BAREMA_KOOP, schijfbedrag} from './pagina.mjs';
+import {startBrowser, stopBrowser, openPagina, openAlsGepubliceerd,
+        openMetHersteldeVakken, annuiteit, BAREMA_KOOP, schijfbedrag} from './pagina.mjs';
 import {PNG} from 'pngjs';
 import jsQRmod from 'jsqr';
 
@@ -1352,6 +1352,53 @@ describe('de weg terug van papier naar de invoer', () => {
     assert.ok(mm / 105 > 0.35, 'een module hoort minstens 0,35 mm te zijn, niet ' + (mm / 105).toFixed(2));
     const blad = await p.maten('#printdoc');
     assert.ok(vak.width <= blad.width, 'de code hoort binnen het blad te vallen');
+    await p.sluit();
+  });
+
+  test('de link blijft aanklikbaar in de pdf, ook vanaf de gepubliceerde pagina', async () => {
+    // Dit is de val: Chromium schrijft geen linkannotatie als het adres alleen in
+    // het fragment verschilt van de pagina die je afdrukt. Wie vanaf de
+    // gepubliceerde pagina afdrukt, houdt dan een blad zonder aanklikbare link
+    // over, en dat is precies het geval van een bezoeker.
+    const p = await openAlsGepubliceerd();
+    await p.vul({priceN:450000, inc1:5200});
+    const href = await p.attribuut('#pd-link', 'href');
+    const pdf = (await p.pdf()).toString('latin1');
+    const uris = [...pdf.matchAll(/\/URI\s*\(([^)]*)\)/g)].map(m => m[1]);
+    assert.ok(uris.includes(href), 'de link van het blad hoort als annotatie in de pdf te staan, gevonden: '
+      + JSON.stringify(uris));
+    assert.match(href, /#v1&price=450000&inc1=5200&asOf=/);
+    await p.sluit();
+  });
+
+  test('het adres op het blad is nooit hetzelfde document als de pagina zelf', async () => {
+    const p = await openAlsGepubliceerd();
+    await p.vul({priceN:250000});
+    const href = await p.attribuut('#pd-link', 'href');
+    assert.notEqual(href.split('#')[0], GEPUBLICEERD,
+      'alleen een ander fragment maakt van de link een sprong binnen het blad');
+    assert.equal(href.split('#')[0], GEPUBLICEERD + 'index.html',
+      'het hoort dezelfde pagina te zijn, anders geschreven');
+    await p.sluit();
+  });
+
+  test('een browser die de vakken zelf terugzet, maakt de link niet leeg', async () => {
+    // Het geval dat op papier misging. De browser onthield de bedragen en zette ze
+    // terug voordat het script van de pagina begon. De beginwaarden werden toen uit
+    // de vakken gelezen, dus de teruggezette bedragen golden als beginwaarde en
+    // vielen uit de link. Het blad droeg een code zonder aankoopprijs: alleen het
+    // vinkje dat daarna aanging stond er nog in.
+    const p = await openMetHersteldeVakken({priceN:'€ 450.000', inc1:'€ 5.200', termN:'30'});
+    assert.deepEqual(await p.waarden(['priceN','inc1','termN']),
+      {priceN:'€ 450.000', inc1:'€ 5.200', termN:'30'}, 'de teruggezette invoer hoort te blijven staan');
+
+    const frag = await p.link();
+    assert.match(frag, /price=450000/, 'de prijs hoort in de link te staan: ' + frag);
+    assert.match(frag, /inc1=5200/);
+    assert.match(frag, /term=30/);
+    assert.equal(await p.attribuut('#pd-link', 'href'), GEPUBLICEERD + frag,
+      'het blad hoort dezelfde invoer te dragen als de knop');
+    assert.deepEqual(p.fouten, []);
     await p.sluit();
   });
 
