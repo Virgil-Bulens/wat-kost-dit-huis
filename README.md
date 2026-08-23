@@ -150,12 +150,54 @@ zonder "achtergronden afdrukken" aan te vinken.
 Ctrl+P of cmd+P geeft hetzelfde resultaat als de knop. Afdrukken of bewaren
 als pdf gebeurt volledig in je eigen browser; er wordt niets verstuurd.
 
+## Terug van papier naar de invoer
+
+Onderaan het blad staat een weg terug: een link en een code. Beide dragen
+dezelfde invoer als de knop "Link bewaren", want ze komen uit dezelfde
+functie.
+
+De link is een echte `<a href>`. Druk je het blad af als pdf, dan blijft hij
+aanklikbaar: Chromium zet er een linkannotatie in, fragment en al. Voor wie
+een pdf bewaart is dat de hele oplossing en is de code overbodig. De code is
+er voor echt papier, waar geen link te volgen valt.
+
+Beide wijzen naar de gepubliceerde pagina en niet naar `location.href`. Wie
+`index.html` van zijn schijf opent, heeft een `file:`-adres in de balk, en een
+code met dat adres erin is op papier waardeloos. Het adres staat daarom als
+`CANON` in het script. Gevolg: een blad uit een gewijzigde kopie leidt naar de
+gepubliceerde versie. De datum van de tarieven gaat mee in de link, dus dat
+verschil meldt zich op de pagina zelf.
+
+De code is zelf gecodeerd, in ongeveer 190 regels, want een bibliotheek erbij
+halen zou de belofte breken dat dit één bestand zonder afhankelijkheden is. Er
+is één vaste vorm: versie 20, correctieniveau L, bytemodus, masker 0. Vast en
+niet passend gekozen, want elke extra versie vraagt haar eigen blokindeling en
+haar eigen plaatsen voor de uitlijnvierkanten. Dat kost formaat: 97 modules
+plus vier stille modules aan elke kant, op 42 mm, is 0,4 mm per module. Kleiner
+kan een telefooncamera niet meer volgen.
+
+Versie 20 draagt 858 tekens. De langste link die deze pagina kan maken is 669
+tekens, gemeten door elk veld te vullen dat in een link kan; een realistisch
+volledig geval, met een tweede koper en een lopend krediet, is er 484. Past de
+payload toch niet, dan komt er geen code en blijft de link staan.
+
+De modules zijn één `<path fill="#000">` in een inline svg, aaneensluitende
+modules samengevoegd tot één rechthoek. Dat is voorgrond en geen achtergrond,
+dus de code drukt ook af zonder "achtergronden afdrukken" aan te vinken. De
+code staat één keer aan het eind van het overzicht en niet in de `tfoot`, want
+die herhaalt op elke bladzijde.
+
+Wat de code niet doet, is de blootstelling vergroten. De bedragen staan al
+voluit op hetzelfde blad. Wat ze wel doet, is ze met een camera in één keer
+leesbaar maken, inclusief het inkomen. Dat staat er in één regel bij.
+
 ## Tests
 
 De rekenhulp zelf heeft geen afhankelijkheden. De tests wel, en dat is een
-ander ding: `playwright` staat als `devDependency` in `package.json` en komt
-nooit in `index.html` terecht. Wie de pagina alleen wil gebruiken of hosten,
-heeft dit alles niet nodig; `index.html` is en blijft op zichzelf genoeg.
+ander ding: `playwright`, `jsqr` en `pngjs` staan als `devDependency` in
+`package.json` en komen nooit in `index.html` terecht. Wie de pagina alleen wil
+gebruiken of hosten, heeft dit alles niet nodig; `index.html` is en blijft op
+zichzelf genoeg.
 
 ```
 npm ci
@@ -178,7 +220,19 @@ bevriest ook de fout:
 - een doorgerekend voorbeeld van het barema bij EUR 150.000, dat op EUR 1.878,66
   uitkomt;
 - het voorbeeld van Wikifin voor de maandlast: EUR 100.000 op 20 jaar aan 2%
-  geeft EUR 505,03 per maand en EUR 21.206,35 aan intrest.
+  geeft EUR 505,03 per maand en EUR 21.206,35 aan intrest;
+- de code op het blad, gelezen met `jsqr`: de afdrukstand aan, de code als
+  afbeelding, en de tekst die eruit komt moet letterlijk de link zijn die de
+  knop "Link bewaren" geeft. Dat gaat twee keer, met een gewone invoer en met
+  elk veld gevuld, zodat de langste payload gedekt is. Een lezer van buiten is
+  hier de bron: de codeerder wordt niet tegen zichzelf gelegd.
+
+Die laatste toets is drie keer tegengelezen. Het masker weglaten maakt de suite
+rood, en versie 19 in plaats van 20 ook. Eén bit in de foutcorrectie omzetten
+maakt haar niet rood, en dat hoort: 28 correctiewoorden per blok herstellen tot
+14 verminkte bytes, dus één omgezette bit is precies wat de code moet
+overleven. Twintig verminkte correctiewoorden per blok gaan over die grens heen
+en maken de suite wel rood.
 
 Verder wordt getoetst dat een link met de invoer erin rondgaat, dat hij kort
 blijft zolang de invoer op haar beginwaarden staat, dat een stand op euro niet

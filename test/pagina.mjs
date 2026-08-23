@@ -26,8 +26,11 @@ export async function stopBrowser(){ if(browser) await browser.close(); }
 // gedeelde link opent. Dat is de enige manier om het terugzetten te toetsen: de
 // invoer staat achter een hekje, dus ze hoort bij de url en niet bij een handeling
 // op de pagina.
-export async function openPagina(fragment = ''){
-  const pg = await browser.newPage();
+export async function openPagina(fragment = '', opties = {}){
+  // opties gaan door naar de browser. De toets op de code van de afdruk vraagt een
+  // hogere pixeldichtheid: op papier is de code 42 mm, maar een schermafbeelding op
+  // 96 dpi geeft anderhalve pixel per module en daar leest geen lezer iets uit.
+  const pg = await browser.newPage(opties);
   const fouten = [];
   pg.on('pageerror', e => fouten.push('pageerror: ' + e.message));
   pg.on('console', m => { if(m.type() === 'error') fouten.push('console: ' + m.text()); });
@@ -257,6 +260,29 @@ export async function openPagina(fragment = ''){
         if(!regel) throw new Error('onbekende afdrukregel: ' + l);
         regel.querySelector('.v').textContent = t;
       }, [label, tekst]);
+    },
+
+    // Een deel van het blad als afbeelding. Daarmee kan een lezer van buiten de
+    // gedrukte code nakijken, en dat is de enige toets die deze pagina tegen een
+    // bron buiten zichzelf legt in plaats van tegen haar eigen berekening.
+    async afbeelding(selector){ return pg.locator(selector).screenshot(); },
+    async maten(selector){ return pg.locator(selector).boundingBox(); },
+    // Waar de code staat: op het blad zelf, of in de voetregel die op elke bladzijde
+    // terugkomt.
+    async aantalQr(){
+      return pg.evaluate(() => ({
+        blad: document.querySelectorAll('#printdoc svg').length,
+        voet: document.querySelectorAll('#printdoc tfoot svg').length
+      }));
+    },
+    async attribuut(selector, naam){
+      return pg.evaluate(([s, n]) => document.querySelector(s)?.getAttribute(n) ?? null, [selector, naam]);
+    },
+    async stijl(selector, eigenschap){
+      return pg.evaluate(([s, e]) => {
+        const el = document.querySelector(s);
+        return el ? getComputedStyle(el)[e] : null;
+      }, [selector, eigenschap]);
     },
 
     async sluit(){ await pg.close(); }
