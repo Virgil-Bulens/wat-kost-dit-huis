@@ -542,6 +542,203 @@ describe('randgevallen en de afdruk', () => {
 
 // ---------------------------------------------------------------------------
 
+describe('de bewaarbare en deelbare link', () => {
+
+  const html = readFileSync(
+    join(dirname(dirname(fileURLToPath(import.meta.url))), 'index.html'), 'utf8');
+  const asOf = html.match(/asOf:'([^']+)'/)[1];
+
+  // De kerncijfers bovenaan, als één regel tekst. Een rondgang hoort ze
+  // ongewijzigd terug te geven: staat er na het openen van de link hetzelfde, dan
+  // is niet alleen de invoer teruggezet maar ook alles wat eruit volgt.
+  const KERN = ['s-cash', 's-loan', 's-pay', 's-ratio'];
+  async function kerncijfers(p){
+    const uit = [];
+    for(const id of KERN) uit.push(await p.tekst(id));
+    return uit.join(' | ');
+  }
+
+  test('een link neemt de invoer mee en geeft ze ongewijzigd terug', async () => {
+    // Eén scenario dat elke soort veld raakt: een gekoppeld paar, een gewoon
+    // bedrag, een aanvinkvakje, een keuzelijst, een groep radioknoppen en een
+    // schakelaar die op euro staat.
+    const p = await metPagina({priceN: 450000, termN: 30, rateN: 3.2, inc1: 3200,
+                               hasHome: true, saleN: 300000, kind: 'new',
+                               two: true, b2InN: 20000, ovr: 900});
+    await p.kies('vatRate', 6);
+    await p.klik('#landSeg button[data-m=eur]');
+    await p.vul({landVal: 60000});
+
+    const VELDEN = ['priceN', 'termN', 'rateN', 'inc1', 'hasHome', 'saleN', 'kind',
+                    'two', 'b2InN', 'ovr', 'landVal'];
+    const heen = {kern: await kerncijfers(p), velden: await p.waarden(VELDEN),
+                  stand: await p.stand('landSeg'), btw: await p.keuze('vatRate')};
+    const link = await p.link();
+    geenFouten(p);
+    await p.sluit();
+
+    const q = await openPagina(link);
+    assert.deepEqual({kern: await kerncijfers(q), velden: await q.waarden(VELDEN),
+                      stand: await q.stand('landSeg'), btw: await q.keuze('vatRate')}, heen);
+    geenFouten(q);
+    await q.sluit();
+  });
+
+  test('de link blijft kort: alleen wat afwijkt van de beginwaarde gaat mee', async () => {
+    // Anders zou elke link alle negentien beginwaarden meeslepen. De
+    // tarievendatum gaat altijd mee, want daar hangt de waarschuwing aan.
+    const p = await metPagina({priceN: 250000});
+    assert.equal(await p.link(), '#v1&price=250000&asOf=' + asOf);
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('een geopende link blijft deelbaar', async () => {
+    // Wie een link krijgt en hem doorstuurt, hoort dezelfde link door te sturen.
+    // Dat gaat mis zodra de beginwaarden pas worden opgenomen nadat de link is
+    // teruggezet: dan gelden de waarden uit de link als beginwaarde, en levert de
+    // knop een lege link op.
+    // in de volgorde waarin de tabel de velden opsomt, want die volgorde is vast
+    const frag = '#v1&price=380000&sale=250000&term=28&inc1=2800&hasHome=1&asOf=' + asOf;
+    const p = await openPagina(frag);
+    assert.equal(await p.link(), frag);
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('een lege invoer geeft een link zonder waarden', async () => {
+    const p = await metPagina();
+    assert.equal(await p.link(), '#v1&asOf=' + asOf);
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('een stand op euro wordt bij het terugzetten niet omgerekend', async () => {
+    // Dit is de val: de knop rekent de waarde om naar de nieuwe eenheid, en een
+    // link brengt haar al in de juiste eenheid mee. Wie het terugzetten via die
+    // knop laat lopen, deelt 60.000 nog eens door de prijs.
+    const p = await openPagina('#v1&price=400000&kind=new&mLand=eur&landVal=60000&asOf=' + asOf);
+    assert.equal((await p.waarden(['landVal'])).landVal, '60000');
+    assert.equal(await p.stand('landSeg'), 'eur');
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('een stand uit de link rekent een veld op zijn beginwaarde niet om', async () => {
+    // Hier scheiden de wegen van de knop en de link. De commissie staat standaard
+    // op 3, en omdat dat de beginwaarde is, staat ze niet in de link. Zou het
+    // terugzetten via de knop lopen, dan rekende die de 3 om naar 3% van de
+    // verkoopprijs en stond er 9.000 in het vak. De link zegt "beginwaarde", dus
+    // hoort er 3 te staan.
+    const p = await openPagina('#v1&price=400000&hasHome=1&sale=300000&mFee=eur&asOf=' + asOf);
+    assert.equal((await p.waarden(['feeVal'])).feeVal, '3');
+    assert.equal(await p.stand('feeSeg'), 'eur');
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('een schakelaar die op de beginstand staat, komt ook zo terug', async () => {
+    const p = await openPagina('#v1&price=400000&kind=new&landVal=15&asOf=' + asOf);
+    assert.equal(await p.stand('landSeg'), 'pct');
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('een vreemde link maakt niets stuk en laat de pagina op haar beginwaarden', async () => {
+    // Een link komt van buiten. Een onbekende sleutel, een waarde die niet in het
+    // veld past en een getal in exponentvorm worden genegeerd en niet geraden:
+    // kind=onzin zou de selectedIndex op -1 zetten, waarna het opzoeken van de
+    // keuzetekst valt, en 1e400 zou als Infinity in de bovengrens van de
+    // schuifbalk belanden.
+    const p = await openPagina('#v1&kind=onzin&price=1e400&zzz=1&landVal=%E2%82%AC&two=ja');
+    const w = await p.waarden(['priceN', 'kind', 'landVal', 'two']);
+    assert.equal(w.priceN, '');
+    assert.equal(w.kind, 'own');
+    assert.equal(w.landVal, '');
+    assert.equal(w.two, false);
+    assert.equal((await p.waarden(['price'])).price, '0');
+    assert.equal(await p.tekst('s-loan'), '€0');
+    // De schuifbalk verruimt haar bovengrens zodra je een groter bedrag typt. Met
+    // een waarde als 1e400 zou daar Infinity in komen te staan.
+    const grens = await p.grens('price');
+    assert.ok(Number.isFinite(Number(grens)), 'de bovengrens van de schuifbalk is ' + grens);
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('een waarde buiten het bereik van het veld wordt naar de grens gebracht', async () => {
+    // De looptijd loopt tot 40 jaar. Een link die 999 meebrengt, hoort niet met
+    // 999 jaar te rekenen.
+    const p = await openPagina('#v1&price=250000&term=999&asOf=' + asOf);
+    assert.equal((await p.waarden(['termN'])).termN, '40');
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('een fragment zonder versie wordt niet gelezen', async () => {
+    // Zonder die eis zou een oude link ooit stil verkeerd gelezen worden.
+    const p = await openPagina('#price=999000&term=40');
+    const w = await p.waarden(['priceN', 'termN']);
+    assert.equal(w.priceN, '');
+    assert.equal(w.termN, '25');
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('elk invoerveld past in de link', async () => {
+    // Zonder deze toets zakt een nieuw invoerveld stil buiten de link: de pagina
+    // blijft werken, maar wie zijn link opent, mist precies dat ene bedrag.
+    const lijst = naam => {
+      const van = html.indexOf('var ' + naam + '=[');
+      assert.ok(van >= 0, 'de lijst ' + naam + ' is niet gevonden');
+      const tot = html.indexOf('];', van);
+      return [...html.slice(van, tot).matchAll(/'([^']+)'/g)].map(x => x[1]);
+    };
+    const paren = [...html.match(/var pairOf=\{([^}]*)\}/s)[1]
+      .matchAll(/(\w+):'(\w+)'/g)].map(m => [m[1], m[2]]);
+
+    const gedekt = new Set([...lijst('linkNum'), ...lijst('linkChk'), ...lijst('linkSel'),
+                            // het invoervak van een gekoppeld paar staat onder de basis-id
+                            ...paren.map(([, twin]) => twin),
+                            // het veld met de link zelf is geen invoer voor de berekening
+                            'linkUrl']);
+
+    const velden = [...html.matchAll(/<(?:input|select)\b[^>]*\bid="([^"]+)"/g)].map(m => m[1]);
+    assert.ok(velden.length > 40, 'de invoervelden zijn niet gevonden');
+    const vergeten = velden.filter(id => !gedekt.has(id));
+    assert.deepEqual(vergeten, [],
+      'deze invoervelden gaan niet mee in de link: ' + vergeten.join(', '));
+  });
+
+  test('een link met een oudere tarievendatum meldt zich', async () => {
+    // Een link bewaart de invoer en niet de uitkomst, dus hij rekent met de
+    // tarieven van vandaag. Zonder deze regel verschuift het bedrag stil.
+    const oud = await openPagina('#v1&price=250000&asOf=2025-01-15');
+    const tekst = await oud.tekst('r-notes');
+    assert.match(tekst, /15 januari 2025/);
+    assert.match(tekst, /gemaakt toen de tarieven/);
+    geenFouten(oud);
+    await oud.sluit();
+
+    // en met de huidige datum niet
+    const nu = await openPagina('#v1&price=250000&asOf=' + asOf);
+    assert.doesNotMatch(await nu.tekst('r-notes'), /gemaakt toen de tarieven/);
+    geenFouten(nu);
+    await nu.sluit();
+  });
+
+  test('de waarschuwing komt er ook zonder aankoopprijs', async () => {
+    // De aandachtspunten stoppen vroeg zolang er geen prijs staat. De
+    // waarschuwing over de tarieven hoort daarboven te staan.
+    const p = await openPagina('#v1&inc1=3000&asOf=2025-01-15');
+    assert.match(await p.tekst('r-notes'), /gemaakt toen de tarieven/);
+    geenFouten(p);
+    await p.sluit();
+  });
+});
+
+// ---------------------------------------------------------------------------
+
 describe('de pagina zelf', () => {
 
   const html = readFileSync(
@@ -554,6 +751,19 @@ describe('de pagina zelf', () => {
     const datums = new Set([...html.matchAll(/nagekeken op (\d+ \w+ \d{4})/g)].map(m => m[1]));
     assert.equal(datums.size, 1,
       'er lopen verschillende datums door de pagina: ' + [...datums].join(', '));
+
+    // RATES.asOf staat in ISO-vorm, want die datum gaat mee in een deelbare
+    // link. Het is dus een vierde plek waar dezelfde datum staat, en zonder
+    // deze toets zou ze stil uit de pas lopen met het proza.
+    const MAANDEN = ['januari','februari','maart','april','mei','juni','juli',
+                     'augustus','september','oktober','november','december'];
+    const [dag, maand, jaar] = [...datums][0].split(' ');
+    const iso = jaar + '-' + String(MAANDEN.indexOf(maand) + 1).padStart(2, '0')
+              + '-' + dag.padStart(2, '0');
+    const gevonden = html.match(/asOf:'([^']+)'/);
+    assert.ok(gevonden, 'RATES.asOf is niet gevonden');
+    assert.equal(gevonden[1], iso,
+      'RATES.asOf loopt niet gelijk met de datum in het proza');
   });
 
   test('het script verstuurt niets en bewaart niets', () => {
@@ -564,8 +774,14 @@ describe('de pagina zelf', () => {
     // privacyparagraaf noemt deze namen zelf, en dat is geen gebruik ervan.
     const script = html.slice(html.lastIndexOf('<script>'), html.lastIndexOf('</script>'));
     assert.ok(script.length > 1000, 'het script is niet gevonden');
+    //
+    // replaceState en pushState staan er ook bij. Ze versturen niets, maar ze
+    // zouden de ingevulde bedragen in de adresbalk en in de geschiedenis van de
+    // browser zetten. Een deelbare link hoort pas te bestaan als iemand erom
+    // vraagt, en die keuze ligt hier vast.
     for(const verboden of ['fetch(', 'XMLHttpRequest', 'localStorage', 'sessionStorage',
-                           'sendBeacon', 'WebSocket', 'EventSource', 'import(']){
+                           'sendBeacon', 'WebSocket', 'EventSource', 'import(',
+                           'replaceState', 'pushState']){
       assert.ok(!script.includes(verboden),
         'het script gebruikt "' + verboden + '"; dat breekt de privacybelofte');
     }
