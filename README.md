@@ -1,18 +1,20 @@
 # Wat kost dit huis?
 
+[Open de rekenhulp](https://virgil-bulens.github.io/wat-kost-dit-huis/)
+
 Rekenhulp voor kandidaat-kopers in Vlaanderen. Rekent uit wat er bovenop de
 vraagprijs komt, wat je overhoudt als je eerst je eigen woning verkoopt,
 hoeveel je moet lenen en wat dat elke maand kost.
 
-Niets staat voorgevuld. Standaard rekent de tool met één koper; een koppel kan
-gezamenlijke bedragen invullen of een tweede koper met eigen bedragen
-toevoegen. Elke schuifbalk heeft een invoervak, zodat je ook een exact bedrag
-kan typen.
+Persoonlijke bedragen staan niet voorgevuld. De tool vult wel algemene tarieven
+en schattingen in. Standaard rekent de tool met één koper. Een koppel kan
+gezamenlijke bedragen invullen of een tweede koper met eigen bedragen toevoegen.
+Elke schuifbalk heeft een invoervak, zodat je ook een exact bedrag kan typen.
 
 ## Uitleg bij de begrippen
 
 Naast elk vakjargon staat een vraagteken. Dat klapt een blokje open met uitleg in
-gewone taal en een link naar de bron. Zesentwintig begrippen, van
+gewone taal en een link naar de bron. Zevenentwintig begrippen, van
 registratiebelasting tot wederbeleggingsvergoeding.
 
 Bewust geen `title`-attribuut. Dat is niet met het toetsenbord te bereiken,
