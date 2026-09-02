@@ -1,0 +1,2470 @@
+<!doctype html>
+<!--
+  Wat kost dit huis? - rekenhulp voor kandidaat-kopers in Vlaanderen.
+
+  Required Notice: Copyright 2026 Virgil Bulens
+  (https://github.com/Virgil-Bulens/wat-kost-dit-huis)
+
+  SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+  PolyForm Noncommercial License 1.0.0
+  https://polyformproject.org/licenses/noncommercial/1.0.0
+
+  Niet-commercieel gebruik is vrij, met behoud van deze vermelding.
+  Commercieel gebruik enkel na schriftelijke toestemming van de auteur.
+-->
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wat kost dit huis?</title>
+<meta name="description" content="Rekenhulp voor kopers in Vlaanderen: registratiebelasting, btw bij nieuwbouw, notariskosten, maandlast en wat haalbaar is met je inkomen.">
+<meta name="color-scheme" content="light dark">
+<style>
+:root{
+  --ground:#F1F4F7; --surface:#FFFFFF; --surface-2:#F7F9FB;
+  --ink:#16202B; --ink-2:#3D4C5A; --muted:#66757F;
+  --line:#DCE3EA; --line-2:#C6D1DB;
+  --accent:#1B4F8A; --accent-soft:#E7EFF8; --accent-ink:#123B69;
+  --pos:#0B6E52; --pos-soft:#E2F2EC;
+  --warn:#8A5A0A; --warn-soft:#FBF0DC;
+  --alert:#94322E; --alert-soft:#FAE7E6;
+  --shadow:0 1px 2px rgba(22,32,43,.06), 0 8px 24px -12px rgba(22,32,43,.18);
+  --sans:ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono:ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0E141A; --surface:#171F27; --surface-2:#1D262F;
+    --ink:#E6ECF2; --ink-2:#C2CDD8; --muted:#8D9CAA;
+    --line:#28323C; --line-2:#37444F;
+    --accent:#74AAE6; --accent-soft:#1A2733; --accent-ink:#A8C9EE;
+    --pos:#45C398; --pos-soft:#152A24;
+    --warn:#DCA24A; --warn-soft:#2B2417;
+    --alert:#E38581; --alert-soft:#2E1D1D;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0E141A; --surface:#171F27; --surface-2:#1D262F;
+  --ink:#E6ECF2; --ink-2:#C2CDD8; --muted:#8D9CAA;
+  --line:#28323C; --line-2:#37444F;
+  --accent:#74AAE6; --accent-soft:#1A2733; --accent-ink:#A8C9EE;
+  --pos:#45C398; --pos-soft:#152A24;
+  --warn:#DCA24A; --warn-soft:#2B2417;
+  --alert:#E38581; --alert-soft:#2E1D1D;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.6);
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0; background:var(--ground); color:var(--ink); font-family:var(--sans);
+  font-size:15px; line-height:1.55; -webkit-font-smoothing:antialiased}
+h1,h2,h3{margin:0; text-wrap:balance; font-weight:700; letter-spacing:-.015em}
+.num{font-variant-numeric:tabular-nums}
+.cur{color:var(--muted); font-weight:500; margin-right:.22em; font-size:.82em}
+.fig{font-variant-numeric:tabular-nums; letter-spacing:-.01em; white-space:nowrap}
+.wrap{max-width:1180px; margin:0 auto; padding:0 20px}
+
+header{padding:44px 0 26px; border-bottom:1px solid var(--line)}
+.eyebrow{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); font-weight:700; margin:0 0 10px}
+header h1{font-size:clamp(30px,4.6vw,46px); letter-spacing:-.025em; line-height:1.08}
+header p{max-width:66ch; color:var(--ink-2); margin:14px 0 0; font-size:16px}
+
+.disclaimer{background:var(--warn-soft); border:1px solid var(--warn); border-radius:var(--r);
+  padding:16px 18px; margin:22px 0 0; color:var(--warn); font-size:13.5px; line-height:1.55}
+.disclaimer h2{font-size:14px; margin-bottom:6px; color:var(--warn); letter-spacing:0}
+.disclaimer p{margin:0 0 7px}
+.disclaimer p:last-child{margin-bottom:0}
+.disclaimer b{font-weight:700}
+.stamp{font-size:11.5px; color:var(--muted); margin-top:10px; font-family:var(--mono)}
+
+a{color:var(--accent); text-decoration:underline; text-underline-offset:2px;
+  text-decoration-thickness:1px; text-decoration-color:var(--line-2)}
+a:hover{text-decoration-color:var(--accent)}
+a:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:3px}
+
+.privacy{display:flex; gap:10px; align-items:baseline; margin:18px 0 0; max-width:none; padding:10px 14px;
+  background:var(--surface-2); border:1px solid var(--line); border-radius:var(--r);
+  font-size:13px; line-height:1.5; color:var(--ink-2)}
+.privacy .ic{flex:none; color:var(--pos); font-family:var(--mono); font-weight:700; font-size:13px}
+.privacy b{color:var(--ink); font-weight:700}
+.summary{position:sticky; top:0; z-index:20; background:var(--surface); border-bottom:1px solid var(--line); box-shadow:var(--shadow)}
+.summary-grid{display:grid; grid-template-columns:repeat(4,1fr) auto; gap:1px; background:var(--line)}
+.tile{background:var(--surface); padding:14px 18px; min-width:0}
+.tile .lab{font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); font-weight:700}
+.tile .val{font-size:clamp(19px,2.5vw,29px); font-weight:700; margin-top:4px; letter-spacing:-.025em;
+  overflow-wrap:break-word; line-height:1.1}
+.tile .sub{font-size:12px; color:var(--muted); margin-top:1px}
+.tile.is-alert .val{color:var(--alert)}
+.tile.is-warn .val{color:var(--warn)}
+.tile.is-pos .val{color:var(--pos)}
+.tile.act{display:flex; align-items:center; justify-content:center; gap:8px; padding:10px 16px}
+
+/* De strook met de deelbare link. Ze staat in de vastgeplakte balk, dus ze is er
+   alleen zolang iemand ze opvraagt; anders zou de balk blijvend hoger staan. */
+.linkbar{display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  padding:10px 18px; border-top:1px solid var(--line); background:var(--surface-2)}
+.linkbar[hidden]{display:none}
+.linkbar input{flex:1 1 320px; min-width:0; font:inherit; font-size:12.5px;
+  padding:7px 10px; border:1px solid var(--line-2); border-radius:6px;
+  background:var(--surface); color:var(--ink)}
+.linkbar .hint{flex:1 1 100%; font-size:12px; color:var(--muted); margin:0}
+.btn{font:inherit; font-size:13px; font-weight:600; display:inline-flex; align-items:center; gap:7px;
+  padding:8px 13px; border:1px solid var(--line-2); border-radius:7px; background:var(--surface-2);
+  color:var(--ink); cursor:pointer; white-space:nowrap}
+.btn:hover{border-color:var(--accent); color:var(--accent)}
+.btn:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.btn svg{flex:none; width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.6}
+
+/* De vraagtekenknop bij een begrip, en het blokje dat eronder openklapt. Het blokje
+   staat in de pagina en wordt niet gepositioneerd, dus het valt nergens buiten een
+   kaart en het werkt ook op een smal scherm. */
+button.q{font:inherit; font-size:10.5px; font-weight:700; line-height:1; margin-left:6px;
+  width:16px; height:16px; padding:0; vertical-align:1px; border:1px solid var(--line-2);
+  border-radius:50%; background:var(--surface-2); color:var(--muted); cursor:pointer}
+button.q:hover{border-color:var(--accent); color:var(--accent)}
+button.q:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+button.q[aria-expanded=true]{background:var(--accent); border-color:var(--accent); color:var(--accent-soft)}
+.uitlegblok{margin:6px 0 12px; padding:10px 12px; border-left:2px solid var(--accent);
+  background:var(--surface-2); border-radius:0 var(--r) var(--r) 0}
+.uitlegblok p{margin:0; font-size:12.5px; line-height:1.5; color:var(--ink-2)}
+.uitlegblok .bron{margin-top:6px; font-size:11.5px; color:var(--muted)}
+.uitlegblok .bron a{color:var(--accent)}
+
+.cols{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:26px; padding:28px 0 60px; align-items:start}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:20px 20px 22px; margin-bottom:18px}
+.card > h2{font-size:12px; letter-spacing:.11em; text-transform:uppercase; color:var(--accent);
+  font-weight:700; padding-bottom:11px; border-bottom:1px solid var(--line); margin-bottom:16px}
+.hint{font-size:12.5px; color:var(--muted); margin:-6px 0 14px; line-height:1.45}
+.sub-hint{display:block; font-size:11.5px; color:var(--muted); margin-top:5px; line-height:1.4}
+
+.field{margin-bottom:17px}
+.field:last-child{margin-bottom:0}
+.flab{display:flex; justify-content:space-between; align-items:center; gap:12px;
+  margin-bottom:6px; min-width:0; flex-wrap:wrap}
+.flab label{font-size:13.5px; font-weight:500; color:var(--ink-2); min-width:0; overflow-wrap:break-word}
+.pin{width:126px; min-width:84px; max-width:100%; flex:0 1 auto; text-align:right;
+  padding:5px 8px; font-size:13.5px}
+
+input[type=range]{-webkit-appearance:none; appearance:none; width:100%; height:22px; background:transparent; cursor:pointer; display:block}
+input[type=range]::-webkit-slider-runnable-track{height:5px; border-radius:3px; background:var(--line-2)}
+input[type=range]::-moz-range-track{height:5px; border-radius:3px; background:var(--line-2)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:17px; height:17px; border-radius:50%;
+  background:var(--accent); border:2.5px solid var(--surface); margin-top:-6.5px; box-shadow:0 0 0 1px var(--line-2)}
+input[type=range]::-moz-range-thumb{width:17px; height:17px; border-radius:50%; background:var(--accent);
+  border:2.5px solid var(--surface); box-shadow:0 0 0 1px var(--line-2)}
+input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:4px}
+
+/* Een readonly vak draagt een uitkomst: gedempte achtergrond, maar de tekst blijft
+   op volle sterkte, anders is het bedrag niet te lezen. */
+input.amt[readonly]{background:var(--surface-2); color:var(--ink); cursor:default}
+input.amt,select{width:100%; min-width:0; max-width:100%; padding:8px 10px;
+  font:inherit; font-size:14px;
+  font-family:var(--mono); font-variant-numeric:tabular-nums;
+  background:var(--surface-2); color:var(--ink); border:1px solid var(--line-2); border-radius:7px}
+/* de spinknoppen waren hier al weg; de velden zijn nu text, met eigen opmaak */
+select{font-family:var(--sans)}
+input:focus-visible,select:focus-visible{outline:2px solid var(--accent); outline-offset:1px; border-color:var(--accent)}
+.pair{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:11px}
+.trio{display:grid; grid-template-columns:repeat(auto-fit,minmax(128px,1fr)); gap:9px}
+.pair > *, .trio > *{min-width:0}
+.card, .res, .cols > div{min-width:0}
+.mini{font-size:11.5px; color:var(--muted); display:flex; justify-content:space-between;
+  align-items:center; gap:6px; margin-bottom:4px; font-weight:600;
+  flex-wrap:wrap; min-width:0; overflow-wrap:break-word}
+
+.seg{display:inline-flex; border:1px solid var(--line-2); border-radius:6px; overflow:hidden; flex:none}
+.seg button{font:inherit; font-family:var(--mono); font-size:11px; font-weight:700; padding:1px 8px;
+  border:0; background:var(--surface); color:var(--muted); cursor:pointer; line-height:1.7}
+.seg button[aria-pressed="true"]{background:var(--accent); color:var(--surface)}
+.seg button:focus-visible{outline:2px solid var(--accent); outline-offset:1px}
+
+.radios{display:grid; gap:8px}
+.radio{display:flex; gap:10px; align-items:flex-start; padding:11px 13px; border:1px solid var(--line-2);
+  border-radius:8px; cursor:pointer; background:var(--surface-2)}
+.radio:has(input:checked){border-color:var(--accent); background:var(--accent-soft)}
+.radio input{margin:3px 0 0; accent-color:var(--accent); flex:none}
+.radio b{display:block; font-size:13.5px; font-weight:600}
+.radio small{display:block; font-size:12px; color:var(--muted); line-height:1.4; margin-top:2px}
+
+.check{display:flex; gap:9px; align-items:center; font-size:13.5px; color:var(--ink-2); cursor:pointer; margin-bottom:11px}
+.check input{accent-color:var(--accent); width:16px; height:16px; flex:none}
+.check span{min-width:0}
+.subchecks{margin-top:11px; padding:12px 13px 4px; border:1px dashed var(--line-2);
+  border-radius:8px; background:var(--surface-2)}
+.subchecks .check{align-items:flex-start; margin-bottom:9px}
+.subchecks .check:last-of-type{margin-bottom:0}
+.subchecks .sub-hint{margin-top:10px}
+
+.res{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:20px; margin-bottom:18px}
+.res > h2{font-size:12px; letter-spacing:.11em; text-transform:uppercase; color:var(--accent);
+  font-weight:700; padding-bottom:11px; border-bottom:1px solid var(--line); margin-bottom:4px}
+.row{display:flex; justify-content:space-between; gap:16px; padding:8px 0; font-size:13.5px; border-bottom:1px dotted var(--line); align-items:baseline}
+.row:last-child{border-bottom:0}
+.row .k{color:var(--ink-2); min-width:0}
+.row .k small{display:block; color:var(--muted); font-size:11.5px; line-height:1.35}
+.row{min-width:0}
+.row .k{overflow-wrap:break-word}
+.row .v{white-space:nowrap; flex:none; font-weight:600; font-size:14.5px; color:var(--ink);
+  font-variant-numeric:tabular-nums}
+.row.neg .v{color:var(--alert)}
+.row.sub{border-bottom:0; padding:3px 0 3px 15px}
+.row.sub .k{color:var(--muted); font-size:12.5px}
+.row.sub .v{font-size:13px; color:var(--ink-2)}
+.row.tot{border-top:1.5px solid var(--line-2); border-bottom:0; margin-top:6px; padding-top:11px; font-weight:700; font-size:15px}
+.row.tot .v{font-size:17px; font-weight:700}
+.row.tot .k{color:var(--ink)}
+.big{display:flex; justify-content:space-between; align-items:baseline; gap:14px; padding:14px 16px;
+  border-radius:8px; background:var(--accent-soft); margin:14px 0 4px; flex-wrap:wrap; min-width:0}
+.big .k{font-size:13px; font-weight:700; color:var(--accent-ink)}
+.big .v{font-size:27px; font-weight:700; color:var(--accent-ink); letter-spacing:-.025em;
+  font-variant-numeric:tabular-nums}
+.big .v .cur{color:var(--accent-ink); opacity:.55}
+.empty{font-size:13.5px; color:var(--muted); padding:14px 0 4px; line-height:1.5}
+
+.note{display:flex; gap:11px; padding:12px 14px; border-radius:8px; font-size:13px;
+  line-height:1.5; margin-bottom:9px; border:1px solid transparent}
+.note .ic{flex:none; font-weight:700; font-family:var(--mono); font-size:13px}
+.note.ok{background:var(--pos-soft); color:var(--pos); border-color:var(--pos)}
+.note.warn{background:var(--warn-soft); color:var(--warn); border-color:var(--warn)}
+.note.bad{background:var(--alert-soft); color:var(--alert); border-color:var(--alert)}
+.note.info{background:var(--surface-2); color:var(--ink-2); border-color:var(--line-2)}
+
+.checklist{border-top:1px solid var(--line); padding:34px 0 40px}
+.checklist h2{font-size:23px; margin-bottom:6px}
+.checklist > p{color:var(--ink-2); max-width:68ch; margin:0 0 22px}
+.cl-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(270px,1fr)); gap:14px}
+.cl{background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--accent);
+  border-radius:8px; padding:15px 17px}
+.cl h3{font-size:14.5px; font-weight:600; margin-bottom:5px}
+.cl p{margin:0; font-size:13px; color:var(--ink-2); line-height:1.5}
+.cl.mid{border-left-color:var(--warn)}
+
+footer{border-top:1px solid var(--line); padding:22px 0 60px; font-size:12.5px; color:var(--muted); line-height:1.6}
+footer p{margin:0 0 9px; max-width:84ch}
+footer b{color:var(--ink-2)}
+footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--line)}
+
+@media (max-width:900px){
+  .cols{grid-template-columns:1fr; gap:0}
+  .summary-grid{grid-template-columns:1fr 1fr}
+  /* de balk blijft vastgeplakt, dus de knoprij houdt zich op een smal scherm klein */
+  .tile.act{grid-column:1/-1; padding:8px 14px; flex-wrap:wrap}
+  .btn{flex:1 1 auto; justify-content:center; padding:7px 12px; font-size:12.5px}
+  .linkbar{padding:8px 14px}
+}
+@media (max-width:420px){
+  .trio, .pair{grid-template-columns:1fr}
+  .flab{align-items:stretch}
+  .pin{width:100%; text-align:left}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* De afdruk staat los van de schermopmaak: op papier verschijnt alleen #printdoc, een eigen
+   documentweergave met dezelfde bedragen. Zo blijft de uitlijning voorspelbaar en staat er geen
+   halve schuifbalk of leeg invoervak op papier. */
+#printdoc{display:none}
+
+@media print{
+  /* @page zonder marge: de browser tekent zijn eigen kop- en voetregel (url, titel, datum,
+     bladzijdenummer) in die marge, dus met marge nul valt die weg. De witruimte op elke bladzijde
+     komt daarom uit de thead en de tfoot van de tabel hieronder: die herhaalt de browser zelf op
+     elke bladzijde. Geen paginaformaat opgeven, zodat het gekozen papier blijft gelden. */
+  @page{ margin:0 }
+
+  /* Papier is wit en zwart, ook als het scherm donker staat. Vlakken worden wit: achtergronden
+     drukt een browser alleen af als de gebruiker dat aanvinkt, dus de opmaak leunt op lijnen. */
+  :root, :root[data-theme="dark"], :root:not([data-theme="light"]){
+    --ground:#FFF; --surface:#FFF; --surface-2:#FFF;
+    --ink:#000; --ink-2:#1A1A1A; --muted:#4A4A4A;
+    --line:#C7C7C7; --line-2:#9A9A9A;
+    --accent:#173A63; --accent-soft:#FFF; --accent-ink:#000;
+    --pos:#0A5240; --pos-soft:#FFF;
+    --warn:#6A4406; --warn-soft:#FFF;
+    --alert:#7A2724; --alert-soft:#FFF;
+    --shadow:none;
+  }
+  html,body{background:#FFF; color:#000}
+  body > *{display:none !important}
+  #printdoc{display:block !important}
+  p{orphans:2; widows:2}
+
+  #printdoc{font-family:var(--sans); font-size:9.6pt; line-height:1.42; color:#000}
+  .pd{width:100%; border-collapse:collapse; table-layout:fixed}
+  .pd thead th, .pd tfoot td, .pd tbody td{text-align:left; font-weight:400; vertical-align:top}
+  /* kop en voet herhalen zich op elke bladzijde, en hun opvulling is de bladspiegel */
+  .pd thead th, .pd tfoot td{padding:0}
+  .pd tbody td.pd-cell{padding:0 15mm}
+  .pd-run{display:flex; justify-content:space-between; gap:10mm; padding:13mm 15mm 2mm;
+    font-size:7.6pt; letter-spacing:.09em; text-transform:uppercase; color:#3A3A3A}
+  .pd-run span:first-child{font-weight:700; letter-spacing:.06em; color:#000}
+  .pd-rule{border-top:.5pt solid #8A8A8A; margin:0 15mm 5mm}
+  .pd-foot{padding:4mm 15mm 13mm; margin-top:6mm; border-top:.5pt solid #C7C7C7;
+    font-size:7.4pt; line-height:1.4; color:#3A3A3A}
+
+  .pd-title h1{font-size:19pt; letter-spacing:-.025em; line-height:1.1}
+  .pd-title p{margin:2.5mm 0 0; font-size:9.6pt; color:#2A2A2A}
+
+  .pd-kpi{display:grid; grid-template-columns:repeat(4,1fr); border:.5pt solid #8A8A8A;
+    margin-top:6mm; break-inside:avoid}
+  .pd-kpi > div{padding:3mm 3.5mm; border-left:.5pt solid #8A8A8A; min-width:0}
+  .pd-kpi > div:first-child{border-left:0}
+  .pd-kpi .l{display:block; font-size:7.2pt; letter-spacing:.08em; text-transform:uppercase; color:#3A3A3A; font-weight:700}
+  .pd-kpi .v{display:block; font-size:13pt; font-weight:700; letter-spacing:-.02em; margin-top:.8mm;
+    overflow-wrap:break-word; line-height:1.15}
+  .pd-kpi .s{display:block; font-size:7.2pt; color:#3A3A3A; margin-top:.6mm; line-height:1.3}
+
+  .pd-sec{margin-top:7mm}
+  .pd-sec > h2, .pd-qr-txt > h2{font-size:8.4pt; letter-spacing:.11em; text-transform:uppercase; color:var(--accent);
+    font-weight:700; padding-bottom:1.4mm; border-bottom:.6pt solid #8A8A8A; margin-bottom:1mm;
+    break-after:avoid}
+  #printdoc .row{padding:1.5mm 0; font-size:9.2pt; gap:8mm; border-bottom:.4pt dotted #B4B4B4;
+    break-inside:avoid}
+  /* Op papier is de waarde lang niet altijd een bedrag: soms staat er een halve zin. Met de
+     flex:none van het scherm eist zo'n zin haar volle breedte op, wordt het label tot nul
+     geknepen en komt het letter onder letter te staan. Op papier krijgt de waarde daarom
+     hooguit de rechterkolom en breekt ze daarbinnen af; het label neemt de rest. */
+  #printdoc .row .k{flex:1 1 auto; min-width:0}
+  #printdoc .row .v{flex:0 0 auto; max-width:62%; min-width:0; font-size:9.6pt;
+    white-space:normal; text-align:right; overflow-wrap:break-word}
+  #printdoc .row .k small{font-size:7.6pt; line-height:1.3}
+  #printdoc .row.sub{border-bottom:0; padding:.6mm 0 .6mm 4mm; font-size:8.4pt}
+  #printdoc .row.sub .v{font-size:8.6pt}
+  #printdoc .row.tot{border-top:.9pt solid #6A6A6A; margin-top:1.2mm; padding-top:2mm; font-size:10pt}
+  #printdoc .row.tot .v{font-size:11pt}
+  #printdoc .big{border:.7pt solid #4A4A4A; border-radius:0; padding:3mm 4mm; margin:3.5mm 0 1mm;
+    break-inside:avoid}
+  #printdoc .big .k{font-size:9pt}
+  #printdoc .big .v{font-size:15pt}
+  #printdoc .big .v .cur{opacity:.6}
+  #printdoc .note{border:0; border-left:1.4pt solid #8A8A8A; border-radius:0; margin-bottom:2.4mm;
+    padding:.8mm 0 .8mm 3.2mm; font-size:8.8pt; line-height:1.4; gap:0; color:#1A1A1A;
+    break-inside:avoid}
+  #printdoc .note .ic{display:none}
+  #printdoc .note.ok{border-left-color:var(--pos)}
+  #printdoc .note.warn{border-left-color:var(--warn)}
+  #printdoc .note.bad{border-left-width:2pt; border-left-color:var(--alert)}
+  #printdoc .note.info{border-left-color:#B4B4B4}
+  #printdoc .empty{font-size:9pt; padding:1mm 0 0}
+
+  /* De weg terug. De code is een gevuld vlak, en gevulde vlakken uit css drukt een
+     browser niet af. Daarom is het een inline svg met fill op de rechthoeken: dat is
+     voorgrond en die drukt wel. */
+  .pd-back{display:flex; gap:6mm; align-items:flex-start; break-inside:avoid}
+  .pd-qr{flex:0 0 auto; width:42mm; height:42mm}
+  .pd-qr svg{display:block; width:42mm; height:42mm; shape-rendering:crispEdges}
+  .pd-qr-txt{flex:1 1 auto; min-width:0}
+  .pd-qr-txt p{margin:1.5mm 0 0; font-size:8pt; line-height:1.4; color:#2A2A2A}
+  .pd-qr-txt a{color:#000; text-decoration:underline}
+
+  /* het voorbehoud mag over twee bladzijden lopen; in een blok houden zou een bijna lege
+     bladzijde opleveren zodra het er onderaan net niet meer bij past */
+  .pd-fine{margin-top:8mm; font-size:7.8pt; line-height:1.45; color:#2A2A2A}
+  .pd-fine p{margin:0 0 2mm; break-inside:avoid}
+  .pd-fine b{color:#000}
+  .pd-col{padding-top:2mm; border-top:.4pt solid #C7C7C7; color:#3A3A3A}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <p class="eyebrow">Vlaanderen &middot; tarieven 2026</p>
+    <h1>Wat kost dit huis?</h1>
+    <p>Alles wat er bij een woningaankoop komt kijken: wat er bovenop de vraagprijs komt, wat je overhoudt als je eerst je eigen woning verkoopt, hoeveel je moet lenen en wat dat elke maand kost. Vul in wat je weet. Elke schuifbalk heeft ook een invoervak, zodat je een exact bedrag kan typen.</p>
+
+    <p class="privacy"><span class="ic">&#10003;</span><span><b>Privé.</b> Alles wat je invult blijft op je eigen toestel; deze pagina verstuurt en bewaart niets. Maak je een link om te bewaren of te delen, dan staan je bedragen in die link. <a href="https://github.com/Virgil-Bulens/wat-kost-dit-huis" target="_blank" rel="noreferrer">Bekijk de broncode</a></span></p>
+
+    <div class="disclaimer">
+      <h2>Lees dit eerst</h2>
+      <p><b>Dit is een rekenhulp, geen advies en geen aanbod.</b> De uitkomsten zijn indicatieve schattingen. Ze houden geen rekening met jouw persoonlijke situatie en vormen geen financieel, fiscaal, juridisch of kredietadvies.</p>
+      <p><b>Wij zijn geen kredietgever, kredietbemiddelaar of kredietadviseur.</b> Deze pagina bemiddelt niet in kredieten en biedt er geen aan. Alleen een bank kan een rentevoet toekennen en over een krediet beslissen. Alleen een notaris kan de aankoopkosten exact berekenen.</p>
+      <p><b>Geen garantie op juistheid of actualiteit.</b> Tarieven en regels veranderen. Controleer elk bedrag bij je notaris, je bank of de bevoegde overheid voordat je een beslissing neemt of een verbintenis aangaat. Gebruik van deze pagina is op eigen risico, en er wordt geen aansprakelijkheid aanvaard voor schade door beslissingen die op deze berekening gebaseerd zijn.</p>
+      <p><b>Deze pagina is niet van de overheid, een notariaat, een bank of een makelaar.</b> Ze is een hulpmiddel, geen officiële bron.</p>
+      <p class="stamp">Tarieven laatst nagekeken op 23 augustus 2026. Controleer of er sindsdien niets gewijzigd is.</p>
+    </div>
+  </div>
+</header>
+
+<div class="summary">
+  <div class="wrap">
+    <div class="summary-grid">
+      <div class="tile"><div class="lab">Eigen geld</div><div class="val num" id="s-cash"></div><div class="sub" id="s-cash-sub"></div></div>
+      <div class="tile"><div class="lab">Te lenen</div><div class="val num" id="s-loan"></div><div class="sub" id="s-ltv"></div></div>
+      <div class="tile"><div class="lab">Per maand</div><div class="val num" id="s-pay"></div><div class="sub" id="s-pay-sub"></div></div>
+      <div class="tile" id="s-ratio-tile"><div class="lab">Van je inkomen</div><div class="val num" id="s-ratio"></div><div class="sub" id="s-left"></div></div>
+      <div class="tile act">
+        <button type="button" class="btn" id="printBtn" title="Afdrukken of opslaan als pdf, zonder de kop- en voetregel van de browser">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8.5V3.5h10v5M7 17.5H5.5A1.5 1.5 0 0 1 4 16v-4.5A1.5 1.5 0 0 1 5.5 10h13A1.5 1.5 0 0 1 20 11.5V16a1.5 1.5 0 0 1-1.5 1.5H17M7 14.5h10v6H7z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Afdrukken of pdf
+        </button>
+        <button type="button" class="btn" id="linkBtn" title="Een link maken die je invoer meeneemt, om te bewaren of te delen">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 13.5a3.5 3.5 0 0 0 5 0l3-3a3.5 3.5 0 0 0-5-5l-1.5 1.5M14 10.5a3.5 3.5 0 0 0-5 0l-3 3a3.5 3.5 0 0 0 5 5L12.5 17" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Link bewaren
+        </button>
+      </div>
+    </div>
+    <div class="linkbar" id="linkBar" hidden>
+      <input type="text" id="linkUrl" readonly aria-label="Link met je invoer">
+      <span class="mini" id="linkMsg" role="status" aria-live="polite"></span>
+      <p class="hint">Deze link bevat de bedragen die je invulde. Hij gaat niet naar deze pagina of naar een server, maar wie hem krijgt, ziet je cijfers. Behandel hem als een document.</p>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+<div class="cols">
+
+<div>
+
+  <div class="card">
+    <h2>1 &middot; De woning die je koopt</h2>
+    <div class="field">
+      <div class="flab"><label for="price">Aankoopprijs</label>
+        <input type="text" inputmode="decimal" class="amt pin num" id="priceN" data-min="0" data-step="1000" placeholder="&euro; 0"></div>
+      <input type="range" id="price" min="0" max="1200000" step="5000" value="0" aria-label="Aankoopprijs">
+    </div>
+    <div class="field">
+      <label class="mini" for="kind">Situatie</label><button type="button" class="q" data-t="registratiebelasting" aria-expanded="false" aria-label="Wat betekent registratiebelasting?">?</button><button type="button" class="q" data-t="bescheiden woning" aria-expanded="false" aria-label="Wat betekent bescheiden woning?">?</button>
+      <select id="kind">
+        <option value="own" selected>Enige eigen woning (2%)</option>
+        <option value="other">Tweede woning of investering (12%)</option>
+        <option value="new">Nieuwbouw of afbraak-heropbouw (btw)</option>
+        <option value="split">Uit onverdeeldheid treden (partner uitkopen)</option>
+      </select>
+      <span class="sub-hint" id="kindHint"></span>
+    </div>
+    <div class="field" id="kernBox">
+      <label class="check" style="display:inline-flex; margin-bottom:0"><input type="checkbox" id="kern"> De woning ligt in een kernstad of de Vlaamse Rand</label><button type="button" class="q" data-t="kernsteden en de Vlaamse Rand" aria-expanded="false" aria-label="Wat betekent kernsteden en de Vlaamse Rand?">?</button>
+    </div>
+    <div class="field" id="newBox">
+      <span class="mini">Grondaandeel in de prijs
+        <span class="seg" id="landSeg"><button type="button" data-m="pct" aria-pressed="true">%</button><button type="button" data-m="eur" aria-pressed="false">&euro;</button></span>
+      </span>
+      <input class="amt" type="text" inputmode="decimal" id="landVal" placeholder="0" data-step="1" data-min="0" aria-label="Grondaandeel in de prijs">
+      <span class="sub-hint" id="landHint"></span>
+    </div>
+    <div class="field" id="landTaxBox">
+      <label class="mini" for="landTax">Belasting op de grond</label>
+      <select id="landTax">
+        <option value="reg" selected>12% registratiebelasting (andere verkoper)</option>
+        <option value="vat">Btw (dezelfde verkoper als het gebouw)</option>
+      </select>
+      <span class="sub-hint">Verkoopt de bouwheer of promotor de grond en het gebouw samen onder het btw-stelsel, dan valt ook de grond onder btw. Vraag dit na bij de notaris.</span>
+    </div>
+    <div class="field" id="vatBox">
+      <span class="mini" id="vatLab">Btw-tarief op de bouw</span>
+      <div class="radios" role="radiogroup" aria-labelledby="vatLab">
+        <label class="radio"><input type="radio" name="vatRate" value="21" checked>
+          <span><b>21% &middot; gewone nieuwbouw</b><small>Het standaardtarief op een nieuw gebouw.</small></span></label>
+        <label class="radio"><input type="radio" name="vatRate" value="6">
+          <span><b>6% &middot; afbraak en heropbouw</b><small>Alleen als een bestaand gebouw wordt afgebroken en op hetzelfde perceel heropgebouwd, en aan alle voorwaarden hieronder is voldaan.</small></span></label>
+      </div>
+      <div class="subchecks" id="vat6Box">
+        <span class="mini">Vink aan wat klopt. Staat er &eacute;&eacute;n niet aan, dan rekent deze pagina met 21%.</span>
+        <label class="check"><input type="checkbox" id="v6demo"> Een bestaand gebouw wordt afgebroken en op hetzelfde perceel heropgebouwd</label>
+        <label class="check"><input type="checkbox" id="v6only"> Dit wordt mijn enige eigen woning en ik neem er zelf domicilie</label>
+        <label class="check"><input type="checkbox" id="v6area"> De bewoonbare oppervlakte is niet groter dan 200 m&sup2;</label>
+        <label class="check"><input type="checkbox" id="v6five"> Ik blijf er minstens vijf jaar wonen</label>
+        <span class="sub-hint">Er bestaat ook een tweede weg naar 6%: langdurig verhuren aan een sociaal verhuurkantoor of een woonmaatschappij. Die zit hier niet in. Laat je notaris bevestigen welk stelsel op jou van toepassing is.</span>
+      </div>
+    </div>
+    <div class="field" id="splitBox">
+      <p class="hint" style="margin:0 0 12px">Vul bij Aankoopprijs de volledige waarde van de woning in, niet het
+        bedrag dat je aan je partner betaalt. Dat bedrag staat hieronder als uitkoopsom.</p>
+      <div class="flab"><label for="splitShare">Aandeel dat je overneemt (%)</label>
+        <button type="button" class="q" data-t="onverdeeldheid" aria-expanded="false" aria-label="Wat betekent onverdeeldheid?">?</button>
+        <button type="button" class="q" data-t="verdeelrecht" aria-expanded="false" aria-label="Wat betekent verdeelrecht?">?</button>
+        <input type="text" inputmode="decimal" class="amt pin num" id="splitShareN" data-min="1" data-max="99" data-step="1"></div>
+      <input type="range" id="splitShare" min="1" max="99" step="1" value="50" aria-label="Aandeel dat je overneemt">
+      <div class="subchecks" id="splitCondBox">
+        <span class="mini">Vink aan wat klopt voor het verlaagd tarief van 1% verdeelrecht. Staat er &eacute;&eacute;n niet aan, dan rekent deze pagina met het standaardtarief van 2,5%.</span>
+        <label class="check"><input type="checkbox" id="spExPartner"> Je neemt het aandeel over van een ex-echtgenoot of een ex-wettelijk samenwonende partner. Feitelijk samenwonen telt niet mee.</label>
+        <label class="check"><input type="checkbox" id="spDuur"> Was je wettelijk samenwonend en niet gehuwd, dan duurde die samenwoning minstens &eacute;&eacute;n jaar</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>2 &middot; Kosten bovenop de prijs</h2>
+    <p class="hint">Het ereloon van de notaris volgt het wettelijke degressieve barema per schijf, niet een vast percentage. Geijkt op het rekenvoorbeeld van notaris.be: een gezinswoning van &euro; 250.000 in Vlaanderen kost &euro; 9.370 aan aankoopkosten. Heb je een raming van je eigen notaris, zet het vakje dan op &euro; en typ dat bedrag.</p>
+    <div class="pair">
+      <div>
+        <span class="mini">Ereloon notaris<button type="button" class="q" data-t="barema" aria-expanded="false" aria-label="Wat betekent barema?">?</button>
+          <span class="seg" id="notSeg"><button type="button" data-m="pct" aria-pressed="true">barema</button><button type="button" data-m="eur" aria-pressed="false">&euro;</button></span>
+        </span>
+        <input class="amt" type="text" inputmode="decimal" id="notVal" placeholder="&euro; 0" data-step="100" data-min="0" aria-label="Ereloon notaris">
+        <span class="sub-hint" id="notHint"></span>
+      </div>
+      <div><label class="mini" for="disb">Akte- en opzoekingskosten</label><button type="button" class="q" data-t="akte- en opzoekingskosten" aria-expanded="false" aria-label="Wat betekent akte- en opzoekingskosten?">?</button><input class="amt" type="text" inputmode="decimal" id="disb" value="1407" data-step="50" data-min="0"></div>
+    </div>
+    <div class="pair" style="margin-top:13px">
+      <div><label class="mini" for="reno">Renovatie, mee te financieren</label><input class="amt" type="text" inputmode="decimal" id="reno" placeholder="&euro; 0" data-step="1000" data-min="0"></div>
+      <div><label class="mini" for="moving">Verhuis en inrichting, zelf te betalen</label><input class="amt" type="text" inputmode="decimal" id="moving" placeholder="&euro; 0" data-step="500" data-min="0"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>3 &middot; Je huidige woning</h2>
+    <label class="check"><input type="checkbox" id="hasHome"> Ik verkoop eerst mijn huidige woning</label>
+    <div id="homeBox" style="display:none">
+      <div class="field">
+        <div class="flab"><label for="sale">Verkoopprijs</label>
+          <input type="text" inputmode="decimal" class="amt pin num" id="saleN" data-min="0" data-step="1000" placeholder="&euro; 0"></div>
+        <input type="range" id="sale" min="0" max="1200000" step="5000" value="0" aria-label="Verkoopprijs">
+      </div>
+      <label class="check"><input type="checkbox" id="agent" checked> Verkopen via een makelaar</label>
+      <div class="pair">
+        <div>
+          <span class="mini">Commissie
+            <span class="seg" id="feeSeg"><button type="button" data-m="pct" aria-pressed="true">%</button><button type="button" data-m="eur" aria-pressed="false">&euro;</button></span>
+          </span>
+          <input class="amt" type="text" inputmode="decimal" id="feeVal" value="3" data-step="0.1" data-min="0" aria-label="Makelaarscommissie">
+          <span class="sub-hint" id="feeHint"></span>
+        </div>
+        <div><label class="mini" for="certs">Attesten (EPC, keuring, bodem)</label><button type="button" class="q" data-t="epc" aria-expanded="false" aria-label="Wat betekent epc?">?</button><input class="amt" type="text" inputmode="decimal" id="certs" value="500" data-step="50" data-min="0"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>4 &middot; Een lopend krediet</h2>
+    <label class="check"><input type="checkbox" id="hasOld"> Ik heb nog een hypothecair krediet lopen</label>
+    <div id="oldBox" style="display:none">
+      <div class="trio">
+        <div><label class="mini" for="oldBal">Nog openstaand</label><input class="amt" type="text" inputmode="decimal" id="oldBal" placeholder="&euro; 0" data-step="1000" data-min="0"></div>
+        <div><label class="mini" for="oldRate">Rente per jaar (%)</label><input class="amt" type="text" inputmode="decimal" id="oldRate" placeholder="0" data-step="0.05" data-min="0"></div>
+        <div><label class="mini" for="oldYears">Jaren te gaan</label><input class="amt" type="text" inputmode="decimal" id="oldYears" placeholder="0" data-step="1" data-min="0" data-max="30"></div>
+      </div>
+      <div class="field" style="margin-top:15px">
+        <div class="radios">
+          <label class="radio"><input type="radio" name="oldChoice" value="repay" checked>
+            <span><b>Afbetalen bij de verkoop</b><small>Simpel. Een eventuele woonbonus stopt. De boete is wettelijk beperkt tot drie maanden interest.</small></span></label>
+          <label class="radio"><input type="radio" name="oldChoice" value="port">
+            <span><b>Meenemen via pandwissel</b><small>Het krediet blijft lopen op de nieuwe woning, dus een woonbonus van vóór 2020 blijft behouden. Maar je betaalt het er elke maand bij.</small></span></label>
+        </div>
+      </div>
+      <div class="pair" id="portBox" style="margin-top:13px">
+        <div><label class="mini" for="portCost">Kosten pandwisselakte</label><button type="button" class="q" data-t="pandwissel" aria-expanded="false" aria-label="Wat betekent pandwissel?">?</button><input class="amt" type="text" inputmode="decimal" id="portCost" value="2000" data-step="250" data-min="0"></div>
+        <div><label class="mini" for="bonus">Woonbonus per jaar</label><button type="button" class="q" data-t="woonbonus" aria-expanded="false" aria-label="Wat betekent woonbonus?">?</button><input class="amt" type="text" inputmode="decimal" id="bonus" placeholder="&euro; 0" data-step="50" data-min="0"></div>
+      </div>
+      <div id="payoffBox" style="margin-top:13px">
+        <label class="mini" for="release">Handlichting, het doorhalen van de hypotheek</label><button type="button" class="q" data-t="handlichting" aria-expanded="false" aria-label="Wat betekent handlichting?">?</button>
+        <input class="amt" type="text" inputmode="decimal" id="release" value="800" data-step="50" data-min="0">
+        <span class="sub-hint">Betaal je het krediet af bij de verkoop, dan moet de hypothecaire inschrijving op je oude woning doorgehaald worden. Dat gebeurt bij de notaris en kost doorgaans 700 tot 1.200 euro.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>5 &middot; Je eigen geld</h2>
+    <p class="hint">Schuif of typ meteen bij "je inbreng" hoeveel eigen geld je in de aankoop stopt. De drie vakjes eronder zijn optioneel: vul "je hebt" in als je wil zien welke buffer er overblijft, en gebruik "minstens" en "hoogstens" om de schuifbalk te begrenzen. Koop je met twee en reken je met gezamenlijke bedragen, laat de tweede koper dan uit.</p>
+    <div class="field">
+      <div class="flab"><label for="b1In">Je inbreng</label>
+        <input type="text" inputmode="decimal" class="amt pin num" id="b1InN" data-min="0" data-step="500" placeholder="&euro; 0"></div>
+      <input type="range" id="b1In" min="0" max="500000" step="500" value="0" aria-label="Je inbreng">
+    </div>
+    <div class="trio" style="margin-top:13px">
+      <div><label class="mini" for="b1Have">Je hebt (optioneel)</label><input class="amt" type="text" inputmode="decimal" id="b1Have" placeholder="&euro; 0" data-step="500" data-min="0"></div>
+      <div><label class="mini" for="b1Min">Minstens inbrengen</label><input class="amt" type="text" inputmode="decimal" id="b1Min" placeholder="&euro; 0" data-step="500" data-min="0"></div>
+      <div><label class="mini" for="b1Max">Hoogstens inbrengen</label><input class="amt" type="text" inputmode="decimal" id="b1Max" placeholder="&euro; 0" data-step="500" data-min="0"></div>
+    </div>
+    <label class="check" style="margin-top:18px"><input type="checkbox" id="two"> Een tweede koper met eigen bedragen toevoegen</label>
+    <div id="b2Box" style="display:none">
+      <div class="field">
+        <div class="flab"><label for="b2In">Inbreng tweede koper</label>
+          <input type="text" inputmode="decimal" class="amt pin num" id="b2InN" data-min="0" data-step="500" placeholder="&euro; 0"></div>
+        <input type="range" id="b2In" min="0" max="500000" step="500" value="0" aria-label="Inbreng tweede koper">
+      </div>
+      <div class="trio" style="margin-top:13px">
+        <div><label class="mini" for="b2Have">Heeft (optioneel)</label><input class="amt" type="text" inputmode="decimal" id="b2Have" placeholder="&euro; 0" data-step="500" data-min="0"></div>
+        <div><label class="mini" for="b2Min">Minstens inbrengen</label><input class="amt" type="text" inputmode="decimal" id="b2Min" placeholder="&euro; 0" data-step="500" data-min="0"></div>
+        <div><label class="mini" for="b2Max">Hoogstens inbrengen</label><input class="amt" type="text" inputmode="decimal" id="b2Max" placeholder="&euro; 0" data-step="500" data-min="0"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>6 &middot; De lening</h2>
+    <div class="field">
+      <div class="flab"><label for="term">Looptijd in jaren</label>
+        <input type="text" inputmode="decimal" class="amt pin num" id="termN" data-min="5" data-max="40" data-step="1"></div>
+      <input type="range" id="term" min="5" max="40" step="1" value="25" aria-label="Looptijd">
+    </div>
+    <div class="field">
+      <div class="flab"><label for="rate">Rentevoet per jaar (%)</label>
+        <input type="text" inputmode="decimal" class="amt pin num" id="rateN" data-min="0" data-max="12" data-step="0.01"></div>
+      <input type="range" id="rate" min="0" max="12" step="0.05" value="3.75" aria-label="Rentevoet">
+    </div>
+    <div class="pair">
+      <div><label class="mini" for="mortFix">Vaste kosten kredietakte</label>
+        <input class="amt" type="text" inputmode="decimal" id="mortFix" value="1200" data-step="50" data-min="0">
+        <span class="sub-hint">Aktekosten, de hypothecaire inschrijving, hypotheekstaten en het recht op geschriften. Het registratierecht, het hypotheekrecht en het ereloon komen daar bovenop en worden apart gerekend.</span></div>
+      <div><label class="mini" for="acc">Aanhorigheden (%)</label><button type="button" class="q" data-t="aanhorigheden" aria-expanded="false" aria-label="Wat betekent aanhorigheden?">?</button>
+        <input class="amt" type="text" inputmode="decimal" id="acc" value="10" data-step="1" data-min="0" data-max="25">
+        <span class="sub-hint">De bank schrijft de hypotheek in voor het kapitaal plus een opslag voor invorderingskosten, doorgaans 5 tot 10%. Het registratierecht van 1% en het hypotheekrecht van 0,3% worden op dat hogere bedrag geheven, niet op het kapitaal.</span></div>
+    </div>
+    <div class="pair" style="margin-top:13px">
+      <div><label class="mini" for="bankFee">Dossierkosten van de bank</label><input class="amt" type="text" inputmode="decimal" id="bankFee" value="350" data-step="25" data-min="0">
+        <span class="sub-hint">Wettelijk geplafonneerd. Zelf te betalen.</span></div>
+      <div><label class="mini" for="valFee">Schatting van de woning</label><input class="amt" type="text" inputmode="decimal" id="valFee" value="350" data-step="25" data-min="0">
+        <span class="sub-hint">Gemiddeld 250 tot 500 euro. Zelf te betalen.</span></div>
+    </div>
+
+    <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--line)">
+      <p class="mini" style="font-size:12.5px; color:var(--ink-2)">Overbruggingskrediet</p>
+      <p class="hint" style="margin:5px 0 12px">Nodig als je koopt voordat je eigen woning verkocht is. Je betaalt alleen rente tot de verkoop rond is. Laat op nul als je eerst verkoopt.</p>
+      <div class="trio">
+        <div><label class="mini" for="bridgeAmt">Bedrag</label><input class="amt" type="text" inputmode="decimal" id="bridgeAmt" placeholder="&euro; 0" data-step="10000" data-min="0"></div>
+        <div><label class="mini" for="bridgeRate">Rente (%)</label><input class="amt" type="text" inputmode="decimal" id="bridgeRate" value="4" data-step="0.1" data-min="0"></div>
+        <div><label class="mini" for="bridgeMonths">Aantal maanden</label><input class="amt" type="text" inputmode="decimal" id="bridgeMonths" placeholder="0" data-step="1" data-min="0" data-max="24"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>7 &middot; Inkomen en vaste lasten</h2>
+    <div class="pair">
+      <div><label class="mini" for="inc1">Netto inkomen per maand</label><input class="amt" type="text" inputmode="decimal" id="inc1" placeholder="&euro; 0" data-step="50" data-min="0">
+        <span class="sub-hint">Koop je met twee, vul dan het gezamenlijke bedrag in.</span></div>
+      <div><label class="mini" for="debts">Andere maandelijkse kredieten</label><input class="amt" type="text" inputmode="decimal" id="debts" placeholder="&euro; 0" data-step="25" data-min="0">
+        <span class="sub-hint">Autolening en dergelijke. De bank telt die mee.</span></div>
+    </div>
+    <div class="field" style="margin-top:16px">
+      <div class="flab"><label for="ratio">Maximaal deel van je inkomen (%)</label>
+        <input type="text" inputmode="decimal" class="amt pin num" id="ratioN" data-min="20" data-max="50" data-step="1"></div>
+      <input type="range" id="ratio" min="20" max="50" step="1" value="33" aria-label="Maximaal deel van het inkomen">
+      <span class="sub-hint">Wikifin gebruikt ongeveer een derde als vuistregel. Banken wijken daarvan af en wegen ook je beschikbare inkomen en gezinssituatie.</span>
+    </div>
+    <div class="trio" style="margin-top:16px">
+      <div><label class="mini" for="ovr">Onroerende voorheffing per jaar</label><button type="button" class="q" data-t="onroerende voorheffing" aria-expanded="false" aria-label="Wat betekent onroerende voorheffing?">?</button><input class="amt" type="text" inputmode="decimal" id="ovr" placeholder="&euro; 0" data-step="100" data-min="0"></div>
+      <div><label class="mini" for="fire">Brandverzekering per maand</label><button type="button" class="q" data-t="brandverzekering" aria-expanded="false" aria-label="Wat betekent brandverzekering?">?</button><input class="amt" type="text" inputmode="decimal" id="fire" placeholder="&euro; 0" data-step="5" data-min="0"></div>
+      <div><label class="mini" for="ssv">Schuldsaldo per maand</label><button type="button" class="q" data-t="schuldsaldoverzekering" aria-expanded="false" aria-label="Wat betekent schuldsaldoverzekering?">?</button><input class="amt" type="text" inputmode="decimal" id="ssv" placeholder="&euro; 0" data-step="5" data-min="0"></div>
+    </div>
+  </div>
+
+</div>
+
+<div>
+  <div class="res"><h2>Wat de verkoop opbrengt</h2><div id="r-sell"></div></div>
+  <div class="res"><h2>Wat de woning kost</h2><div id="r-buy"></div></div>
+  <div class="res"><h2>De lening</h2><div id="r-loan"></div></div>
+  <div class="res"><h2>Wat je elke maand betaalt</h2><div id="r-month"></div></div>
+  <div class="res"><h2>Aandachtspunten</h2><div id="r-notes" style="margin-top:14px"></div></div>
+</div>
+
+</div>
+</div>
+
+<div class="wrap">
+<section class="checklist">
+  <h2>Wat je nog moet uitzoeken</h2>
+  <p>Dit staat niet in de rekenhulp, omdat het antwoord van iemand anders moet komen. Elk van deze punten kan duizenden euro's schelen.</p>
+  <div class="cl-grid">
+
+    <div class="cl mid">
+      <h3>Het 2%-tarief is voorwaardelijk<button type="button" class="q" data-t="verlaagd tarief" aria-expanded="false" aria-label="Wat betekent verlaagd tarief?">?</button></h3>
+      <p>Het verlaagde tarief geldt alleen als je als natuurlijke persoon de volle eigendom verwerft, dit je enige eigen woning wordt en je je er binnen drie jaar na de akte domicilieert. Voor verkoopovereenkomsten vanaf 1 januari 2026 moet je daar bovendien minstens één jaar ononderbroken ingeschreven blijven, en dat geldt voor elke koper afzonderlijk. Koop je voordat je verkoopt, dan bezit je op de datum van de akte nog een woning en is die voorwaarde niet vervuld. Je kan het tarief dan aanvragen via de vrijstelling onder voorwaarde van verkoop, met twee jaar om je oude woning te verkopen. Laat de notaris bevestigen dat die weg voor jou open staat, want lukt de verkoop niet, dan betaal je het verschil met 12% bij.</p>
+    </div>
+
+    <div class="cl mid">
+      <h3>Renovatieverplichting<button type="button" class="q" data-t="renovatieverplichting" aria-expanded="false" aria-label="Wat betekent renovatieverplichting?">?</button></h3>
+      <p>Koop je een woning met EPC-label E of F, dan moet je die binnen zes jaar na de authentieke akte naar minstens label D brengen. Vraag het EPC voordat je biedt en zet het bedrag in het vakje voor renovatie.</p>
+    </div>
+
+    <div class="cl mid">
+      <h3>Keuring van de elektriciteit<button type="button" class="q" data-t="attesten en keuringen" aria-expanded="false" aria-label="Wat betekent attesten en keuringen?">?</button></h3>
+      <p>Is het keuringsverslag niet conform, dan moet je als koper de installatie in orde brengen en laten herkeuren binnen achttien maanden na de akte. Je mag zelf een erkend keuringsorganisme kiezen. Vraag het verslag dus op voordat je biedt.</p>
+    </div>
+
+    <div class="cl">
+      <h3>Wie legt wat in, op papier</h3>
+      <p>Koop je samen zonder gehuwd of wettelijk samenwonend te zijn, en breng je niet evenveel in, laat de notaris dan de werkelijke inbreng vastleggen. Staat de akte gewoon op 50/50, dan geeft de ene partner stilzwijgend een groot bedrag weg. Dat beschermt jullie beiden.</p>
+    </div>
+
+    <div class="cl">
+      <h3>Overbruggingskrediet</h3>
+      <p>Koop je voordat je eigen woning verkocht is, dan leent de bank tijdelijk tegen de waarde daarvan en betaal je alleen rente tot de verkoop rond is. Vraag dit samen met de hoofdlening aan, en reken erop dat de bank een schatting van je huidige woning wil.</p>
+    </div>
+
+    <div class="cl">
+      <h3>Woonbonus en pandwissel</h3>
+      <p>Heb je nog een krediet van vóór 2020 met woonbonus, dan kan dat krediet via een pandwissel meeverhuizen naar de nieuwe woning en blijft het fiscale voordeel behouden. Voor nieuwe kredieten bestaat de woonbonus niet meer. Laat je bank bevestigen of een pandwissel in jouw geval kan.</p>
+    </div>
+
+    <div class="cl">
+      <h3>Schuldsaldoverzekering</h3>
+      <p>De bank eist die bijna altijd, maar je bent niet verplicht ze bij de bank te nemen. Soms betaal je één keer een grote premie, soms maandelijks. De prijs hangt af van leeftijd, gezondheid en roken. Vraag minstens één offerte elders.</p>
+    </div>
+
+    <div class="cl">
+      <h3>Meeneembaarheid bestaat niet meer</h3>
+      <p>Vroeger kon je betaalde registratiebelasting van je vorige woning meenemen naar een nieuwe aankoop. Dat is afgeschaft voor alle aankopen vanaf 1 januari 2024. Reken er niet op.</p>
+    </div>
+
+    <div class="cl mid">
+      <h3>Nieuwbouw is twee aankopen<button type="button" class="q" data-t="grondaandeel" aria-expanded="false" aria-label="Wat betekent grondaandeel?">?</button></h3>
+      <p>Je koopt grond en je laat bouwen, en de fiscus behandelt die twee apart: registratiebelasting op de grond, btw op de bouw. Vraag de verkoper de opsplitsing schriftelijk, want ze bepaalt hoeveel belasting je betaalt. Gaat het om afbraak en heropbouw, vraag dan ook of het tarief van 6% van toepassing is en onder welke voorwaarden.</p>
+    </div>
+
+    <div class="cl">
+      <h3>Laat twee keer schatten</h3>
+      <p>De waarde van je huidige woning is één mening. Brengt ze tienduizend euro minder op, dan stijgt je lening met datzelfde bedrag. Een tweede schatting kost bijna niets en het is vaak het grootste onzekere getal in de hele rekening.</p>
+    </div>
+
+    <div class="cl">
+      <h3>Een groter huis kost meer in gebruik</h3>
+      <p>Onroerende voorheffing, verwarming, elektriciteit en onderhoud liggen hoger dan in een kleinere woning. Alleen de onroerende voorheffing kan je in vak 7 invullen, en die rekent mee. Verwarming, elektriciteit, water, onderhoud en bij een appartement de syndicuskosten zitten niet in deze berekening. Zet daar zelf een bedrag naast voordat je beslist: samen lopen die posten vaak op tot enkele honderden euro's per maand, en ze komen boven het percentage dat deze pagina toont.</p>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <p><b>Dit is een rekenhulp, geen aanbod.</b> De tarieven zijn die van Vlaanderen in 2026 en staan in de broncode op één plek bij elkaar, met de datum waarop ze zijn nagekeken. Het ereloon van de notaris volgt het wettelijke barema, de rentevoet is een aanname en de vaste aktekosten zijn een schatting. Alleen een notaris kan de kosten exact berekenen. Alleen een bank bepaalt de rentevoet en beslist over een krediet.</p>
+  <p><b>Het verlaagde tarief van 2% is voorwaardelijk.</b> Deze pagina rekent ermee zodra je die situatie kiest, maar het tarief valt weg als je er niet aan komt, en dan geldt 12%. Je moet als natuurlijke persoon de volle eigendom verwerven, op de datum van de akte geen andere woning of bouwgrond bezitten, je binnen drie jaar op het adres domicilieren en er voor verkoopovereenkomsten vanaf 1 januari 2026 minstens één jaar ononderbroken ingeschreven blijven. Bij meerdere kopers geldt dat voor elke koper afzonderlijk, en een gesplitste aankoop van vruchtgebruik en blote eigendom komt niet in aanmerking. Bezit je nog een woning, dan kan je het tarief aanvragen via de vrijstelling onder voorwaarde van verkoop en heb je twee jaar om die woning te verkopen. Het verschil tussen 2% en 12% is bij een duurdere woning groter dan alle andere kostenposten samen, dus de pagina zet het als apart scenario onder de kosten.</p>
+  <p><b>De korting van &euro; 1.867</b> op een enige eigen bescheiden woning geldt in 2026 tot een maximumprijs van &euro; 220.000, of &euro; 240.000 als de woning in een kernstad of de Vlaamse Rand rond Brussel ligt. Welke van de twee geldt, hangt dus aan de gemeente: zet het vinkje bij vak 1 aan als de jouwe erbij staat. Bij meerdere kopers wordt ze verdeeld naar ieders aandeel. Het oude tarief van 1% voor wie ingrijpend energetisch renoveerde is afgeschaft op 1 januari 2025, en de meeneembaarheid van registratiebelasting is afgeschaft op 1 januari 2024 zonder overgangsregeling; geen van beide zit nog in deze berekening.</p>
+  <p><b>Het ereloon van de notaris</b> volgt het wettelijke degressieve barema en niet een vast percentage. Het rekent per schijf, van 4,56% op de eerste &euro; 7.500 tot 0,57% boven &euro; 64.095, met 21% btw erop. Voor de hele prijs samen komt dat neer op ongeveer 1,4% bij &euro; 125.000 en 1% bij &euro; 250.000: hoe duurder de woning, hoe lager het percentage. Een vast percentage overschat het ereloon dus bij een duurdere woning en onderschat het bij een goedkopere. Heb je een raming van je eigen notaris liggen, zet het vakje dan op euro en typ dat bedrag.</p>
+  <p><b>De kosten van de kredietakte</b> zitten hier uitgesplitst: 1% registratierecht en 0,3% hypotheekrecht op het gewaarborgde bedrag, het ereloon van de notaris volgens barema op het kredietbedrag, en een vast bedrag voor de akte, de hypothecaire inschrijving, de hypotheekstaten en het recht op geschriften. Het gewaarborgde bedrag is hoger dan het geleende kapitaal: de bank schrijft de hypotheek in voor het kapitaal plus aanhorigheden, doorgaans 5 tot 10%, en de twee heffingen worden op dat hogere bedrag geheven. Die kosten hangen af van het kredietbedrag en zitten er zelf in, dus de pagina lost dat rond. Het ereloon van de kredietakte is een benadering binnen enkele procenten; gebruik de rekenmodule van notaris.be voor een preciezere schatting.</p>
+  <p><b>Dossierkosten en schattingskosten</b> zijn kosten van de bank en geen aktekosten. Ze staan apart, want je betaalt ze met eigen geld en ze gaan niet in de lening. De dossierkosten zijn wettelijk geplafonneerd; de schatting kost gemiddeld 250 tot 500 euro.</p>
+  <p><b>De handlichting</b> is het doorhalen van de hypothecaire inschrijving op je oude woning. Betaal je het krediet af bij de verkoop, dan is dat een aparte akte bij de notaris, doorgaans 700 tot 1.200 euro. Ze staat in mindering op wat de verkoop opbrengt.</p>
+  <p><b>Bij nieuwbouw</b> vul je de prijs exclusief btw in. Die prijs valt uiteen in twee delen die apart belast worden: op het gebouw komt btw, op de grond doorgaans 12% registratiebelasting. Verkoopt dezelfde verkoper de grond en het gebouw samen onder het btw-stelsel, dan valt ook de grond onder btw. Het verlaagde tarief van 2% voor een enige eigen woning geldt nooit op grond.</p>
+  <p><b>Het btw-tarief op het gebouw</b> is 21%, of 6% bij afbraak en heropbouw. Dat verlaagde tarief geldt niet vanzelf. Het vraagt onder meer dat een bestaand gebouw wordt afgebroken en op hetzelfde perceel heropgebouwd, dat de woning je enige eigen woning wordt waar je zelf domicilie neemt en minstens vijf jaar blijft, en dat de bewoonbare oppervlakte niet groter is dan 200 m&sup2;. Daarnaast bestaat er een aparte weg naar 6% voor wie langdurig verhuurt aan een sociaal verhuurkantoor of een woonmaatschappij; die zit hier niet in. Laat je notaris en je aannemer bevestigen welk tarief op jou van toepassing is, want blijkt achteraf dat een voorwaarde niet vervuld is, dan wordt het verschil bij de koper teruggevorderd. Voor renovatie van een woning ouder dan tien jaar bestaat er nog een derde tarief van 6%; het veld voor renovatie in vak 2 rekent daar niets mee, vul er dus het bedrag in dat de aannemer je aanrekent.</p>
+  <p><b>Het ereloon bij nieuwbouw</b> wordt hier op het grondaandeel gerekend en niet op de volle prijs. Alleen de grond gaat via een notari&euml;le akte; het gebouw zit in een aannemingsovereenkomst, waar geen ereloon van de notaris op staat. Zolang je geen grondaandeel invult, rekent de pagina op de volle prijs en is de schatting dus te hoog.</p>
+  <p><b>De maandlast</b> wordt berekend met de equivalente maandrente, de twaalfde wortel uit de jaarrente. Dat is de Belgische conventie. Ter controle, het voorbeeld van Wikifin: &euro; 100.000 op 20 jaar aan 2% geeft &euro; 505,03 per maand en &euro; 21.206,35 aan intrest. De aankoopkosten zijn geijkt op de infofiche van notaris.be, waar een gezinswoning van &euro; 250.000 in Vlaanderen &euro; 9.370 aan kosten geeft.</p>
+  <p><b>Het deel van je inkomen</b> staat er twee keer, want de twee getallen zeggen iets anders. Het eerste is de aflossing alleen, kapitaal en intrest. Het tweede is alles wat er maandelijks aan de woning weggaat, dus met de brandverzekering, de schuldsaldoverzekering en de onroerende voorheffing erbij. Het kerncijfer bovenaan en de afgeleide maximale aankoopprijs staan op dat tweede getal, want dat is waar een bank naar kijkt, samen met wat er overblijft om van te leven. De vuistregel van een derde wordt wel tegen het eerste getal gelegd, want die gaat over de afbetaling zelf; de verzekeringen en de onroerende voorheffing komen daar volgens diezelfde bron bovenop. Andere maandelijkse kredieten staan niet in die percentages, maar wel in de afgeleide maximale aankoopprijs en in wat er overblijft; een bank telt ze bij je aflossing. En wat er helemaal niet in zit: verwarming, elektriciteit, water, onderhoud en syndicuskosten. Je werkelijke woonlast ligt dus hoger dan het percentage dat hier staat.</p>
+  <p><b>Privacy.</b> Alles wat je invult, blijft in je browser. Deze pagina bevat geen formulier dat verstuurt, geen fetch of XMLHttpRequest, geen cookies, geen localStorage, geen analytics en geen externe bestanden of webfonts. De knop "Link bewaren" maakt een link met je invoer erin. Die invoer staat achter een hekje in de link en niet in een query: wat achter een hekje staat, gaat niet mee in het verzoek naar de server en niet in de verwijzende url, dus ook niet in het logboek van de hostingpartij. De link komt ook niet vanzelf in je adresbalk of je geschiedenis; hij bestaat pas als je op de knop drukt. Wat je zelf met de link doet, is een andere zaak: wie hem krijgt, ziet de bedragen die je invulde. Er worden dus geen persoonsgegevens door deze pagina verwerkt en er is geen cookiebanner nodig. Zoals bij elke website registreert de hostingpartij wel technische gegevens van de opvraging, waaronder je IP-adres; dat gebeurt buiten deze pagina om en valt onder het privacybeleid van die partij.</p>
+  <p><b>Aansprakelijkheid.</b> Deze rekenhulp wordt aangeboden zoals ze is, zonder enige garantie. De auteur aanvaardt geen aansprakelijkheid voor onjuiste of verouderde bedragen, noch voor schade die voortvloeit uit het gebruik ervan. Wie deze pagina verder verspreidt of op een eigen website plaatst, blijft zelf verantwoordelijk voor de juistheid van de informatie tegenover zijn cliënten en voor de beroepsregels die op hem van toepassing zijn.</p>
+  <p><b>Bronnen.</b> Tarieven nagekeken op 23 augustus 2026 tegen vlaanderen.be, notaris.be, wikifin.be en economie.fgov.be. Het barema van de koopakte is getoetst op een doorgerekend voorbeeld van &euro; 150.000, dat uitkomt op &euro; 1.878,66 aan ereloon. Bedragen zijn afgerond op hele euro's.</p>
+  <p class="colophon"><b>Broncode.</b> Deze rekenhulp is één statisch HTML-bestand. De volledige broncode staat op <a href="https://github.com/Virgil-Bulens/wat-kost-dit-huis" target="_blank" rel="noreferrer">GitHub</a>. &copy; 2026 Virgil Bulens, PolyForm Noncommercial License 1.0.0.</p>
+</footer>
+</div>
+
+<!-- Wat er op papier komt. Alleen dit blok wordt afgedrukt; de rest van de pagina staat in de
+     afdrukstijl op display:none. De tabel is er om de kop en de voet te dragen: browsers herhalen
+     thead en tfoot op elke bladzijde, en dat is de enige plek waar met @page{margin:0} nog
+     witruimte per bladzijde te maken valt. #pd-body wordt gevuld door het script. -->
+<div id="printdoc" aria-hidden="true">
+  <table class="pd">
+    <thead>
+      <tr><th>
+        <div class="pd-run"><span>Wat kost dit huis?</span><span>Rekenhulp voor kopers in Vlaanderen &middot; <span id="pd-date"></span></span></div>
+        <div class="pd-rule"></div>
+      </th></tr>
+    </thead>
+    <tfoot>
+      <tr><td>
+        <div class="pd-foot">Indicatieve schatting van een rekenhulp, geen advies en geen aanbod. Alleen een notaris kan de aankoopkosten exact berekenen; alleen een bank kan een rentevoet toekennen en over een krediet beslissen.</div>
+      </td></tr>
+    </tfoot>
+    <tbody>
+      <tr><td class="pd-cell">
+        <div id="pd-body"></div>
+        <section class="pd-sec pd-back" id="pd-back">
+          <div class="pd-qr" id="pd-qr"></div>
+          <div class="pd-qr-txt">
+            <h2>Terug naar deze cijfers</h2>
+            <p>Scan de code, of open <a id="pd-link" href="" rel="noreferrer">deze berekening opnieuw</a>. De pagina komt terug met de bedragen van dit blad, en je kan er verder aan rekenen. Druk je dit blad af als pdf, dan is die link aanklikbaar.</p>
+            <p>De code draagt je invoer, dus ook je inkomen. Dat staat hierboven al voluit, maar een code is met een camera in &eacute;&eacute;n keer te lezen. Behandel dit blad als een document.</p>
+          </div>
+        </section>
+        <section class="pd-sec pd-fine">
+          <h2>Voorbehoud</h2>
+          <p><b>Dit is een rekenhulp, geen advies en geen aanbod.</b> De uitkomsten zijn indicatieve schattingen. Ze houden geen rekening met je persoonlijke situatie en vormen geen financieel, fiscaal, juridisch of kredietadvies. Deze pagina bemiddelt niet in kredieten en biedt er geen aan.</p>
+          <p><b>Alleen een notaris kan de aankoopkosten exact berekenen</b> en alleen een bank kan een rentevoet toekennen en over een krediet beslissen. Het ereloon van de notaris volgt het wettelijke barema; de vaste aktekosten, het ereloon van de kredietakte en de rentevoet zijn schattingen. De grenswaarden voor quotiteit en afbetalingslast zijn vuistregels, geen bankregels.</p>
+          <p><b>Geen garantie op juistheid of actualiteit.</b> Tarieven en regels veranderen. Dit zijn de tarieven van Vlaanderen, laatst nagekeken op 23 augustus 2026. Controleer elk bedrag bij je notaris, je bank of de bevoegde overheid voordat je een beslissing neemt of een verbintenis aangaat. Gebruik is op eigen risico; er wordt geen aansprakelijkheid aanvaard voor schade door beslissingen die op deze berekening gebaseerd zijn.</p>
+          <p class="pd-col">Berekend met &ldquo;Wat kost dit huis?&rdquo;, github.com/Virgil-Bulens/wat-kost-dit-huis &middot; &copy; 2026 Virgil Bulens &middot; PolyForm Noncommercial License 1.0.0. Deze pagina is niet van de overheid, een notariaat, een bank of een makelaar.</p>
+        </section>
+      </td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+(function(){
+  var eur=new Intl.NumberFormat('nl-BE',{style:'currency',currency:'EUR',maximumFractionDigits:0});
+  function E(i){return document.getElementById(i)}
+  // Bij gekoppelde velden is het invoervak de bron van waarheid. De schuifbalk heeft een
+  // grove stapgrootte en zou een getypt bedrag afronden, dus daar lezen we niet uit.
+  var pairOf={price:'priceN', sale:'saleN', b1In:'b1InN', b2In:'b2InN',
+              term:'termN', rate:'rateN', ratio:'ratioN', splitShare:'splitShareN'};
+  function v(i){
+    var t=pairOf[i];
+    if(t){
+      var a=vak(t);
+      if(!isNaN(a)) return a;
+      var b=parseFloat(E(i).value);      // de schuifbalk zelf draagt een kaal getal
+      return isNaN(b)?0:b;
+    }
+    var n=vak(i);
+    return isNaN(n)?0:n;
+  }
+  function chk(i){return E(i).checked}
+
+  // --- Opgemaakte invoervakken ----------------------------------------------
+  //
+  // De vakjes zijn text en geen number, en dat kan niet anders. Een number-veld
+  // weigert elke opgemaakte vorm op één na, en die ene is de gevaarlijke: het
+  // aanvaardt "600.000" en leest dat als 600, want voor de specificatie is de punt
+  // een decimaalteken. Dat is precies de Belgische notatie, dus wie hier
+  // duizendpunten in een number-veld zet, deelt stil door duizend.
+  //
+  // Daarom loopt alle invoer door ontleed() en alle weergave door toon(). Nergens
+  // anders mag nog parseFloat op een invoervak staan.
+  var GELD=['priceN','disb','reno','moving','saleN','certs','oldBal','portCost',
+            'bonus','release','b1InN','b1Have','b1Min','b1Max','b2InN','b2Have',
+            'b2Min','b2Max','mortFix','bankFee','valFee','bridgeAmt','inc1','debts',
+            'ovr','fire','ssv','notVal'];
+  var PROCENT=['oldRate','rateN','acc','bridgeRate','ratioN','splitShareN'];
+  // Deze twee wisselen van eenheid met hun schakelaar, dus hun soort hangt van mode af.
+  // notVal staat er niet bij: die schakelt tussen barema en een vast bedrag, en in de
+  // baremastand is het vak uitgeschakeld en wordt het niet gelezen (zie notaryFee).
+  // Als het iets betekent, is het altijd een bedrag.
+  var WISSELT={feeVal:'fee', landVal:'land'};
+  // Aantallen blijven kaal: termN, oldYears en bridgeMonths hebben geen hulp nodig.
+
+  var groep=new Intl.NumberFormat('nl-BE',{maximumFractionDigits:0});
+  var groepPct=new Intl.NumberFormat('nl-BE',{maximumFractionDigits:2});
+
+  function soortVan(id){
+    if(WISSELT[id]) return mode[WISSELT[id]]==='eur' ? 'geld' : 'procent';
+    if(GELD.indexOf(id)>=0) return 'geld';
+    if(PROCENT.indexOf(id)>=0) return 'procent';
+    return null;                      // aantallen en al het andere blijven zoals ze zijn
+  }
+
+  // Het euroteken en de spaties horen bij de weergave en gaan er hier uit. Wat de
+  // punt betekent, beslist het soort veld, en niet een gok op het aantal cijfers
+  // erachter.
+  //
+  // Bij een bedrag is de punt een duizendteken en de komma het decimaalteken, zoals
+  // de weergave het zet. Een gok op "drie cijfers erachter" loopt hier stuk op het
+  // wissen: wie in "600.000" één cijfer weghaalt, staat even op "600.00", en dat zou
+  // dan als zeshonderd gelezen worden in plaats van als zestigduizend.
+  //
+  // Bij een percentage zijn punt en komma beide een decimaalteken. Groeperen komt daar
+  // niet voor, want die getallen blijven onder honderd, en zo leest een 3.2 van een
+  // cijferblok als drie komma twee in plaats van als tweeendertig.
+  function ontleed(t, soort){
+    if(t==null) return NaN;
+    var r=String(t).replace(/[^\d,.\-]/g,'');
+    if(r===''||r==='-') return NaN;
+    var heel, deel='';
+    if(soort==='procent'){
+      var eerste=r.search(/[.,]/);
+      if(eerste>=0){ heel=r.slice(0,eerste); deel=r.slice(eerste+1).replace(/[.,]/g,''); }
+      else heel=r;
+    } else {
+      var k=r.lastIndexOf(',');
+      heel=(k>=0?r.slice(0,k):r);
+      deel=(k>=0?r.slice(k+1):'').replace(/[.,]/g,'');
+    }
+    heel=heel.replace(/[.,]/g,'');
+    if(heel===''&&deel==='') return NaN;
+    var n=parseFloat((heel||'0')+(deel?'.'+deel:''));
+    return isFinite(n) ? n : NaN;
+  }
+  // Een veld uitlezen met de regel die bij zijn soort hoort.
+  function vak(id){ return ontleed(E(id).value, soortVan(id)); }
+  function toon(id,n){
+    var soort=soortVan(id);
+    if(soort==='geld') return '€ ' + groep.format(n);
+    if(soort==='procent') return groepPct.format(n);
+    return String(n);
+  }
+  function attr(el,naam,terug){
+    var a=parseFloat(el.getAttribute('data-'+naam));
+    return isNaN(a) ? terug : a;
+  }
+
+  // Het vak opnieuw opmaken en de cursor terugzetten. De cursor wordt in cijfers
+  // geteld en niet in tekens: zodra er een scheidingsteken bijkomt, klopt een
+  // positie in tekens niet meer.
+  function herschrijf(el){
+    if(!soortVan(el.id)) return;
+    var ruw=el.value;
+    if(ruw==='') return;                       // leeg blijft leeg, de placeholder doet zijn werk
+    var eind=el.selectionStart==null ? ruw.length : el.selectionStart;
+    var cijfersVoor=(ruw.slice(0,eind).match(/\d/g)||[]).length;
+    // Een decimaal in de maak moet blijven staan, anders verdwijnt de komma onder je
+    // vingers op het moment dat je hem zet.
+    var open=/[.,]\d?$/.test(ruw) && soortVan(el.id)==='procent';
+    var staart=open ? ruw.slice(ruw.search(/[.,]\d?$/)).replace('.',',') : '';
+    var n=ontleed(ruw, soortVan(el.id));
+    var nieuw = isNaN(n) ? '' : (open ? toon(el.id,Math.trunc(n))+staart : toon(el.id,n));
+    if(nieuw===ruw) return;
+    el.value=nieuw;
+    var pos=0, gezien=0;
+    while(pos<nieuw.length && gezien<cijfersVoor){ if(/\d/.test(nieuw[pos])) gezien++; pos++; }
+    // niet in het euroteken parkeren
+    var eersteCijfer=nieuw.search(/\d/);
+    if(eersteCijfer>0 && pos<eersteCijfer) pos=eersteCijfer;
+    try{ el.setSelectionRange(pos,pos); }catch(e){}
+  }
+
+  // Backspace op een scheidingsteken wist het cijfer ervóór, en niet het teken zelf.
+  // Zou het teken gewist worden, dan maakt herschrijf() exact dezelfde tekst terug op
+  // en lijkt de cursor vast te zitten.
+  function wisOverScheiding(el,ev){
+    var pos=el.selectionStart;
+    if(pos===null || pos!==el.selectionEnd) return false;      // een selectie wist zichzelf
+    var terug=ev.key==='Backspace';
+    var i=terug ? pos-1 : pos;
+    if(i<0 || i>=el.value.length) return false;
+    if(/\d/.test(el.value[i])) return false;                   // gewoon een cijfer, laat de browser
+    // zoek het eerstvolgende cijfer in de richting waarin gewist wordt
+    while(i>=0 && i<el.value.length && !/\d/.test(el.value[i])) i += terug ? -1 : 1;
+    if(i<0 || i>=el.value.length) { ev.preventDefault(); return true; }   // niets te wissen
+    ev.preventDefault();
+    el.value=el.value.slice(0,i)+el.value.slice(i+1);
+    el.setSelectionRange(i,i);
+    return true;
+  }
+
+  // De pijltjes-stap van een number-veld, zelf herschreven. De stappen doen hier mee:
+  // duizend voor een prijs, vijfhonderd voor een inbreng, vijf honderdsten voor een rente.
+  function stapMet(el,richting){
+    var stap=attr(el,'step',1), n=vak(el.id);
+    if(isNaN(n)) n=0;
+    var uit=n+richting*stap;
+    // afrondingsruis van een stap als 0,05 wegwerken
+    var decimalen=(String(stap).split('.')[1]||'').length;
+    uit=parseFloat(uit.toFixed(decimalen));
+    var lo=attr(el,'min',-Infinity), hi=attr(el,'max',Infinity);
+    if(uit<lo) uit=lo;
+    if(uit>hi) uit=hi;
+    el.value=toon(el.id,uit);
+  }
+
+  // Belgische conventie: maandrente is de twaalfde wortel uit de jaarrente
+  function ann(P,r,y){
+    if(P<=0||y<=0) return 0;
+    var i=Math.pow(1+r,1/12)-1, n=y*12;
+    return i===0 ? P/n : P*i/(1-Math.pow(1+i,-n));
+  }
+  // euroteken dempen en het cijfer als een blok houden, zodat bedragen sneller te lezen zijn
+  function deco(t){
+    // vangt zowel "&minus;\u20AC 1.234" als de vorm van Intl bij negatieve bedragen, "\u20AC -1.234",
+    // en laat een voorafgaande spatie staan
+    return String(t).replace(/(&minus;|\u2212|-)?\u20AC\s*(\u2212|-)?\s*([\d.,]+)/g,
+      function(_,pre,post,dig){
+        var neg = pre || post;
+        return '<span class="cur">\u20AC</span><span class="fig">'+(neg?'\u2212':'')+dig+'</span>';
+      });
+  }
+  // --- Uitleg bij een begrip -------------------------------------------------
+  //
+  // Geen title-attribuut. Dat is niet met het toetsenbord te bereiken, onzichtbaar
+  // op een aanraakscherm, en het wordt wisselend voorgelezen. Maar de reden die de
+  // knoop doorhakt: in een tooltip van de browser kan je niet klikken, en de link
+  // naar de bron is de helft van de bedoeling.
+  //
+  // Dus een echte knop met een blokje dat open- en dichtklapt, en dat blokje staat
+  // gewoon in de pagina. Daardoor hoeft er niets gepositioneerd te worden en valt
+  // er niets buiten een kaart weg, ook niet op een smal scherm.
+  var openUitleg={};
+  // Welk begrip hoort bij dit label? De labels zijn deels samengesteld ("2%
+  // registratiebelasting", "Rente overbruggingskrediet"), dus er wordt gezocht of
+  // het begrip erin voorkomt. Bij meerdere treffers wint de langste, zodat
+  // "waarvan registratierecht" niet op een korter begrip uitkomt.
+  // Labels die het begrip niet letterlijk noemen maar er wel over gaan. Zonder deze
+  // lijst blijft er uitleg in de tabel staan die nergens te bereiken is.
+  var ALIAS={'deel van de aankoopprijs':'quotiteit',
+             'deel van je inkomen':'aflossingslast',
+             'nieuwe lening':'maandlast',
+             'als het tarief van':'verlaagd tarief'};
+  function begripVan(label){
+    var l=String(label).toLowerCase(), beste=null;
+    for(var a in ALIAS) if(l.indexOf(a)>=0) return ALIAS[a];
+    for(var k in UITLEG) if(l.indexOf(k)>=0 && (!beste || k.length>beste.length)) beste=k;
+    return beste;
+  }
+  // De stand staat per plek en niet per begrip. Hetzelfde begrip komt in meerdere
+  // regels voor, en dan zou één klik vier identieke blokjes openen.
+  function sleutelVan(knop){
+    return knop.getAttribute('data-k') || ('veld:'+knop.getAttribute('data-t'));
+  }
+  function vraagteken(term,sleutel){
+    return '<button type="button" class="q" data-t="'+term+'" data-k="'+sleutel+'" aria-expanded="'
+      +(openUitleg[sleutel]?'true':'false')+'" aria-label="Wat betekent '+term+'?">?</button>';
+  }
+  function uitlegHTML(term,sleutel){
+    var u=UITLEG[term];
+    if(!u || !openUitleg[sleutel]) return '';
+    return '<div class="uitlegblok" data-t="'+term+'"><p>'+u.tekst+'</p><p class="bron">Bron: <a href="'
+      +u.url+'" target="_blank" rel="noreferrer">'+u.wie+'</a>, nagekeken op '
+      +datumNL(RATES.asOf)+'.</p></div>';
+  }
+
+  function row(k,val,sub,cls){
+    var t=begripVan(k), sl='regel:'+k, q=t?vraagteken(t,sl):'';
+    return '<div class="row '+(cls||'')+'"><div class="k">'+k+q+(sub?'<small>'+sub+'</small>':'')
+      +'</div><div class="v">'+deco(val)+'</div></div>'+(t?uitlegHTML(t,sl):'');
+  }
+
+  // schuifbalk en invoervak twee richtingen koppelen; typen mag buiten het bereik
+  var links=[['price','priceN'],['sale','saleN'],['b1In','b1InN'],['b2In','b2InN'],
+             ['term','termN'],['rate','rateN'],['ratio','ratioN'],['splitShare','splitShareN']];
+  // schuifbalk versleept: het invoervak volgt
+  function fromRange(r,n){ E(n).value=toon(n, parseFloat(E(r).value)||0); }
+  // bedrag getypt: alleen de duimpositie volgt, de getypte waarde blijft onaangeroerd
+  function fromNum(r,n){
+    var rg=E(r), val=vak(n);
+    if(isNaN(val)) return;
+    if(val>parseFloat(rg.max)) rg.max=String(Math.max(Math.ceil(val/50000)*50000, val));
+    rg.value=String(Math.max(parseFloat(rg.min)||0, val));
+  }
+
+  var mode={not:'pct', fee:'pct', land:'pct'};
+
+  // Tarieven, drempels en ingangsdatums op een plek, zodat een jaarwissel een
+  // wijziging op een regel is en niet een zoektocht door het bestand. Bewust een
+  // objectliteral in dit bestand en geen apart tarievenbestand: de pagina is een
+  // enkel statisch HTML-bestand zonder externe verzoeken, en dat is precies wat
+  // de privacybelofte draagt. Een tweede bestand zou een extra verzoek zijn.
+  // Uitleg bij de begrippen op deze pagina, met de bron erbij. Eén tabel, net zoals
+  // RATES: de uitklap naast een veld en die naast een resultaatregel komen hier
+  // allebei uit, zodat dezelfde uitleg niet op drie plekken staat.
+  //
+  // "wie" zegt wát voor een bron het is, want officieel is niet één categorie. De
+  // Vlaamse overheid en de FOD Economie zijn de overheid. Wikifin is van de FSMA,
+  // de toezichthouder. De Nationale Bank is de toezichthouder op de banken. Maar
+  // notaris.be is van Fednot, de federatie van notarissen, en dat is de sector
+  // zelf. Dat verschil hoort een lezer te weten voordat hij erop vertrouwt.
+  //
+  // De links gaan naar de landingspagina van het onderwerp en niet naar een diepe
+  // pagina die verhuist. Ze zijn nagekeken op de datum in RATES.asOf, en een
+  // workflow in .github kijkt ze periodiek na, want de pagina kan dat zelf niet:
+  // dat zou een verzoek naar buiten vragen en dat breekt de privacybelofte.
+  var UITLEG={
+    'registratiebelasting':{
+      tekst:'De belasting die je aan de Vlaamse overheid betaalt op de aankoopprijs. Dit is meestal de grootste post bovenop de prijs. De notaris houdt ze in en stort ze door; hij verdient er zelf niets aan.',
+      wie:'Vlaamse overheid', url:'https://www.vlaanderen.be/verkooprecht'},
+    'verdeelrecht':{
+      tekst:'De belasting die je betaalt als je een mede-eigenaar uitkoopt, bijvoorbeeld een ex-partner na een scheiding. Ze rekent op de volledige waarde van de woning, niet op de uitkoopsom die je aan je partner betaalt. Het standaardtarief is 2,5%. Neem je het aandeel over van een ex-echtgenoot of een ex-wettelijk samenwonende partner, dan geldt een verlaagd tarief van 1%. Feitelijk samenwonen telt daarvoor niet mee.',
+      wie:'notaris.be (Fednot, de federatie van notarissen)', url:'https://www.notaris.be/nieuws/de-miserietaks-wat-je-moet-weten-over-deze-belasting'},
+    'onverdeeldheid':{
+      tekst:'Meerdere mensen bezitten dan samen dezelfde woning, elk voor een aandeel, zonder dat de woning zelf opgedeeld is. Dat ontstaat bijvoorbeeld bij een koppel dat samen kocht of bij een erfenis. Koopt de ene het aandeel van de andere over, dan treedt die laatste uit de onverdeeldheid en wordt de eerste volledig eigenaar.',
+      wie:'notaris.be (Fednot, de federatie van notarissen)', url:'https://www.notaris.be/scheiden-en-uit-elkaar-gaan/uit-elkaar-gaan-als-je-gehuwd-bent/scheiden-op-grond-van-onherstelbare-ontwrichting-eoo/verdeling-van-de-goederen'},
+    'verlaagd tarief':{
+      tekst:'Koop je je enige eigen woning en ga je er zelf wonen, dan betaal je 2% in plaats van 12%. Aan die gunst hangen voorwaarden: geen andere woning bezitten op de dag van de akte, je binnen drie jaar na de akte domiciliëren, en voor verkoopovereenkomsten vanaf 1 januari 2026 daar minstens een jaar ononderbroken ingeschreven blijven. Of je eraan voldoet beslist de belastingdienst, niet deze pagina.',
+      wie:'Vlaamse overheid', url:'https://www.vlaanderen.be/belastingen-en-begroting/vlaamse-belastingen/registratiebelasting/verkooprecht/tarieven-in-het-verkooprecht/verlaagd-tarief-in-het-verkooprecht-voor-de-aankoop-van-de-enige-eigen-woning'},
+    'bescheiden woning':{
+      tekst:'Is de prijs van je enige eigen woning niet hoger dan de drempel, dan gaat er een vast bedrag van de registratiebelasting af. Dat is een korting op de belasting, geen korting op de prijs. Er zijn twee drempels: een hogere voor de kernsteden en de Vlaamse Rand, een lagere daarbuiten. Het vinkje bij vak 1 kiest ertussen.',
+      wie:'Vlaamse overheid', url:'https://www.vlaanderen.be/belastingen-en-begroting/vlaamse-belastingen/registratiebelasting/verkooprecht/verminderingen-van-het-verkooprecht/bijkomende-vermindering-van-het-verkooprecht-voor-een-enige-eigen-bescheiden-woning'},
+    'kernsteden en de Vlaamse Rand':{
+      tekst:'Twee groepen gemeenten staan met naam in de wet, en daar mag een bescheiden woning 240.000 euro kosten in plaats van 220.000. De kernsteden: Aalst, Antwerpen, Boom, Brugge, Dendermonde, Genk, Gent, Hasselt, Kortrijk, Leuven, Mechelen, Oostende, Roeselare, Sint-Niklaas, Turnhout en Vilvoorde. De Vlaamse Rand rond Brussel: Affligem, Asse, Beersel, Bertem, Bever, Dilbeek, Drogenbos, Galmaarden, Gooik, Grimbergen, Halle, Herne, Hoeilaart, Huldenberg, Kampenhout, Kapelle-op-den-Bos, Kortenberg, Kraainem, Lennik, Liedekerke, Linkebeek, Londerzeel, Machelen, Meise, Merchtem, Opwijk, Overijse, Pepingen, Roosdaal, Sint-Genesius-Rode, Sint-Pieters-Leeuw, Steenokkerzeel, Ternat, Tervuren, Vilvoorde, Wemmel, Wezembeek-Oppem, Zaventem en Zemst. Staat je gemeente er niet bij, laat het vinkje dan uit. Bever, Galmaarden en Herne staan er los in, terwijl ze sinds 1 januari 2025 samen de gemeente Pajottegem vormen; die fusie staat nog niet in de wettekst, dus vraag dat geval na bij je notaris.',
+      wie:'Vlaamse Codex Fiscaliteit, artikel 1.1.0.0.2, twaalfde lid (Vlaamse overheid)', url:'https://codex.vlaanderen.be/portals/codex/documenten/1023499.html'},
+    'ereloon':{
+      tekst:'Het loon van de notaris. Het staat vast in een wettelijk barema, dus geen enkele notaris mag meer of minder vragen en vergelijken heeft geen zin. Het is degressief: hoe duurder de woning, hoe lager het percentage.',
+      wie:'notaris.be (Fednot, de federatie van notarissen)', url:'https://www.notaris.be/nieuws/hoe-wordt-het-ereloon-van-de-notaris-berekend'},
+    'barema':{
+      tekst:'De wettelijke tabel waarmee het ereloon per schijf gerekend wordt, zoals de belastingschijven. De eerste schijf van je prijs kost het hoogste percentage, elke schijf daarna minder.',
+      wie:'notaris.be (Fednot, de federatie van notarissen)', url:'https://www.notaris.be/nieuws/hoe-wordt-het-ereloon-van-de-notaris-berekend'},
+    'akte- en opzoekingskosten':{
+      tekst:'Wat het kantoor betaalt om de akte in orde te brengen: opzoekingen bij het kadaster, de hypotheekbewaring, de gemeente en de stedenbouw, plus de kosten van de akte zelf. Dit is geen loon van de notaris; het gaat naar derden.',
+      wie:'notaris.be (Fednot, de federatie van notarissen)', url:'https://www.notaris.be/wonen/aan-en-verkoop-van-een-woning/de-koop-en-kredietkosten'},
+    'kredietakte':{
+      tekst:'Voor de lening wordt een tweede akte opgemaakt, naast de aankoopakte, en die kost apart geld. Veel kopers rekenen alleen op de kosten van de aankoop en worden hier verrast.',
+      wie:'notaris.be (Fednot, de federatie van notarissen)', url:'https://www.notaris.be/wonen/aan-en-verkoop-van-een-woning/de-koop-en-kredietkosten'},
+    'registratierecht':{
+      tekst:'Een belasting van 1% op het bedrag dat de bank in de hypotheek laat inschrijven. Ze wordt niet op je kapitaal geheven maar op dat hogere gewaarborgde bedrag.',
+      wie:'notaris.be (Fednot, de federatie van notarissen)', url:'https://www.notaris.be/wonen/aan-en-verkoop-van-een-woning/de-koop-en-kredietkosten'},
+    'hypotheekrecht':{
+      tekst:'Een belasting van 0,3% voor het inschrijven van de hypotheek in het register. Net als het registratierecht staat ze op het gewaarborgde bedrag en niet op je kapitaal.',
+      wie:'notaris.be (Fednot, de federatie van notarissen)', url:'https://www.notaris.be/wonen/aan-en-verkoop-van-een-woning/de-koop-en-kredietkosten'},
+    'aanhorigheden':{
+      tekst:'De bank schrijft de hypotheek in voor je kapitaal plus een opslag, doorgaans 5 tot 10%, om eventuele invorderingskosten te dekken. Dat opgetelde bedrag heet het gewaarborgde bedrag, en de twee belastingen op de kredietakte staan daarop.',
+      wie:'notaris.be (Fednot, de federatie van notarissen)', url:'https://www.notaris.be/wonen/aan-en-verkoop-van-een-woning/de-koop-en-kredietkosten'},
+    'quotiteit':{
+      tekst:'Het deel van de waarde dat je leent. Leen je 90% en meer, dan word je strenger beoordeeld: de Nationale Bank houdt 90% aan als richtwaarde en laat banken daar maar voor een deel van hun kredieten boven gaan. Het is geen verbod, wel een rem, en boven 80% rekenen veel banken een hogere rente.',
+      wie:'Nationale Bank van België', url:'https://www.nbb.be/nl/financieel-toezicht/macroprudentieel-beleid'},
+    'aflossingslast':{
+      tekst:'Het deel van je netto inkomen dat naar de afbetaling gaat. Ongeveer een derde is de gangbare vuistregel, maar een bank kijkt vooral naar wat er overblijft om van te leven, en telt je andere kredieten mee.',
+      wie:'Wikifin (FSMA, de toezichthouder)', url:'https://www.wikifin.be/nl/woning-en-hypothecaire-lening/hypothecaire-lening/hoe-best-je-hypothecair-krediet-kiezen/wat-zijn'},
+    'maandlast':{
+      tekst:'Wat je elke maand aan de bank betaalt: een stuk kapitaal en een stuk intrest. In het begin is het grootste deel intrest, naar het einde toe bijna alleen nog kapitaal, terwijl het bedrag zelf gelijk blijft.',
+      wie:'Wikifin (FSMA, de toezichthouder)', url:'https://www.wikifin.be/nl/woning-en-hypothecaire-lening/hypothecaire-lening/tijdens-je-hypothecair-krediet/wat-betaal-je-elke'},
+    'wederbeleggingsvergoeding':{
+      tekst:'De boete als je je krediet vroeger afbetaalt dan afgesproken, bijvoorbeeld omdat je je woning verkoopt. Bij een hypothecair krediet is ze wettelijk beperkt tot drie maanden intrest op het bedrag dat je terugbetaalt.',
+      wie:'FOD Economie', url:'https://economie.fgov.be/nl/themas/financiele-diensten/hypothecair-krediet'},
+    'handlichting':{
+      tekst:'Het doorhalen van de oude hypotheek op de woning die je verkoopt. Zolang dat niet gebeurd is, blijft de inschrijving op het pand staan. Het gebeurt bij de notaris en gaat af van wat de verkoop opbrengt.',
+      wie:'notaris.be (Fednot, de federatie van notarissen)', url:'https://www.notaris.be/wonen/aan-en-verkoop-van-een-woning/de-koop-en-kredietkosten'},
+    'pandwissel':{
+      tekst:'In plaats van je lopende krediet af te betalen, laat je de hypotheek verhuizen naar de nieuwe woning. Je houdt je oude rentevoet en eventueel je woonbonus, maar er komt een akte aan te pas en die kost geld. Of het mag, beslist je bank.',
+      wie:'notaris.be (Fednot, de federatie van notarissen)', url:'https://www.notaris.be/wonen/aan-en-verkoop-van-een-woning'},
+    'woonbonus':{
+      tekst:'Het belastingvoordeel op oudere woonkredieten. Voor nieuwe kredieten bestaat het niet meer, maar wie een lopend krediet heeft, kan het verliezen door af te betalen. Dat verlies loopt over alle resterende jaren en kan zwaarder wegen dan de kosten van een pandwissel.',
+      wie:'Vlaamse overheid', url:'https://www.vlaanderen.be/belastingen-en-begroting'},
+    'schuldsaldoverzekering':{
+      tekst:'Een verzekering die het openstaande saldo van je lening aflost als je sterft voor het einde van de looptijd. Wettelijk moet je ze niet nemen, maar in de praktijk vraagt een bank ze bij een groot krediet. Je mag zelf kiezen bij wie je ze sluit, ook niet bij je bank.',
+      wie:'Wikifin (FSMA, de toezichthouder)', url:'https://www.wikifin.be/nl/budget-betalen-lenen-en-verzekeren/verzekeren/familie/de-levens-en-overlijdensverzekering/wat-de'},
+    'brandverzekering':{
+      tekst:'De verzekering van het gebouw zelf, ook woningverzekering genoemd. Een bank maakt ze doorgaans een voorwaarde van het krediet. Ze staat niet in je aflossing maar komt er elke maand bovenop.',
+      wie:'Wikifin (FSMA, de toezichthouder)', url:'https://www.wikifin.be/nl/woning-en-hypothecaire-lening/hypothecaire-lening/waarborgen/welke-verzekeringen-moet-je-afsluiten'},
+    'onroerende voorheffing':{
+      tekst:'De jaarlijkse belasting op je woning, gerekend op het kadastraal inkomen en niet op de prijs die je betaalde. Ze komt bovenop je maandlast en er bestaan verminderingen, onder meer voor kinderen ten laste.',
+      wie:'Vlaamse overheid', url:'https://www.vlaanderen.be/onroerende-voorheffing'},
+    'overbruggingskrediet':{
+      tekst:'Een tijdelijk krediet als je koopt voordat je eigen woning verkocht is. Je betaalt alleen intrest tot de verkoop rond is, en dan los je het in één keer af met de opbrengst. Duurt de verkoop langer dan verwacht, dan lopen die intresten door.',
+      wie:'Wikifin (FSMA, de toezichthouder)', url:'https://www.wikifin.be/nl/woning-en-hypothecaire-lening/woning-kopen-bouwen-verbouwen/een-woning-kopen/hoe-financier-je-de'},
+    'epc':{
+      tekst:'Het energieprestatiecertificaat: het rapport dat zegt hoe energiezuinig een woning is, met een label erop. Het is nodig bij een verkoop, en het label bepaalt of er een renovatieverplichting op de woning komt te rusten.',
+      wie:'Vlaamse overheid', url:'https://www.vlaanderen.be/epc'},
+    'renovatieverplichting':{
+      tekst:'Koop je een woning met EPC-label E of F, dan moet je ze binnen zes jaar na de authentieke akte naar minstens label D brengen. Dat geldt voor woningen die vanaf 2023 zijn aangekocht. Het is een kost die niet in de aankoopprijs zit en die deze pagina niet meerekent.',
+      wie:'Vlaamse overheid', url:'https://www.vlaanderen.be/renovatieverplichting-voor-residentiele-gebouwen'},
+    'grondaandeel':{
+      tekst:'Bij nieuwbouw wordt de prijs gesplitst. Op het gebouw staat btw, op de grond doorgaans registratiebelasting, want de grond gaat via een notariële akte en het gebouw via een aannemingsovereenkomst. Het verlaagde tarief van 2% geldt nooit op grond.',
+      wie:'notaris.be (Fednot, de federatie van notarissen)', url:'https://www.notaris.be/wonen/aan-en-verkoop-van-een-woning'},
+    'btw op de bouw':{
+      tekst:'Op een nieuw gebouw betaal je 21% btw, of 6% bij afbraak en heropbouw. Dat verlaagde tarief vraagt onder meer dat het je enige eigen woning wordt, dat je er zelf gaat wonen en er vijf jaar blijft, en dat de bewoonbare oppervlakte onder 200 m² blijft. Laat je notaris bevestigen welk stelsel op jou van toepassing is.',
+      wie:'FOD Financiën', url:'https://financien.belgium.be/nl/particulieren/woning'},
+    'attesten en keuringen':{
+      tekst:'Wat een verkoper moet laten opmaken voordat hij verkoopt: het EPC, de keuring van de elektrische installatie, en een bodemattest. Is de elektriciteit niet conform, dan moet de koper binnen achttien maanden na de akte laten herkeuren.',
+      wie:'Vlaamse overheid', url:'https://www.vlaanderen.be/epc'}
+  };
+
+  var RATES={
+    // In ISO-vorm, want deze datum gaat mee in een deelbare link en moet daar
+    // machineleesbaar zijn. De datum in het proza op de pagina staat in het
+    // Nederlands; een toets houdt beide gelijk.
+    asOf:'2026-08-23',
+    duty:{own:0.02, other:0.12, land:0.12, split:0.025, splitReduced:0.01},        // Vlaanderen 2026
+    vatOnFees:0.21,
+    // Enige eigen bescheiden woning. Er zijn twee maximumprijzen, en het verschil
+    // zit in de ligging: 240.000 voor een woning in de kernsteden of de Vlaamse Rand,
+    // 220.000 daarbuiten. Beide gelden voor akten vanaf 1 januari 2022. De korting
+    // zelf is 1.867 voor akten vanaf 1 januari 2025 en staat los van de ligging.
+    // Een eerdere versie van deze pagina rekende met één grens van 220.000, op de
+    // aanname dat het onderscheid was afgeschaft. Dat was fout, en het kostte een
+    // koper in een kernstad tussen 220.000 en 240.000 de volle korting.
+    modest:{cut:1867, max:220000, maxKern:240000},
+    // Ereloon koopakte, degressief per schijf (KB 16/12/1950). Boven de laatste grens
+    // geldt het marginale tarief. Controle op een gepubliceerd voorbeeld van een
+    // koopakte van 150.000: 342 + 285 + 285 + 264,96 + 212,04 + 489,66 = 1.878,66.
+    // Tegencontrole op notaris.be, dat het ereloon aangeeft als ongeveer 1,3% bij
+    // 125.000, 1% bij 200.000 en 0,9% bij 250.000: dit barema geeft 1,39%, 1,08% en
+    // 0,98%. Het is dus degressief van ruim 1,3% naar het marginale 0,57%.
+    notaryScale:[[7500,0.0456],[17500,0.0285],[30000,0.0228],[45495,0.0171],[64095,0.0114],[Infinity,0.0057]],
+    // Ereloon kredietakte, lager dan dat van de koopakte. Het eerste tarief van 1,88%
+    // is gepubliceerd; de schijven daaronder volgen dezelfde degressie. Bij een krediet
+    // van 200.000 geeft dit 892 tegen een elders gepubliceerde 914 excl. btw, dus deze
+    // post is een benadering binnen enkele procenten en geen exact barema.
+    creditScale:[[7500,0.0188],[17500,0.01175],[30000,0.0094],[45495,0.00705],[64095,0.0047],[Infinity,0.00235]],
+    // Kredietakte: het registratierecht en het hypotheekrecht worden geheven op het
+    // gewaarborgde bedrag, dus op het kapitaal plus de aanhorigheden.
+    credit:{registration:0.01, mortgage:0.003},
+    prepayment:0.25,        // wederbeleggingsvergoeding: wettelijk maximaal drie maanden interest
+    saleDeadlineYears:2     // vrijstelling onder voorwaarde van verkoop
+  };
+  // Degressief barema: elke schijf aan haar eigen tarief, zoals de belastingschijven.
+  function scaleFee(scale, base){
+    var t=0, lo=0;
+    for(var i=0;i<scale.length && base>lo;i++){
+      t+=(Math.min(base,scale[i][0])-lo)*scale[i][1];
+      lo=scale[i][0];
+    }
+    return t;
+  }
+
+  function isNew(){ return E('kind').value==='new'; }
+  // De drempel voor de bescheiden woning hangt aan de ligging, en de ligging kan
+  // deze pagina niet weten: de lijst van kernsteden staat in de regelgeving en een
+  // koper hoort ze zelf na te kijken. Daarom vraagt het vinkje het, en beslist het
+  // vinkje welke van de twee grenzen geldt.
+  function modestMax(){ return chk('kern') ? RATES.modest.maxKern : RATES.modest.max; }
+  // Bij nieuwbouw valt de prijs uiteen in grond en gebouw. Het grondaandeel wordt afgekapt
+  // op de prijs zelf, want maxPrice() zoekt ook prijzen op onder een vast ingevuld grondbedrag.
+  function landShare(P){
+    if(!isNew()) return 0;
+    var L = mode.land==='pct' ? P*(v('landVal')/100) : v('landVal');
+    return Math.max(0, Math.min(L, P));
+  }
+  // Alleen de grond gaat via een notariele akte; het gebouw zit in een aannemingsovereenkomst,
+  // waar geen ereloon van de notaris op staat. Zonder ingevuld grondaandeel rekenen we op de
+  // volle prijs, zodat er geen nul komt te staan waar een schatting hoort.
+  function notaryBase(P){
+    if(!isNew()) return P;
+    var L=landShare(P);
+    return L>0 ? L : P;
+  }
+  // Het ereloon volgt het wettelijke degressieve barema. Een vast bedrag blijft
+  // mogelijk als override, voor wie een raming van zijn eigen notaris heeft liggen.
+  function notaryFee(P){
+    if(mode.not==='eur') return v('notVal');
+    return scaleFee(RATES.notaryScale, notaryBase(P))*(1+RATES.vatOnFees);
+  }
+  // Kosten van de kredietakte. De bank schrijft de hypotheek in voor het kapitaal plus
+  // aanhorigheden; het registratierecht en het hypotheekrecht worden op dat hogere
+  // bedrag geheven. Het ereloon staat op het kredietbedrag zelf.
+  function creditDeed(loan){
+    if(loan<=0) return {total:0, reg:0, mort:0, fee:0, fix:0, secured:0};
+    var secured=loan*(1+v('acc')/100);
+    var reg=secured*RATES.credit.registration;
+    var mort=secured*RATES.credit.mortgage;
+    var fee=scaleFee(RATES.creditScale, loan)*(1+RATES.vatOnFees);
+    var fix=v('mortFix');
+    return {total:reg+mort+fee+fix, reg:reg, mort:mort, fee:fee, fix:fix, secured:secured};
+  }
+
+  // 6% geldt bij afbraak en heropbouw, en enkel als alle voorwaarden samen kloppen
+  var vat6Conds=[['v6demo','de afbraak en heropbouw op hetzelfde perceel'],
+                 ['v6only','de enige eigen woning met eigen domicilie'],
+                 ['v6area','de grens van 200 m&sup2;'],
+                 ['v6five','het verblijf van minstens vijf jaar']];
+  function vatPick(){ return document.querySelector('input[name=vatRate]:checked').value; }
+  function vat6Missing(){
+    return vat6Conds.filter(function(c){ return !chk(c[0]); }).map(function(c){ return c[1]; });
+  }
+  function vatRate(){ return (vatPick()==='6' && vat6Missing().length===0) ? 0.06 : 0.21; }
+  function pctLab(r){ return Math.round(r*100)+'%'; }
+
+  // 1% verdeelrecht geldt bij een relatiebreuk, en enkel voor ex-gehuwden of
+  // ex-wettelijk samenwonende partners; feitelijk samenwonen telt niet mee.
+  // Zonder deze twee voorwaarden samen geldt het standaardtarief van 2,5%.
+  var splitConds=[['spExPartner','een ex-echtgenoot of ex-wettelijk samenwonende partner'],
+                  ['spDuur','minstens &eacute;&eacute;n jaar wettelijke samenwoning, als je niet gehuwd was']];
+  function splitMissing(){
+    return splitConds.filter(function(c){ return !chk(c[0]); }).map(function(c){ return c[1]; });
+  }
+  function splitOk(){ return splitMissing().length===0; }
+  function agentFee(){
+    if(!chk('hasHome')||!chk('agent')) return 0;
+    var sp=v('sale');
+    return mode.fee==='pct' ? sp*(v('feeVal')/100)*1.21 : v('feeVal')*1.21;
+  }
+  // Het ereloon staat er nu ook bij, want elke schakelaar heeft een invoervak en een
+  // knoppenrij. Het schakelt wel tussen barema en een vast bedrag in plaats van
+  // tussen procent en euro, dus het rekent niets om; zie swap() hieronder.
+  var segOf={not:['notVal','notSeg'], fee:['feeVal','feeSeg'], land:['landVal','landSeg']};
+  var stepOf={not:[100,100], fee:[0.1,100], land:[0.5,1000]};
+  var backTo={fee:3, land:''};
+
+  // De stand aanzetten zonder de waarde aan te raken: de stapgrootte, de knoppen,
+  // en bij het ereloon het invoervak dat in de baremastand niet in gebruik is.
+  // Dit staat los van swap(), want een teruggezette link brengt zijn waarde al in
+  // de juiste eenheid mee en mag dus niet nog eens omgerekend worden.
+  function applyMode(which,m){
+    var inp=E(segOf[which][0]);
+    // Eerst lezen met de eenheid die er nu nog staat, dan de stand wisselen, dan
+    // neerzetten met de nieuwe: een percentage krijgt geen euroteken en een bedrag wel.
+    var g=vak(inp.id);
+    mode[which]=m;
+    inp.setAttribute('data-step', String(m==='eur' ? stepOf[which][1] : stepOf[which][0]));
+    // Geen disabled: in de baremastand staat er nu een uitkomst in, en die hoort
+    // leesbaar en selecteerbaar te blijven. readonly zegt "niet te wijzigen" in plaats
+    // van "niet beschikbaar".
+    if(which==='not') inp.readOnly = m!=='eur';
+    if(!isNaN(g)) inp.value=toon(inp.id,g);
+    Array.prototype.forEach.call(E(segOf[which][1]).querySelectorAll('button'),function(b){
+      b.setAttribute('aria-pressed', String(b.dataset.m===m));
+    });
+  }
+
+  // Op de knop geklikt: de waarde meeverhuizen naar de nieuwe eenheid en dan de
+  // stand aanzetten.
+  function swap(which,m){
+    if(mode[which]===m) return;
+    var inp=E(segOf[which][0]);
+    // De nieuwe waarde wordt als getal berekend en pas daarna neergezet. Nooit een
+    // tekst met een decimaalpunt in het veld: ontleed() leest die punt als
+    // duizendteken, dus 3.00 zou 300 worden.
+    var uit=null;
+    if(which==='not'){
+      // Het barema rekent zelf, dus in die stand is het invoervak niet in gebruik.
+      // Bij het omschakelen naar een vast bedrag vullen we de baremawaarde voor,
+      // zodat er iets bruikbaars staat om vanaf te vertrekken.
+      // Terug naar het barema: het vaste bedrag laten staan in een uitgeschakeld vak
+      // suggereert dat er nog mee gerekend wordt, en dat is niet zo.
+      uit = m==='eur' ? Math.round(notaryFee(v('price'))) : '';
+    } else if(inp.value.trim()!==''){
+      var base=which==='fee'?v('sale'):v('price');
+      var cur=vak(inp.id)||0;
+      uit = m==='eur' ? Math.round(base*cur/100)
+                      : (base>0 ? Math.round(cur/base*10000)/100 : backTo[which]);
+    }
+    // Eerst de stand, dan neerzetten: toon() kijkt naar de stand om te weten of er
+    // een euroteken bij hoort.
+    applyMode(which,m);
+    if(uit!==null) inp.value = uit==='' ? '' : toon(inp.id,uit);
+    calc();
+  }
+
+  // registratiebelasting en btw, Vlaanderen 2026. parts is een lijst, want bij nieuwbouw
+  // staan er twee heffingen naast elkaar: btw op de bouw en registratiebelasting op de grond.
+  function duty(P){
+    var kind=E('kind').value;
+    if(kind==='new'){
+      var land=landShare(P), build=P-land, vr=vatRate(), parts=[], amt=0;
+      if(build>0){
+        amt+=build*vr;
+        parts.push({lab:pctLab(vr)+' btw op de bouw', amt:build*vr,
+          sub: land>0 ? ('op '+eur.format(build)+' bouwwaarde')
+                      : 'geen grondaandeel ingevuld, de volle prijs is als bouw gerekend'});
+      }
+      if(land>0){
+        if(E('landTax').value==='vat'){
+          amt+=land*vr;
+          parts.push({lab:pctLab(vr)+' btw op de grond', amt:land*vr,
+            sub:'op '+eur.format(land)+' grondwaarde, dezelfde verkoper'});
+        } else {
+          amt+=land*RATES.duty.land;
+          parts.push({lab:pctLab(RATES.duty.land)+' registratiebelasting op de grond', amt:land*RATES.duty.land,
+            sub:'op '+eur.format(land)+' grondwaarde'});
+        }
+      }
+      return {amt:amt, cut:0, alt:amt, atRisk:false, parts:parts};
+    }
+    if(kind==='split'){
+      // Verdeelrecht rekent op de volledige waarde van de woning, niet op de
+      // uitkoopsom: zie payoutBase(). pctLab rondt af op een heel percent en zou
+      // van 2,5% een 3% maken, dus het label komt hier met een eigen komma.
+      var ok=splitOk(), rate=ok?RATES.duty.splitReduced:RATES.duty.split;
+      var rateLab=ok?'1%':'2,5%', tax=P*rate;
+      return {amt:tax, cut:0, alt:tax, atRisk:false,
+        parts:[{lab:rateLab+' verdeelrecht', amt:tax,
+          sub:ok?'verlaagd tarief voor ex-partners, op de volledige woningwaarde'
+                :'standaardtarief: niet aan alle voorwaarden voor het verlaagd tarief voldaan'}]};
+    }
+    if(kind==='own'){
+      var tax=P*RATES.duty.own, cut=0;
+      if(P>0 && P<=modestMax()){ cut=Math.min(RATES.modest.cut,tax); tax-=cut; }
+      // Valt het verlaagde tarief weg, dan geldt het standaardtarief en verdwijnt ook
+      // de korting op de bescheiden woning: die hangt aan het tarief voor de enige
+      // eigen woning. atRisk staat aan zodra er nog een woning te verkopen is, want
+      // dan is de voorwaarde op de datum van de akte niet vervuld.
+      return {amt:tax, cut:cut, alt:P*RATES.duty.other, atRisk:chk('hasHome'),
+        parts:[{lab:pctLab(RATES.duty.own)+' registratiebelasting'+(cut>0?', min de korting':''), amt:tax,
+        sub:cut>0?('korting bescheiden woning van '+eur.format(cut)+' toegepast'):''}]};
+    }
+    var full=P*RATES.duty.other;
+    return {amt:full, cut:0, alt:full, atRisk:false,
+      parts:[{lab:pctLab(RATES.duty.other)+' registratiebelasting', amt:full, sub:''}]};
+  }
+
+  function port(){ return chk('hasOld') && document.querySelector('input[name=oldChoice]:checked').value==='port'; }
+
+  // kan negatief zijn bij onderwaarde; niet afkappen
+  function repaidOld(){ return (chk('hasHome') && chk('hasOld') && !port()) ? v('oldBal') : 0; }
+  function penaltyOld(){ return (chk('hasHome') && chk('hasOld') && !port()) ? v('oldBal')*(v('oldRate')/100)*RATES.prepayment : 0; }
+  // Betaal je het oude krediet af bij de verkoop, dan moet de hypothecaire inschrijving
+  // op die woning doorgehaald worden. Dat is een aparte akte met eigen kosten.
+  function releaseCost(){ return (chk('hasHome') && chk('hasOld') && !port()) ? v('release') : 0; }
+  function netSale(){
+    if(!chk('hasHome')) return 0;
+    var out=v('sale')-agentFee()-v('certs')-repaidOld()-penaltyOld()-releaseCost();
+    if(chk('hasOld') && port()) out-=v('portCost');
+    return out;
+  }
+
+  function contributions(){ return v('b1In') + (chk('two')?v('b2In'):0); }
+  function available(){ return v('b1Have') + (chk('two')?v('b2Have'):0); }
+
+  // Posten die je met eigen geld betaalt en die dus niet meegefinancierd worden.
+  function ownPaidCosts(){ return v('moving')+v('bankFee')+v('valFee'); }
+
+  // Bij uit onverdeeldheid treden betaal je alleen het aandeel van je partner,
+  // de uitkoopsom, en niet de volledige woningwaarde: die waarde blijft wel de
+  // grondslag van het verdeelrecht. Overal elders is er geen mede-eigendom en
+  // is de uitkoopsom gelijk aan de volledige prijs.
+  function payoutBase(P){
+    return E('kind').value==='split' ? P*(v('splitShare')/100) : P;
+  }
+
+  function model(P){
+    if(P<=0) return {P:0,pb:0,d:{amt:0,cut:0,alt:0,atRisk:false,parts:[]},notary:0,disb:0,reno:0,
+                     moving:0,ownPaid:0,bridge:0,mc:0,cd:creditDeed(0),
+                     funds:0,loan:0,surplus:0,purchaseCosts:0,financedCosts:0,allExtras:0,total:0};
+    var d=duty(P), notary=notaryFee(P), disb=v('disb'), reno=v('reno'), moving=v('moving');
+    var ownPaid=ownPaidCosts();
+    var bridge=v('bridgeAmt')*(v('bridgeRate')/100)/12*v('bridgeMonths');
+    var pb=payoutBase(P);
+    var financed=pb+d.amt+notary+disb+reno+bridge;
+    var funds=contributions()+netSale()-ownPaid;
+    var gap=financed-funds, loan=0, surplus=0, cd=creditDeed(0);
+    if(gap>0){
+      // De kosten van de kredietakte hangen af van het kredietbedrag en zitten er zelf
+      // in. Dat was met een vast percentage nog in één stap op te lossen, maar het
+      // ereloon volgt een barema en is dus niet lineair. Het marginale tarief is klein,
+      // ruim onder twee procent, dus deze iteratie convergeert per stap met minstens
+      // die factor: na twintig stappen ligt het ver voorbij de cent.
+      loan=gap;
+      for(var it=0; it<24; it++) loan=gap+creditDeed(loan).total;
+      cd=creditDeed(loan);
+    } else { surplus=-gap; }
+    var mc=cd.total;
+    var purchaseCosts=d.amt+notary+disb+mc+bridge;
+    var financedCosts=purchaseCosts+reno;
+    var allExtras=financedCosts+ownPaid;
+    return {P:P,pb:pb,d:d,notary:notary,disb:disb,reno:reno,moving:moving,ownPaid:ownPaid,
+            bridge:bridge,mc:mc,cd:cd,funds:funds,loan:loan,surplus:surplus,
+            purchaseCosts:purchaseCosts,financedCosts:financedCosts,
+            allExtras:allExtras,total:pb+allExtras};
+  }
+
+  // cap is de ruimte die er per maand is voor de nieuwe lening alleen: het deel van het
+  // inkomen dat je aanhoudt, min de andere kredieten, min een lopend krediet dat je
+  // meeneemt, min de vaste woonkosten. Zo staat deze afleiding op dezelfde basis als
+  // het percentage dat de pagina toont.
+  function maxPrice(cap,r,y){
+    if(cap<=0) return 0;
+    var lo=10000, hi=3000000;
+    if(ann(model(lo).loan,r,y)>cap) return 0;
+    for(var i=0;i<60;i++){
+      var mid=(lo+hi)/2;
+      if(ann(model(mid).loan,r,y)<=cap) lo=mid; else hi=mid;
+    }
+    return lo;
+  }
+
+  // De inbreng staat op zichzelf. "Je hebt", "minstens" en "hoogstens" begrenzen de
+  // schuifbalk en maken de buffer zichtbaar; ze schrijven niet in het invoervak.
+  //
+  // Dat laatste is de hele reden dat deze functie zo voorzichtig is. Ze draait uit
+  // render(), dus bij elke herberekening en ook terwijl iemand in een van die drie
+  // vakjes typt. Wie hier het bedrag bijstelt, wist de inbreng zodra er in "je hebt"
+  // een eerste cijfer staat: op dat moment is "je hebt" letterlijk 1.
+  function clampBuyer(pfx){
+    var have=v(pfx+'Have'), mnF=v(pfx+'Min'), mxF=v(pfx+'Max');
+    var s=E(pfx+'In'), nf=E(pfx+'InN');
+    var cur=vak(nf.id); if(isNaN(cur)) cur=parseFloat(s.value)||0;
+    var mn=Math.max(0,mnF);
+    var hi;
+    if(mxF>0) hi=mxF;
+    else if(have>0) hi=have;
+    else hi=500000;                        // niets ingevuld: ruim bereik
+    if(have>0){ mn=Math.min(mn,have); hi=Math.min(hi,have); }
+    if(hi<mn) hi=mn;
+    // De duim moet het bedrag kunnen aanwijzen dat in het vak staat, ook als dat
+    // buiten de gevraagde grenzen valt. Dezelfde regel die fromNum al volgt: typen
+    // mag altijd, het bereik schuift mee. Anders klemt de duim aan een uiteinde en
+    // liegt hij over wat er in het vak staat.
+    mn=Math.min(mn,cur); hi=Math.max(hi,cur);
+    s.min=String(mn); s.max=String(hi);
+    // De grove stapgrootte van de balk rondt dit af; daarom leest v() het vak en
+    // niet de balk.
+    s.value=String(cur);
+  }
+
+  function render(){
+    E('homeBox').style.display=chk('hasHome')?'block':'none';
+    E('oldBox').style.display=chk('hasOld')?'block':'none';
+    E('b2Box').style.display=chk('two')?'block':'none';
+    E('payoffBox').style.display=(chk('hasOld')&&!port())?'block':'none';
+    E('kernBox').style.display=(E('kind').value==='own')?'block':'none';
+    E('newBox').style.display=isNew()?'block':'none';
+    E('landTaxBox').style.display=isNew()?'block':'none';
+    E('vatBox').style.display=isNew()?'block':'none';
+    E('vat6Box').style.display=(isNew()&&vatPick()==='6')?'block':'none';
+    E('splitBox').style.display=(E('kind').value==='split')?'block':'none';
+    E('portBox').style.display=port()?'grid':'none';
+    E('feeVal').disabled=!chk('agent');
+    clampBuyer('b1'); if(chk('two')) clampBuyer('b2');
+
+    var P=v('price'), term=v('term'), r=v('rate')/100;
+    var inc=v('inc1'), ratio=v('ratio')/100;
+    var m=model(P), pay=ann(m.loan,r,term);
+    var payOld=port()?ann(v('oldBal'),v('oldRate')/100,v('oldYears')):0;
+    var bonusM=(port()&&v('oldYears')>0)?v('bonus')/12:0;
+    var fixed=v('fire')+v('ssv')+v('ovr')/12;
+    var repayGross=pay+payOld, totalOut=repayGross+fixed;
+    // Twee percentages, want ze zeggen iets anders. Het eerste is de aflossing alleen,
+    // het tweede is alles wat er maandelijks aan de woning weggaat. Banken kijken naar
+    // de totale last en naar wat er overblijft, dus de afgeleide maximumprijs staat op
+    // die tweede basis: alleen zo trekken het getoonde percentage en die prijs samen op.
+    var pctRepay=inc>0?repayGross/inc*100:0, pctTotal=inc>0?totalOut/inc*100:0;
+    var cap=Math.max(0,inc*ratio-v('debts')-payOld-fixed);
+    var mx=maxPrice(cap,r,term);
+    var known=available();
+    var buffer=known>0?(known-contributions()):0;
+
+    var empty='<p class="empty">Vul een aankoopprijs in bij vak 1 om te beginnen.</p>';
+
+    // verkoop
+    if(!chk('hasHome')){
+      E('r-sell').innerHTML='<p class="empty">Je verkoopt geen eigen woning. Zet het vinkje in vak 3 als dat wel zo is.</p>';
+    } else {
+      var sh=row('Verkoopprijs', eur.format(v('sale')));
+      if(agentFee()>0) sh+=row('Makelaar','&minus;'+eur.format(agentFee()),
+        mode.fee==='pct'?(v('feeVal').toString().replace('.',',')+'% plus 21% btw'):'vast bedrag plus 21% btw','neg');
+      if(v('certs')>0) sh+=row('Attesten en keuringen','&minus;'+eur.format(v('certs')),'','neg');
+      if(repaidOld()>0){
+        sh+=row('Krediet afgelost','&minus;'+eur.format(repaidOld()),'','neg');
+        if(penaltyOld()>0) sh+=row('Wederbeleggingsvergoeding','&minus;'+eur.format(penaltyOld()),'wettelijk maximaal drie maanden interest','neg');
+        if(releaseCost()>0) sh+=row('Handlichting','&minus;'+eur.format(releaseCost()),'de hypotheek op je oude woning doorhalen','neg');
+      }
+      if(chk('hasOld')&&port()&&v('portCost')>0) sh+=row('Kosten pandwisselakte','&minus;'+eur.format(v('portCost')),'krediet blijft lopen','neg');
+      sh+=row('Houd je over', eur.format(netSale()), netSale()<0?'negatief: je houdt een restschuld over':'','tot');
+      E('r-sell').innerHTML=sh;
+    }
+
+    // aankoop
+    if(P<=0){ E('r-buy').innerHTML=empty; E('r-loan').innerHTML=empty; E('r-month').innerHTML=empty; }
+    else {
+      var isSplit=E('kind').value==='split';
+      var bh=row(isSplit?'Waarde van de woning':'Aankoopprijs', eur.format(P));
+      if(isSplit) bh+=row('Uitkoopsom aan je partner', eur.format(m.pb),
+        v('splitShare').toString().replace('.',',')+'% van de woningwaarde');
+      m.d.parts.forEach(function(pt){ bh+=row(pt.lab, eur.format(pt.amt), pt.sub); });
+      var onLand=isNew()&&landShare(P)>0;
+      bh+=row('Ereloon notaris', eur.format(m.notary),
+        mode.not==='pct'?('wettelijk barema op '+(onLand?'het grondaandeel':'de prijs')+', plus 21% btw'):'vast bedrag dat je zelf invulde');
+      bh+=row('Akte- en opzoekingskosten', eur.format(m.disb));
+      if(m.bridge>0) bh+=row('Rente overbruggingskrediet', eur.format(m.bridge),
+        eur.format(v('bridgeAmt'))+' aan '+v('bridgeRate').toString().replace('.',',')+'% over '+v('bridgeMonths')+' maanden');
+      if(m.mc>0){
+        bh+=row('Kredietakte', eur.format(m.mc),'op een hypotheek van '+eur.format(m.cd.secured)+', kapitaal plus aanhorigheden');
+        bh+=row('waarvan registratierecht', eur.format(m.cd.reg), pctLab(RATES.credit.registration)+' van het gewaarborgde bedrag','sub');
+        bh+=row('waarvan hypotheekrecht', eur.format(m.cd.mort),'0,3% van het gewaarborgde bedrag','sub');
+        bh+=row('waarvan ereloon', eur.format(m.cd.fee),'wettelijk barema, plus 21% btw','sub');
+        bh+=row('waarvan vaste kosten', eur.format(m.cd.fix),'akte, inschrijving, hypotheekstaten','sub');
+      }
+      bh+=row('Kosten van de aankoop', eur.format(m.purchaseCosts), ((m.purchaseCosts/P*100).toFixed(1).replace('.',',')+'% van de prijs'),'tot');
+      if(m.reno>0) bh+=row('Renovatie, meegefinancierd', eur.format(m.reno));
+      // De zelf betaalde posten staan hier apart en niet in de lijn erboven, want ze
+      // gaan van je eigen geld af in plaats van in de lening. Zo trekken de getallen
+      // die je naast elkaar ziet ook echt van elkaar af tot het kredietbedrag.
+      if(m.ownPaid>0){
+        bh+=row('Mee te financieren', eur.format(m.pb+m.financedCosts),
+          (isSplit?'uitkoopsom':'prijs')+' plus de kosten hierboven','tot');
+        if(m.moving>0) bh+=row('Verhuis en inrichting', eur.format(m.moving),'zelf te betalen');
+        if(v('bankFee')>0) bh+=row('Dossierkosten van de bank', eur.format(v('bankFee')),'zelf te betalen');
+        if(v('valFee')>0) bh+=row('Schatting van de woning', eur.format(v('valFee')),'zelf te betalen');
+      }
+      bh+=row('Alles samen', eur.format(m.total),m.ownPaid>0?'te financieren plus zelf te betalen':'','tot');
+      if(m.d.alt>m.d.amt)
+        bh+=row('Als het tarief van '+pctLab(RATES.duty.own)+' wegvalt','+ '+eur.format(m.d.alt-m.d.amt),
+          'dan geldt '+pctLab(RATES.duty.other)+' en verdwijnt ook de korting'+(m.d.atRisk?'; zie de aandachtspunten':''));
+      E('r-buy').innerHTML=bh;
+
+      var lh='';
+      if(chk('hasHome')) lh+=row('Netto uit de verkoop', eur.format(netSale()));
+      lh+=row('Je inbreng uit spaargeld', eur.format(v('b1In')));
+      if(chk('two')) lh+=row('Inbreng tweede koper', eur.format(v('b2In')));
+      if(m.moving>0) lh+=row('Verhuis en inrichting','&minus;'+eur.format(m.moving),'zelf betaald','neg');
+      if(v('bankFee')>0) lh+=row('Dossierkosten van de bank','&minus;'+eur.format(v('bankFee')),'zelf betaald','neg');
+      if(v('valFee')>0) lh+=row('Schatting van de woning','&minus;'+eur.format(v('valFee')),'zelf betaald','neg');
+      lh+=row('Eigen geld samen', eur.format(m.funds),'','tot');
+      // De brug expliciet maken: wat er te financieren is, min het eigen geld, is het
+      // kredietbedrag. Zonder deze twee lijnen trekken de getallen die de gebruiker
+      // naast elkaar ziet niet van elkaar af tot het bedrag eronder.
+      if(m.loan>0){
+        lh+='<div style="height:14px"></div>';
+        lh+=row('Mee te financieren', eur.format(m.pb+m.financedCosts),
+          (isSplit?'uitkoopsom':'prijs')+' plus de kosten die in de lening gaan');
+        lh+=row('Eigen geld dat daarvan afgaat','&minus;'+eur.format(m.funds),'','neg');
+      }
+      lh+='<div class="big"><div class="k">'+(m.loan>0?'Te lenen':'Je hoeft niets te lenen')+'</div><div class="v">'+
+          deco(m.loan>0?eur.format(m.loan):eur.format(m.surplus)+' over')+'</div></div>';
+      if(m.loan>0){
+        lh+=row('Deel van de aankoopprijs',(m.loan/P*100).toFixed(0)+' %','de bank rekent dit op de geschatte waarde, niet op de prijs');
+        lh+=row('Totaal terugbetaald', eur.format(pay*term*12));
+        lh+=row('Waarvan intrest', eur.format(pay*term*12-m.loan));
+      }
+      if(port()&&v('oldYears')>0&&v('bonus')>0)
+        lh+=row('Woonbonus die je houdt', eur.format(v('bonus')*v('oldYears')), eur.format(v('bonus'))+' per jaar, '+v('oldYears')+' jaar');
+      E('r-loan').innerHTML=lh;
+
+      var mh=row('Nieuwe lening', eur.format(pay), term+' jaar aan '+v('rate').toFixed(2).replace('.',',')+'% per jaar');
+      if(payOld>0){
+        mh+=row('Bestaand krediet', eur.format(payOld),'nog '+v('oldYears')+' jaar');
+        mh+=row('Aflossing samen, eerste '+v('oldYears')+' jaar', eur.format(repayGross),'','tot');
+        mh+=row('Aflossing daarna', eur.format(pay),'als het oude krediet afbetaald is');
+      } else {
+        mh+=row('Aflossing samen', eur.format(repayGross),'','tot');
+      }
+      if(fixed>0){
+        mh+='<div style="height:14px"></div>';
+        if(v('fire')>0) mh+=row('Brandverzekering', eur.format(v('fire')));
+        if(v('ssv')>0) mh+=row('Schuldsaldoverzekering', eur.format(v('ssv')));
+        if(v('ovr')>0) mh+=row('Onroerende voorheffing', eur.format(v('ovr')/12), eur.format(v('ovr'))+' per jaar');
+        mh+=row('Gaat er elke maand af', eur.format(totalOut),'','tot');
+      }
+      if(bonusM>0){
+        mh+='<div style="height:14px"></div>';
+        mh+=row('Woonbonus terug','&minus;'+eur.format(bonusM),'gemiddeld per maand, je krijgt dit een keer per jaar via je aangifte');
+        mh+=row('Kost onder de streep', eur.format(totalOut-bonusM),'','tot');
+      }
+      if(inc>0){
+        mh+='<div style="height:14px"></div>';
+        mh+=row('Netto inkomen', eur.format(inc));
+        if(v('debts')>0) mh+=row('Andere kredieten','&minus;'+eur.format(v('debts')),'','neg');
+        mh+=row('Deel van je inkomen, aflossing alleen', pctRepay.toFixed(0)+' %','wat er naar kapitaal en intrest gaat');
+        if(fixed>0) mh+=row('Deel van je inkomen, alle woonkosten', pctTotal.toFixed(0)+' %',
+          'inclusief verzekeringen en onroerende voorheffing; dit is de basis voor de maximumprijs');
+        mh+=row('Blijft over om van te leven', eur.format(inc-totalOut-v('debts')),'na alle woonkosten en kredieten','tot');
+      }
+      E('r-month').innerHTML=mh;
+    }
+
+    // samenvatting
+    E('s-cash').innerHTML=deco(eur.format(m.funds));
+    E('s-cash-sub').textContent = known<=0
+      ? 'vul "je hebt" in voor je buffer'
+      : (buffer>0 ? 'buffer die overblijft: '+eur.format(buffer)
+        : (buffer<0 ? eur.format(-buffer)+' meer ingebracht dan je hebt' : 'geen buffer over'));
+    E('s-loan').innerHTML=deco(P>0?(m.loan>0?eur.format(m.loan):eur.format(0)):eur.format(0));
+    E('s-ltv').textContent=(P>0&&m.loan>0)?((m.loan/P*100).toFixed(0)+'% van de aankoopprijs'):(P>0?eur.format(m.surplus)+' teveel':'vul een prijs in');
+    // De kop-KPI's staan op de totale uitstroom zodra er vaste woonkosten ingevuld zijn,
+    // op dezelfde basis als het percentage en als de afgeleide maximumprijs.
+    E('s-pay').innerHTML=deco(eur.format(fixed>0?totalOut:repayGross));
+    E('s-pay-sub').textContent=(fixed>0?'alles samen, met verzekeringen en voorheffing':'aflossing, zonder verzekeringen')
+      +(payOld>0?', eerste '+v('oldYears')+' jaar':'');
+    E('s-ratio').textContent=inc>0?(pctTotal.toFixed(0)+' %'):'—';
+    E('s-left').textContent=inc>0?(eur.format(inc-totalOut-v('debts'))+' blijft over'):'vul je inkomen in';
+    var rt=E('s-ratio-tile'), pct=pctTotal;
+    rt.className='tile'+(inc<=0?'':(pct>40?' is-alert':pct>33?' is-warn':' is-pos'));
+
+    // hints
+    var nBase=notaryBase(P), onLandHint=isNew()&&landShare(P)>0;
+    // In de baremastand is het vak geen invoer maar een uitkomst: het rekent per schijf
+    // en dan hoort het bedrag dat eruit komt er ook in te staan. Het vak is readonly,
+    // dus hier wordt niets overschreven wat iemand aan het typen is.
+    if(mode.not==='pct') E('notVal').value = nBase>0 ? toon('notVal', Math.round(notaryFee(P))) : '';
+    E('notHint').textContent = mode.not==='pct'
+      ? (nBase>0 ? ('incl. btw, oftewel '+(notaryFee(P)/nBase*100).toFixed(2).replace('.',',')+'% van '
+                    +(onLandHint?'het grondaandeel':'de prijs')+'. Het barema is degressief, dus dat percentage daalt als de prijs stijgt.')
+                 : 'Het wettelijke barema rekent per schijf. Vul een prijs in bij vak 1.')
+      : (nBase>0 ? '= '+(v('notVal')/nBase*100).toFixed(2).replace('.',',')+'% van '+(onLandHint?'het grondaandeel':'de prijs')
+                    +'. Het barema zou '+eur.format(scaleFee(RATES.notaryScale,nBase)*(1+RATES.vatOnFees))+' geven.' : '');
+    if(isNew()){
+      var lSh=landShare(P);
+      E('landHint').textContent = mode.land==='pct'
+        ? (P>0&&lSh>0 ? '= '+eur.format(lSh)+' grond en '+eur.format(P-lSh)+' bouw'
+                      : 'Het deel van de prijs dat op de grond zit. Dat staat apart in de verkoopovereenkomst.')
+        : (P>0&&lSh>0 ? '= '+(lSh/P*100).toFixed(1).replace('.',',')+'% van de prijs'
+                      : 'Het bedrag dat op de grond zit. Dat staat apart in de verkoopovereenkomst.');
+    }
+    if(chk('hasHome')){
+      var sp=v('sale');
+      E('feeHint').textContent = mode.fee==='pct' ? ('= '+eur.format(agentFee())+' incl. btw')
+        : (sp>0 ? '= '+(v('feeVal')/sp*100).toFixed(2).replace('.',',')+'% plus btw' : '');
+    }
+    E('kindHint').textContent = E('kind').value==='own'
+      ? (m.d.cut>0 ? 'korting bescheiden woning van '+eur.format(m.d.cut)+' toegepast'
+        : (P>0 ? 'geen korting: de prijs ligt boven '+eur.format(modestMax())
+               : 'tot '+eur.format(modestMax())+' krijg je '+eur.format(RATES.modest.cut)+' korting'))
+      : E('kind').value==='split'
+      ? (splitOk() ? 'verlaagd tarief van 1% toegepast' : 'standaardtarief van 2,5%: niet aan alle voorwaarden voldaan')
+      : '';
+
+    // aandachtspunten
+    var msg='';
+    function say(c,ic,t){ msg+='<div class="note '+c+'"><span class="ic">'+ic+'</span><span>'+t+'</span></div>'; }
+
+    // Een link bewaart de invoer, niet de uitkomst. Wordt hij geopend nadat de
+    // tarieven zijn nagekeken, dan staan er andere bedragen dan toen hij gemaakt
+    // werd. Dit staat boven de vroege return hieronder, want de waarschuwing
+    // geldt ook als er nog geen prijs is ingevuld.
+    if(linkAsOf && linkAsOf!==RATES.asOf)
+      say('warn','!','<b>Deze link is gemaakt toen de tarieven van '+datumNL(linkAsOf)+' golden.</b> '
+        +'De bedragen hieronder zijn gerekend met de tarieven van '+datumNL(RATES.asOf)
+        +'. Kijk de uitkomst dus opnieuw na.');
+
+    if(P<=0){
+      say('info','?','Vul een aankoopprijs in bij vak 1. Daarna vult de rest zich aan naarmate je meer gegevens ingeeft.');
+      E('r-notes').innerHTML=msg; return;
+    }
+    if(chk('hasHome')&&netSale()<0)
+      say('bad','!','<b>Je huidige woning brengt minder op dan wat er nog op openstaat.</b> Er blijft '+eur.format(netSale())+
+          ' over, dus je neemt een restschuld mee. De kosten om de hypotheek door te halen zitten daar al in.');
+    if(m.funds<m.purchaseCosts)
+      say('bad','!','<b>Je eigen geld dekt de kosten van de aankoop niet.</b> Die bedragen '+eur.format(m.purchaseCosts)+
+          ' en banken lenen ze zelden mee. Je hebt '+eur.format(m.funds)+' beschikbaar, dus je komt '+eur.format(m.purchaseCosts-m.funds)+' tekort.');
+    if(m.loan>0){
+      var ltv=m.loan/P*100;
+      if(ltv>90) say('warn','~','<b>Je leent '+ltv.toFixed(0)+'% van de aankoopprijs.</b> Dat is een hoge quotiteit. De Nationale Bank gebruikt 90% als richtwaarde voor een eigen woning en laat banken daar slechts voor een deel van hun nieuwe kredieten boven gaan, met meer ruimte voor wie voor het eerst koopt. Niet verboden, wel strenger beoordeeld.');
+      else if(ltv>80) say('warn','~','<b>Je leent '+ltv.toFixed(0)+'% van de aankoopprijs.</b> Veel banken rekenen boven 80% een hogere rente aan, maar dat verschilt per bank.');
+      else say('ok','&#10003;','<b>Je leent '+ltv.toFixed(0)+'% van de aankoopprijs.</b> Onder 80% bieden banken doorgaans hun scherpste tarieven.');
+    }
+    if(inc>0&&m.loan>0){
+      // De vuistregel van Wikifin gaat over de maandelijkse afbetaling, en noemt de
+      // verzekeringen en de onroerende voorheffing uitdrukkelijk als kosten die daar
+      // bovenop komen. Dit bericht toetst dus het aflossingspercentage, niet de
+      // totale woonlast: anders staat een getal over alle woonkosten naast een norm
+      // die alleen over de aflossing gaat, en waarschuwt de pagina te vroeg.
+      // Het totaal komt er wel bij, want dat is wat je werkelijk betaalt.
+      var p2=pctRepay, rest=inc-totalOut-v('debts');
+      var erbij=fixed>0 ? (' Met de verzekeringen en de onroerende voorheffing erbij is het '+pctTotal.toFixed(0)+'% van je inkomen.') : '';
+      if(p2>40) say('warn','~','<b>'+p2.toFixed(0)+'% van je netto inkomen gaat naar de aflossing.</b>'+erbij+' Dat is een hoge last. De bank weegt daarbij je beschikbare inkomen, je andere schulden en je gezinssituatie. Een langere looptijd of meer eigen geld verlaagt dit.');
+      else if(p2>33) say('info','?','<b>'+p2.toFixed(0)+'% van je netto inkomen gaat naar de aflossing.</b>'+erbij+' Wikifin houdt ongeveer een derde aan als vuistregel voor de afbetaling zelf; de verzekeringen en de onroerende voorheffing komen daar bovenop. Sommige banken gaan hoger, maar wegen dan zwaarder wat er overblijft.');
+      // Ook zeggen wanneer het meevalt. Zonder deze tak zwijgt de pagina over haar
+      // eigen kerncijfer zodra de aflossing onder de vuistregel blijft, en dat leest
+      // als een ontbrekend antwoord in plaats van als een gunstige uitkomst.
+      else say('ok','&#10003;','<b>'+p2.toFixed(0)+'% van je netto inkomen gaat naar de aflossing.</b>'+erbij+' Daarmee blijf je onder de vuistregel van ongeveer een derde, die Wikifin voor de afbetaling zelf aanhoudt. Een bank weegt daarnaast wat er overblijft om van te leven.');
+      if(v('debts')>0) say('info','?','<b>De vuistregel geldt voor al je kredieten samen.</b> Je andere kredieten van '+eur.format(v('debts'))+' per maand staan hier niet in dat percentage, maar een bank telt ze mee: samen met de aflossing kom je op '+((repayGross+v('debts'))/inc*100).toFixed(0)+'% van je inkomen. De maximale aankoopprijs hieronder houdt er wel rekening mee.');
+      if(rest<1300) say('warn','~','<b>Er blijft '+eur.format(rest)+' per maand over.</b> Banken toetsen dat bedrag apart. De grens van &euro; 1.300 is een vuistregel, geen bankregel.');
+      // Deze grens legt het aangehouden deel van het inkomen op de volledige woonlast,
+      // terwijl het bericht hierboven de vuistregel tegen de aflossing alleen legt.
+      // Twee bases, dus de twee berichten kunnen elkaar lijken tegen te spreken: eerst
+      // "je blijft onder de vuistregel", dan een maximumprijs onder de prijs die er
+      // staat. Dat verschil hoort er expliciet bij, anders leest het als een fout.
+      var mxNote='';
+      if(mx>0&&P>0){
+        if(mx<P-500)
+          mxNote=' Dat ligt '+eur.format(P-mx)+' onder de prijs die je invulde'+
+                 (p2<=33?', ook al blijft de aflossing hierboven onder de vuistregel: die toetst de afbetaling alleen, deze grens toetst alles samen.':'.');
+        else
+          mxNote=' De prijs die je invulde blijft daaronder.';
+      }
+      say('info','?','Op basis van alleen deze inkomensregel kom je uit op een aankoopprijs van ongeveer <b>'+eur.format(mx)+
+          '</b>. Die grens staat op alles wat er maandelijks weggaat'+(fixed>0?', dus met de verzekeringen en de onroerende voorheffing erbij':'')+
+          (v('debts')>0?', en op je andere kredieten':'')+
+          '.'+mxNote+' Dat is geen kredietbelofte: een bank weegt ook de schatting, je andere schulden en je gezinssituatie.');
+    }
+    // Sinds clampBuyer de inbreng niet meer bijstelt, kan er meer ingebracht worden
+    // dan er is. Die tegenspraak hoort hardop gezegd te worden en niet stil
+    // weggerekend, en ze is iets anders dan een buffer die krap is.
+    if(known>0&&contributions()>known)
+      say('bad','!','<b>Je brengt '+eur.format(contributions())+' in, maar bij "je hebt" staat '+eur.format(known)+'.</b> Er komt '+eur.format(contributions()-known)+' te kort. Pas de inbreng aan, of vul bij "je hebt" in wat er werkelijk staat.');
+    else if(known>0&&buffer<10000&&contributions()>0)
+      say('warn','~','<b>Je houdt '+eur.format(buffer)+' achter de hand.</b> Elke tienduizend euro die je niet inbrengt kost ruw vijftig euro per maand extra aan lening, en dat is goedkope verzekering tegen onverwachte kosten in het eerste jaar.');
+    if(port()&&v('oldYears')>0&&v('bonus')>0){
+      var gain=v('bonus')*v('oldYears')-v('portCost');
+      say('info','?','<b>De pandwissel levert netto ongeveer '+eur.format(gain)+' op</b> aan woonbonus min de aktekosten. Maar je betaalt '+eur.format(payOld)+
+          ' per maand extra zolang dat krediet loopt, en de bank telt dat mee bij je leenruimte. Vraag wat ze lenen met en zonder dat krediet.');
+    }
+    if(E('kind').value==='own'){
+      var extra=m.d.alt-m.d.amt;
+      if(m.d.atRisk)
+        say('bad','!','<b>Je koopt terwijl je nog een woning bezit, en daar loopt het verlaagde tarief op vast.</b> Voor '+pctLab(RATES.duty.own)+' mag je op de datum van de akte geen andere woning of bouwgrond bezitten. Je kan het tarief wel aanvragen via de vrijstelling onder voorwaarde van verkoop, en dan heb je '
+            +RATES.saleDeadlineYears+' jaar om je oude woning kwijt te raken. Lukt dat niet, dan geldt het standaardtarief van '+pctLab(RATES.duty.other)+' en betaal je '+eur.format(extra)
+            +' meer registratiebelasting. Dat is meer dan alle andere kostenposten van deze aankoop samen. Zorg dat je verkoop rond is, of dat je die '+eur.format(extra)+' achter de hand hebt.');
+      say('info','?','<b>Het tarief van '+pctLab(RATES.duty.own)+' is voorwaardelijk, niet vanzelfsprekend.</b> Je moet als natuurlijke persoon de volle eigendom verwerven, je binnen drie jaar na de akte op dat adres domicilieren en er sinds 1 januari 2026 minstens één jaar ononderbroken ingeschreven blijven. Bij meerdere kopers geldt dat voor elke koper afzonderlijk, en een gesplitste aankoop van vruchtgebruik en blote eigendom komt niet in aanmerking. Valt het tarief weg, dan kost deze aankoop '
+          +eur.format(extra)+' meer.');
+    }
+    if(E('kind').value==='other')
+      say('info','?','<b>Aan '+pctLab(RATES.duty.other)+' betaal je '+eur.format(P*(RATES.duty.other-RATES.duty.own))+' meer</b> dan aan het verlaagde tarief van '+pctLab(RATES.duty.own)+'. Ga je er zelf wonen en wordt dit je enige woning, kijk dan na of je aan de voorwaarden voldoet.');
+    if(isNew()){
+      var Ln=landShare(P), Bn=P-Ln, vr=vatRate(), miss=vat6Missing(),
+          landVat=E('landTax').value==='vat', vatBase=Bn+(landVat?Ln:0);
+      if(Ln<=0)
+        say('warn','~','<b>Er staat geen grondaandeel ingevuld.</b> Daarom rekent deze pagina '+pctLab(vr)+
+            ' btw op de volle prijs. Zit er grond in die prijs, dan is dat te veel gerekend: op de grond geldt doorgaans 12% registratiebelasting. Vul het grondaandeel in bij vak 1, het staat apart in de verkoopovereenkomst.');
+      else if(landVat)
+        say('info','?','<b>De prijs is gesplitst in '+eur.format(Ln)+' grond en '+eur.format(Bn)+' bouw.</b> Beide vallen hier onder '+
+            pctLab(vr)+' btw, omdat dezelfde verkoper grond en gebouw samen verkoopt. Klopt dat niet, zet de grond dan op registratiebelasting.');
+      else
+        say('info','?','<b>De prijs is gesplitst in '+eur.format(Ln)+' grond en '+eur.format(Bn)+' bouw.</b> Op de grond rekent deze pagina 12% registratiebelasting, op de bouw '+
+            pctLab(vr)+' btw.'+(vr>0.12?(' Dat is '+eur.format(Ln*(vr-0.12))+' minder dan '+pctLab(vr)+' btw op het volledige bedrag.'):''));
+      if(vatPick()==='6'&&miss.length>0)
+        say('bad','!','<b>Je koos het tarief van 6%, maar niet alle voorwaarden staan aan.</b> Er ontbreekt nog: '+miss.join(', ')+
+            '. Zolang dat zo is rekent deze pagina met 21%.');
+      else if(vr===0.06)
+        say('ok','&#10003;','<b>Aan 6% betaal je '+eur.format(vatBase*0.15)+' minder btw</b> dan aan 21%. Laat je notaris en je aannemer schriftelijk bevestigen dat je aan alle voorwaarden voldoet: blijkt er achteraf iets niet te kloppen, dan wordt het verschil bij jou teruggevorderd.');
+      say('info','?','<b>Vul bij nieuwbouw de prijs exclusief btw in.</b> De notariskosten staan hier op het grondaandeel, want alleen de grond gaat via een notari&euml;le akte. Het gebouw zit in een aannemingsovereenkomst, waar geen ereloon van de notaris op staat.');
+    }
+    if(E('kind').value==='own'&&m.d.cut===0&&P>modestMax()&&P<=modestMax()+40000)
+      say('info','?','<b>Net boven de grens.</b> Tot '+eur.format(modestMax())+' krijg je '+eur.format(RATES.modest.cut)+' korting op de registratiebelasting. Je zit daar '+eur.format(P-modestMax())+' boven.');
+    // Wie het vinkje niet aanzet omdat hij de lijst niet kent, verliest hier de
+    // korting zonder te weten dat ze bestaat. Daarom staat de tweede drempel er
+    // met naam en al zolang de prijs ertussen valt.
+    if(E('kind').value==='own'&&!chk('kern')&&P>RATES.modest.max&&P<=RATES.modest.maxKern)
+      say('info','?','<b>In een kernstad of de Vlaamse Rand ligt de grens op '+eur.format(RATES.modest.maxKern)+'.</b> Deze prijs valt daaronder, maar boven de '+eur.format(RATES.modest.max)+' die daarbuiten geldt. Ligt de woning in een van die gemeenten, zet dan het vinkje bij vak 1 aan: dat scheelt '+eur.format(RATES.modest.cut)+' registratiebelasting.');
+    if(term>22&&m.loan>0){
+      var p20=ann(m.loan,r,20), i20=p20*240-m.loan, iNow=pay*term*12-m.loan;
+      say('info','?','<b>Op 20 jaar zou je '+eur.format(iNow-i20)+' minder intrest betalen</b> dan op '+term+' jaar. De maandlast is dan '+eur.format(p20)+
+          ' in plaats van '+eur.format(pay)+'. Vraag je bank altijd beide tarieven. Vrijwillig sneller aflossen kan later wel, maar de bank mag daarvoor tot drie maanden interest aanrekenen.');
+    }
+    if(v('bridgeAmt')>0&&v('bridgeMonths')>0)
+      say('info','?','<b>Het overbruggingskrediet kost '+eur.format(m.bridge)+'</b> aan rente over '+v('bridgeMonths')+
+          ' maanden. Duurt de verkoop langer, dan loopt dat door: elke extra maand kost '+eur.format(v('bridgeAmt')*(v('bridgeRate')/100)/12)+'.');
+    if(v('reno')===0)
+      say('info','?','Er staat niets bij renovatie. Vraag het EPC op: bij label E of F moet je binnen vijf jaar na de akte naar minstens label D. Vraag ook het keuringsverslag van de elektriciteit.');
+    if(inc<=0)
+      say('info','?','Vul je netto inkomen in bij vak 7 om te zien of de maandlast haalbaar is.');
+
+    E('r-notes').innerHTML=msg;
+  }
+
+  // Afdruk en pdf. Papier krijgt een eigen documentweergave, #printdoc, zodat de opmaak van
+  // het scherm er niet in de weg zit: geen schuifbalken, geen lege invoervakken, geen twee
+  // kolommen die halverwege een bladzijde afbreken. De bedragen komen uit dezelfde berekening.
+  // De blokken rechts worden overgenomen zoals ze op het scherm staan; daarboven komt een blok
+  // met de uitgangspunten, want de invulvakken zelf staan niet op papier.
+  function num(x){ return String(x).replace('.',','); }
+  function selTxt(i){ var e=E(i); return e.options[e.selectedIndex].text; }
+  function pdSec(t,h){ return h ? '<section class="pd-sec"><h2>'+t+'</h2>'+h+'</section>' : ''; }
+  function kpi(l,val,sub){
+    return '<div><span class="l">'+l+'</span><span class="v">'+val+'</span><span class="s">'+sub+'</span></div>';
+  }
+
+  function pdBasis(P){
+    var out=row(E('kind').value==='split'?'Waarde van de woning':'Aankoopprijs',
+      eur.format(P)+(isNew()?', exclusief btw':''));
+    out+=row('Situatie', selTxt('kind'));
+    if(E('kind').value==='own'){
+      out+=row('Verlaagd tarief', 'voorwaardelijk',
+        'domicilie binnen drie jaar en minstens een jaar ononderbroken ingeschreven'
+        +(chk('hasHome')?'; er is nog een woning te verkopen, dus ook de vrijstelling onder voorwaarde van verkoop':''));
+      out+=row('Ligging', chk('kern') ? 'in een kernstad of de Vlaamse Rand' : 'buiten de kernsteden en de Vlaamse Rand',
+        'de bescheiden woning gaat hier tot '+eur.format(modestMax()));
+    }
+    if(isNew()){
+      var L=landShare(P);
+      out+=row('Grondaandeel', L>0 ? (eur.format(L)+' grond, '+eur.format(P-L)+' bouw')
+                                   : 'niet ingevuld, de volle prijs is als bouw gerekend');
+      if(L>0) out+=row('Belasting op de grond', selTxt('landTax'));
+      out+=row('Btw op de bouw', pctLab(vatRate())
+        +(vatPick()==='6'&&vat6Missing().length>0 ? ', want niet alle voorwaarden voor 6% staan aan' : ''));
+    }
+    if(E('kind').value==='split'){
+      out+=row('Aandeel dat je overneemt', num(v('splitShare'))+'%');
+      out+=row('Uitkoopsom aan je partner', eur.format(payoutBase(P)));
+      out+=row('Verdeelrecht', splitOk() ? '1%, verlaagd tarief voor ex-partners'
+        : '2,5%, standaardtarief: niet alle voorwaarden voor 1% staan aan');
+    }
+    out+=row('Ereloon notaris', mode.not==='pct'
+      ? 'wettelijk barema op '+(isNew()&&landShare(P)>0?'het grondaandeel':'de prijs')+', plus 21% btw'
+      : eur.format(v('notVal'))+', vast bedrag dat je zelf invulde');
+    out+=row('Akte- en opzoekingskosten', eur.format(v('disb')));
+    if(v('reno')>0) out+=row('Renovatie, meegefinancierd', eur.format(v('reno')));
+    if(v('moving')>0) out+=row('Verhuis en inrichting, zelf betaald', eur.format(v('moving')));
+    if(v('bankFee')>0) out+=row('Dossierkosten van de bank, zelf betaald', eur.format(v('bankFee')));
+    if(v('valFee')>0) out+=row('Schatting van de woning, zelf betaald', eur.format(v('valFee')));
+    if(chk('hasHome')){
+      out+=row('Verkoopprijs huidige woning', eur.format(v('sale')));
+      if(chk('agent')) out+=row('Makelaar', mode.fee==='pct' ? num(v('feeVal'))+'% plus 21% btw'
+                                                             : eur.format(v('feeVal'))+' plus 21% btw');
+    } else {
+      out+=row('Huidige woning', 'geen verkoop mee gerekend');
+    }
+    if(chk('hasOld')) out+=row('Lopend krediet',
+      eur.format(v('oldBal'))+' aan '+num(v('oldRate'))+'%, nog '+v('oldYears')+' jaar',
+      port()?'meegenomen via pandwissel':'afbetaald bij de verkoop, met handlichting van '+eur.format(v('release')));
+    out+=row('Inbreng uit spaargeld', eur.format(v('b1In'))
+      +(chk('two')?', plus '+eur.format(v('b2In'))+' van de tweede koper':''));
+    if(available()>0) out+=row('Spaargeld dat je hebt', eur.format(available()));
+    out+=row('Lening', v('term')+' jaar aan '+v('rate').toFixed(2).replace('.',',')+'% per jaar');
+    out+=row('Kosten kredietakte', eur.format(v('mortFix'))+' vast',
+      'plus '+pctLab(RATES.credit.registration)
+      +' registratierecht en 0,3% hypotheekrecht op het kapitaal verhoogd met '+num(v('acc'))
+      +'% aanhorigheden, plus het ereloon volgens barema');
+    if(v('bridgeAmt')>0&&v('bridgeMonths')>0)
+      out+=row('Overbruggingskrediet', eur.format(v('bridgeAmt'))+' aan '+num(v('bridgeRate'))
+        +'% over '+v('bridgeMonths')+' maanden');
+    if(v('inc1')>0){
+      out+=row('Netto inkomen per maand', eur.format(v('inc1')));
+      if(v('debts')>0) out+=row('Andere maandelijkse kredieten', eur.format(v('debts')));
+      out+=row('Grens die je aanhoudt', v('ratio')+'% van het inkomen',
+        'op alles wat er maandelijks aan de woning weggaat');
+    }
+    return out;
+  }
+
+  function buildPrint(){
+    var P=v('price');
+    E('pd-date').textContent=new Intl.DateTimeFormat('nl-BE',
+      {day:'numeric',month:'long',year:'numeric'}).format(new Date());
+
+    var h='<div class="pd-title"><h1>Wat kost dit huis?</h1><p>'
+      +(P>0 ? deco(selTxt('kind').replace(/\s*\([^)]*\)\s*$/,'')+' van '+eur.format(P))
+            : 'Er is nog geen aankoopprijs ingevuld, dus er valt nog niets te rekenen.')
+      +'</p></div>';
+
+    if(P>0){
+      h+='<div class="pd-kpi">'
+        +kpi('Eigen geld', E('s-cash').innerHTML, E('s-cash-sub').textContent)
+        +kpi('Te lenen', E('s-loan').innerHTML, E('s-ltv').textContent)
+        +kpi('Per maand', E('s-pay').innerHTML, E('s-pay-sub').textContent)
+        +kpi('Van je inkomen', E('s-ratio').textContent, E('s-left').textContent)
+        +'</div>';
+      h+=pdSec('Uitgangspunten', pdBasis(P));
+      if(chk('hasHome')) h+=pdSec('Wat de verkoop opbrengt', E('r-sell').innerHTML);
+      h+=pdSec('Wat de woning kost', E('r-buy').innerHTML);
+      h+=pdSec('De lening', E('r-loan').innerHTML);
+      h+=pdSec('Wat je elke maand betaalt', E('r-month').innerHTML);
+    }
+    h+=pdSec('Aandachtspunten', E('r-notes').innerHTML);
+    E('pd-body').innerHTML=h;
+    // De weg terug van papier naar de invoer. Zonder aankoopprijs valt er niets
+    // terug te halen, dus dan staat het blok er niet.
+    E('pd-back').style.display = P>0 ? '' : 'none';
+    if(P>0){
+      var terug=printBasis()+linkFragment();
+      E('pd-link').setAttribute('href',terug);
+      E('pd-qr').innerHTML=qrSvg(terug);
+    }
+    // Op papier hebben de vraagtekens geen betekenis en het blad is bewust kort. Dit
+    // staat hier en niet bij elk kopieerpunt, want pdBasis() bouwt zelf ook regels met
+    // row() en zou anders overgeslagen worden.
+    Array.prototype.forEach.call(E('pd-body').querySelectorAll('button.q, .uitlegblok'),
+      function(n){ n.parentNode.removeChild(n); });
+  }
+
+  function calc(){ render(); buildPrint(); }
+
+  // Gedelegeerd, want render() bouwt de resultaatregels bij elke toetsaanslag
+  // opnieuw op: een luisteraar op de knop zelf zou telkens verdwijnen. De stand
+  // staat in openUitleg, dus de opgebouwde html is een zuivere functie van die
+  // stand en een open blokje blijft open terwijl je verder typt.
+  document.addEventListener('click',function(ev){
+    var knop=ev.target && ev.target.closest ? ev.target.closest('button.q') : null;
+    if(!knop) return;
+    var sl=sleutelVan(knop);
+    openUitleg[sl]=!openUitleg[sl];
+    calc();
+    vasteUitleg();
+    // de knop is misschien net opnieuw opgebouwd; de verse krijgt de focus terug
+    var vers=document.querySelector('button.q[data-k="'+sl.replace(/"/g,'\\"')+'"]');
+    if(vers) vers.focus();
+  });
+
+  // De vaste velden in de vakken hebben geen render(), dus hun blokje wordt hier
+  // bijgewerkt. Het staat na de veldcontainer, zodat het de opmaak van het vak niet
+  // openbreekt.
+  function vasteUitleg(){
+    Array.prototype.forEach.call(document.querySelectorAll('button.q'),function(knop){
+      if(knop.closest('.res')) return;                 // die komen uit row()
+      var t=knop.getAttribute('data-t'), aan=!!openUitleg[sleutelVan(knop)];
+      knop.setAttribute('aria-expanded', aan?'true':'false');
+      var houder=knop.closest('.field, .trio > div, .pair > div, .card > p, h3, li') || knop.parentElement;
+      // Het blokje draagt het begrip waar het bij hoort. Zonder dat vechten twee
+      // knoppen in dezelfde container over dezelfde plek en gooit de een het blokje
+      // van de ander weg.
+      var blok=null, zus=houder.nextElementSibling;
+      while(zus && zus.classList && zus.classList.contains('uitlegblok')){
+        if(zus.getAttribute('data-t')===t){ blok=zus; break; }
+        zus=zus.nextElementSibling;
+      }
+      if(aan){
+        if(!blok){
+          blok=document.createElement('div');
+          blok.className='uitlegblok';
+          blok.setAttribute('data-t',t);
+          // achter de blokjes die er al staan, zodat de volgorde van de knoppen klopt
+          var na=houder;
+          while(na.nextElementSibling && na.nextElementSibling.classList
+                && na.nextElementSibling.classList.contains('uitlegblok')) na=na.nextElementSibling;
+          houder.parentNode.insertBefore(blok, na.nextSibling);
+        }
+        var u=UITLEG[t];
+        blok.innerHTML='<p>'+u.tekst+'</p><p class="bron">Bron: <a href="'+u.url
+          +'" target="_blank" rel="noreferrer">'+u.wie+'</a>, nagekeken op '
+          +datumNL(RATES.asOf)+'.</p>';
+      } else if(blok){
+        blok.parentNode.removeChild(blok);
+      }
+    });
+  }
+
+  // De opgemaakte vakjes: opnieuw opmaken terwijl er getypt wordt, en de
+  // pijltjes-stap die met type="number" wegviel. Dit hangt vóór de luisteraars die
+  // rekenen, zodat calc() een vak leest dat al in zijn eindvorm staat.
+  function koppelOpmaak(){
+    Array.prototype.forEach.call(document.querySelectorAll('input.amt'),function(el){
+      // De pijltjes-stap hangt aan élk vak, ook aan de kale aantallen: die hadden hem
+      // als number-veld ook, en zonder dit zouden looptijd, jaren en maanden hem
+      // stilzwijgend verliezen.
+      el.addEventListener('keydown',function(ev){
+        if(ev.key==='Backspace'||ev.key==='Delete'){
+          if(wisOverScheiding(el,ev)){ herschrijf(el); calc(); }
+          return;
+        }
+        if(ev.key==='ArrowUp'||ev.key==='ArrowDown'){
+          ev.preventDefault();
+          // Een readonly vak draagt een uitkomst en hoort niet met een toets te
+          // verschuiven. render() zet de waarde toch weer terug, dus dit is een gordel
+          // naast de bretellen en geen toets kan het onderscheiden; het staat er omdat
+          // een readonly vak schrijven verkeerd is, niet omdat het hier kwaad kan.
+          if(el.readOnly) return;
+          stapMet(el, ev.key==='ArrowUp' ? 1 : -1);
+          var basis=paarBasis(el.id);
+          if(basis) fromNum(basis,el.id);        // de duim volgt het vak
+          calc();
+          return;
+        }
+      });
+      // Opmaken alleen waar er opmaak is; herschrijf() en maakOp() slaan een kaal
+      // veld zelf ook over, maar dan hangt er tenminste geen luisteraar voor niets.
+      if(!soortVan(el.id)) return;
+      el.addEventListener('input',function(){ herschrijf(el); });
+      // De velden met een beginwaarde in de html staan er nog kaal in.
+      maakOp(el);
+    });
+  }
+  // Opmaken zonder cursorwerk. Bij het laden staat er niemand in het veld, en de
+  // cursorlogica van herschrijf() heeft daar niets te zoeken.
+  function maakOp(el){
+    if(!soortVan(el.id)) return;
+    var n=vak(el.id);
+    if(!isNaN(n)) el.value=toon(el.id,n);
+  }
+
+  // de basis-id van een gekoppeld paar, gezocht op het invoervak
+  function paarBasis(id){
+    for(var k in pairOf) if(pairOf[k]===id) return k;
+    return null;
+  }
+
+  // --- Bewaarbare en deelbare link ------------------------------------------
+  //
+  // De invoer gaat in de fragmentidentificator, achter een #, en niet in een query
+  // achter een ?. Wat achter een ? staat gaat mee in het verzoek en komt in het
+  // logboek van de hostingpartij terecht, en inc1 is iemands netto maandinkomen.
+  // Een fragment blijft in de browser: het gaat niet mee in het verzoek en niet in
+  // de Referer.
+  //
+  // De vorm is leesbaar, #v1&price=450000&term=30, en geen base64 van json: dat is
+  // even lang en het verbergt voor de bezoeker wat er in zijn eigen link zit.
+  // Alleen wat afwijkt van de beginwaarde gaat mee, dus een gewone link blijft
+  // kort. De v1 vooraan houdt de weg open om de vorm te wijzigen zonder oude links
+  // stil verkeerd te lezen.
+  var LINK_VERSIE='v1';
+  // Waar de gepubliceerde pagina staat. Een link op papier of in een code moet naar
+  // buiten wijzen en niet naar deze kopie: opent iemand dit bestand van zijn schijf,
+  // dan zou location.href een file:-pad geven en is de code op papier waardeloos.
+  // Gevolg: een blad uit een gewijzigde kopie leidt naar de gepubliceerde versie. De
+  // datum van de tarieven gaat mee in de link, dus die meldt dat verschil zelf.
+  var CANON='https://virgil-bulens.github.io/wat-kost-dit-huis/';
+  // Chromium schrijft geen aanklikbare link in een pdf als het adres alleen in het
+  // fragment verschilt van de pagina die je afdrukt: dat leest hij als een sprong
+  // binnen hetzelfde document, en een sprong naar een fragment bestaat in een pdf
+  // niet. Druk je dus af vanaf de gepubliceerde pagina zelf, dan valt de link stil
+  // weg en houdt het blad alleen de code over. Daarom draagt het blad de andere
+  // schrijfwijze van hetzelfde adres: die twee zijn voor de browser twee documenten
+  // en voor de bezoeker dezelfde pagina.
+  function printBasis(){
+    return location.href.split('#')[0]===CANON ? CANON+'index.html' : CANON;
+  }
+  // De sleutel is de id van het veld. Bij een gekoppeld paar is dat de basis-id,
+  // want de waarde komt uit het invoervak: dat is de bron van waarheid (zie pairOf).
+  var linkNum=['price','sale','b1In','b2In','term','rate','ratio','splitShare',
+               'landVal','notVal','disb','reno','moving','feeVal','certs',
+               'oldBal','oldRate','oldYears','portCost','bonus','release',
+               'b1Have','b1Min','b1Max','b2Have','b2Min','b2Max',
+               'mortFix','acc','bankFee','valFee',
+               'bridgeAmt','bridgeRate','bridgeMonths',
+               'inc1','debts','ovr','fire','ssv'];
+  var linkChk=['v6demo','v6only','v6area','v6five','kern','hasHome','agent','hasOld','two',
+               'spExPartner','spDuur'];
+  var linkSel=['kind','landTax'];
+  var linkRadio=['vatRate','oldChoice'];
+  var linkStand={mNot:'not', mFee:'fee', mLand:'land'};
+  var MAX_FRAGMENT=4000, MAX_WAARDE=20;
+  // Vier vakken krijgen hun beginwaarde uit de schuifbalk in plaats van uit een value
+  // in de html; de bedragen blijven leeg, zodat er nergens een nul staat die de
+  // gebruiker moet wegvegen. Eén lijst, want de aanzet onderaan en de beginwaarden van
+  // de link moeten over dezelfde velden hetzelfde zeggen.
+  var UIT_BALK={termN:'term', rateN:'rate', ratioN:'ratio', splitShareN:'splitShare'};
+
+  // het invoervak van een gekoppeld paar, of het veld zelf
+  function linkVeld(k){ return E(pairOf[k]||k); }
+  // Wat er van een veld in een link gaat: een kaal getal, nooit de opgemaakte tekst.
+  // Anders zou er "€ 600.000" in de url staan en dat leest geen mens en geen machine.
+  function linkWaarde(k){
+    var el=linkVeld(k), n=vak(el.id);
+    return el.value.trim()==='' || isNaN(n) ? '' : String(n);
+  }
+  function radioWaarde(naam){
+    var r=document.querySelector('input[name='+naam+']:checked');
+    return r?r.value:'';
+  }
+
+  // De beginwaarden komen uit wat de html verklaart en niet uit wat er in de vakken
+  // staat op het moment dat dit script begint. Dat verschil is niet theoretisch. Een
+  // browser die formulierwaarden onthoudt, zet ze bij het herladen terug voordat dit
+  // script draait. Wie de live waarden als beginwaarde opneemt, neemt dan de
+  // herstelde bedragen op, en alles wat daaraan gelijk is valt uit de link. Zo droeg
+  // een afgedrukt blad een code zonder aankoopprijs: de prijs was hersteld en dus
+  // gelijk aan de beginwaarde, en alleen het vinkje dat daarna aanging kwam er nog in.
+  //
+  // defaultValue en defaultChecked lezen het attribuut uit de html, niet de stand van
+  // het vak. Daardoor staat nog steeds geen enkele beginwaarde hier uitgeschreven: een
+  // nieuw veld met een value in de html komt er vanzelf goed uit.
+  var start=null;
+  function beginWaarde(k){
+    var el=linkVeld(k);
+    // Een attribuut op de balk is altijd een kaal getal, dus dat gaat door parseFloat
+    // en niet door de ontleder van de Belgische vorm: '3.75' is daar 3,75 en niet 375.
+    if(UIT_BALK[el.id]) return String(parseFloat(E(UIT_BALK[el.id]).defaultValue)||0);
+    var ruw=el.defaultValue, n=ontleed(ruw, soortVan(el.id));
+    return ruw.trim()==='' || isNaN(n) ? '' : String(n);
+  }
+  function beginRadio(naam){
+    var uit='';
+    Array.prototype.forEach.call(document.querySelectorAll('input[name='+naam+']'),function(r){
+      if(r.defaultChecked) uit=r.value;
+    });
+    return uit;
+  }
+  function beginKeuze(id){
+    var el=E(id), uit=el.options.length?el.options[0].value:'';
+    Array.prototype.forEach.call(el.options,function(o){ if(o.defaultSelected) uit=o.value; });
+    return uit;
+  }
+  function neemBeginwaarden(){
+    start={num:{}, chk:{}, sel:{}, radio:{}};
+    linkNum.forEach(function(k){ start.num[k]=beginWaarde(k); });
+    linkChk.forEach(function(k){ start.chk[k]=E(k).defaultChecked; });
+    linkSel.forEach(function(k){ start.sel[k]=beginKeuze(k); });
+    linkRadio.forEach(function(k){ start.radio[k]=beginRadio(k); });
+  }
+
+  // '1.30' en '1.3' zijn hetzelfde bedrag, maar leeg is niet hetzelfde als nul:
+  // een leeg vak toont zijn placeholder en dat verschil hoort de link te bewaren.
+  function zelfdeWaarde(a,b){
+    if(a===b) return true;
+    if(a===''||b==='') return false;
+    var x=parseFloat(a), y=parseFloat(b);
+    return !isNaN(x) && !isNaN(y) && x===y;
+  }
+
+  function linkFragment(){
+    var d=[];
+    function zet(k,w){ d.push(k+'='+encodeURIComponent(w)); }
+    linkNum.forEach(function(k){
+      // In de baremastand is het ereloon een uitkomst en geen invoer. Zonder deze
+      // uitzondering draagt elke link een bedrag dat niemand heeft ingevuld.
+      if(k==='notVal' && mode.not!=='eur') return;
+      var w=linkWaarde(k);
+      if(!zelfdeWaarde(w,start.num[k])) zet(k,w);
+    });
+    linkChk.forEach(function(k){
+      if(E(k).checked!==start.chk[k]) zet(k,E(k).checked?'1':'0');
+    });
+    linkSel.forEach(function(k){ if(E(k).value!==start.sel[k]) zet(k,E(k).value); });
+    linkRadio.forEach(function(k){
+      var w=radioWaarde(k); if(w!==start.radio[k]) zet(k,w);
+    });
+    Object.keys(linkStand).forEach(function(k){
+      if(mode[linkStand[k]]!=='pct') zet(k,mode[linkStand[k]]);
+    });
+    // De tarievendatum gaat altijd mee, ook in een verder lege link: ze is het
+    // enige waaraan een link van vorig jaar zich later nog kan melden.
+    zet('asOf',RATES.asOf);
+    return '#'+LINK_VERSIE+(d.length?'&'+d.join('&'):'');
+  }
+  // De knop houdt de pagina waar ze staat; het papier wijst naar de gepubliceerde
+  // pagina. Eén bron voor het fragment, dus de code op papier en de knop coderen
+  // altijd dezelfde invoer.
+  function invoerNaarLink(){ return location.href.split('#')[0]+linkFragment(); }
+
+  // ---------------------------------------------------------------------------
+  // De code op de afdruk. Zelf gecodeerd, want een bibliotheek erbij halen zou de
+  // belofte breken dat dit één bestand zonder afhankelijkheden is. Eén vaste vorm:
+  // versie 20, correctieniveau L, bytemodus, masker 0. Vast en niet passend gekozen,
+  // want elke extra versie vraagt haar eigen blokindeling en haar eigen plaatsen voor
+  // de uitlijnvierkanten. Versie 20 draagt 858 tekens; de langste link die deze
+  // pagina kan maken is er ruim 700, dus dit past altijd.
+  //
+  // De getallen hieronder komen uit ISO/IEC 18004 en zijn nagelegd tegen de tabellen
+  // van het npm-pakket qrcode. Een toets in de suite codeert
+  // dezelfde tekst met dat pakket en vergelijkt module voor module, en een tweede
+  // toets leest de gedrukte code met een onafhankelijke lezer terug.
+  var QR_V=20, QR_MAAT=17+4*QR_V, QR_EC=28, QR_REST=3,
+      QR_UITLIJN=[6,34,62,90],
+      QR_BLOK=[107,107,107,108,108,108,108,108],
+      QR_DATA=861, QR_MAX=858, QR_MASKER=0, QR_RAND=4;
+
+  // GF(256) met de primitieve veelterm x^8+x^4+x^3+x^2+1
+  var QR_EXP=[], QR_LOG=[];
+  (function(){
+    for(var x=1,i=0;i<255;i++){ QR_EXP[i]=x; QR_LOG[x]=i; x<<=1; if(x&0x100) x^=0x11D; }
+    for(var j=255;j<512;j++) QR_EXP[j]=QR_EXP[j-255];
+  })();
+  function qrMul(a,b){ return (a===0||b===0)?0:QR_EXP[QR_LOG[a]+QR_LOG[b]]; }
+
+  // generatorveelterm van graad n: het product van (x + alfa^i)
+  function qrGen(n){
+    var g=[1], i, j, ng;
+    for(i=0;i<n;i++){
+      ng=[]; for(j=0;j<=g.length;j++) ng[j]=0;
+      for(j=0;j<g.length;j++){ ng[j]^=g[j]; ng[j+1]^=qrMul(g[j],QR_EXP[i]); }
+      g=ng;
+    }
+    return g;
+  }
+  // de correctiewoorden van één blok: de rest van de staartdeling door de generator
+  function qrRest(data,n){
+    var g=qrGen(n), uit=data.slice(), i, j;
+    for(i=0;i<n;i++) uit.push(0);
+    for(i=0;i<data.length;i++){
+      var f=uit[i]; if(f===0) continue;
+      for(j=0;j<g.length;j++) uit[i+j]^=qrMul(g[j],f);
+    }
+    return uit.slice(data.length);
+  }
+
+  // De tekst naar codewoorden: viercijferige moduskop, zestien bits lengte, de bytes
+  // zelf, een sluiter, en dan afwisselend 0xEC en 0x11 tot het vak vol is.
+  function qrCodewoorden(txt){
+    var b=[], i, k, c;
+    for(i=0;i<txt.length;i++){
+      c=txt.charCodeAt(i);
+      if(c<0x80) b.push(c);
+      else if(c<0x800) b.push(0xC0|(c>>6),0x80|(c&63));
+      else b.push(0xE0|(c>>12),0x80|((c>>6)&63),0x80|(c&63));
+    }
+    if(b.length>QR_MAX) return null;
+    var bits=[];
+    function zet(w,n){ for(k=n-1;k>=0;k--) bits.push((w>>k)&1); }
+    zet(4,4); zet(b.length,16);
+    for(i=0;i<b.length;i++) zet(b[i],8);
+    var vak=QR_DATA*8;
+    zet(0, Math.min(4, vak-bits.length));
+    while(bits.length%8) bits.push(0);
+    var vul=[0xEC,0x11], p=0;
+    while(bits.length<vak){ zet(vul[p%2],8); p++; }
+    var cw=[];
+    for(i=0;i<bits.length;i+=8){ var v=0; for(k=0;k<8;k++) v=(v<<1)|bits[i+k]; cw.push(v); }
+    return cw;
+  }
+
+  // De codewoorden in blokken, elk blok met eigen correctiewoorden, en dan verweven:
+  // eerst ronde na ronde de gegevens van elk blok, daarna ronde na ronde de correctie.
+  function qrBitstroom(txt){
+    var cw=qrCodewoorden(txt); if(!cw) return null;
+    var blokken=[], correctie=[], op=0, i, j;
+    for(i=0;i<QR_BLOK.length;i++){ blokken.push(cw.slice(op,op+QR_BLOK[i])); op+=QR_BLOK[i]; }
+    for(i=0;i<blokken.length;i++) correctie.push(qrRest(blokken[i],QR_EC));
+    var stroom=[];
+    for(j=0;j<108;j++) for(i=0;i<blokken.length;i++) if(j<blokken[i].length) stroom.push(blokken[i][j]);
+    for(j=0;j<QR_EC;j++) for(i=0;i<correctie.length;i++) stroom.push(correctie[i][j]);
+    var bits=[];
+    for(i=0;i<stroom.length;i++) for(j=7;j>=0;j--) bits.push((stroom[i]>>j)&1);
+    for(i=0;i<QR_REST;i++) bits.push(0);
+    return bits;
+  }
+
+  // BCH-staart voor de formaat- en versiebits
+  function qrBch(d,poly,len){
+    function lengte(x){ var n=0; while(x){ n++; x>>>=1; } return n; }
+    var r=d;
+    while(lengte(r)-len>=0) r^=poly<<(lengte(r)-len);
+    return r;
+  }
+  function qrFormaat(masker){ var d=(1<<3)|masker; return (((d<<10)|qrBch(d<<10,0x537,11))^0x5412); }
+  function qrVersie(v){ return (v<<12)|qrBch(v<<12,0x1F25,13); }
+
+  function qrMasker(nr,r,c){
+    if(nr===0) return (r+c)%2===0;
+    if(nr===1) return r%2===0;
+    if(nr===2) return c%3===0;
+    if(nr===3) return (r+c)%3===0;
+    if(nr===4) return (Math.floor(r/2)+Math.floor(c/3))%2===0;
+    if(nr===5) return ((r*c)%2)+((r*c)%3)===0;
+    if(nr===6) return (((r*c)%2)+((r*c)%3))%2===0;
+    return (((r*c)%3)+((r+c)%2))%2===0;
+  }
+
+  // De volle matrix: eerst de vaste patronen, dan de gegevens in zigzag van
+  // rechtsonder naar linksboven, en tot slot de formaat- en versiebits.
+  function qrMatrix(txt,masker){
+    var bits=qrBitstroom(txt); if(!bits) return null;
+    var N=QR_MAAT, m=[], vast=[], r, c, i, j;
+    for(r=0;r<N;r++){ m.push([]); vast.push([]); for(c=0;c<N;c++){ m[r][c]=0; vast[r][c]=0; } }
+    function zet(r,c,v){ m[r][c]=v; vast[r][c]=1; }
+    function zoeker(r0,c0){
+      for(var a=-1;a<=7;a++) for(var b=-1;b<=7;b++){
+        var rr=r0+a, cc=c0+b;
+        if(rr<0||cc<0||rr>=N||cc>=N) continue;
+        var aan=(a>=0&&a<=6&&(b===0||b===6))||(b>=0&&b<=6&&(a===0||a===6))||(a>=2&&a<=4&&b>=2&&b<=4);
+        zet(rr,cc,aan?1:0);
+      }
+    }
+    zoeker(0,0); zoeker(0,N-7); zoeker(N-7,0);
+    for(i=0;i<QR_UITLIJN.length;i++) for(j=0;j<QR_UITLIJN.length;j++){
+      var ar=QR_UITLIJN[i], ac=QR_UITLIJN[j];
+      // waar een zoekvierkant staat, komt geen uitlijnvierkant
+      if((ar<=8&&ac<=8)||(ar<=8&&ac>=N-9)||(ar>=N-9&&ac<=8)) continue;
+      for(r=-2;r<=2;r++) for(c=-2;c<=2;c++)
+        zet(ar+r, ac+c, Math.max(Math.abs(r),Math.abs(c))!==1 ? 1 : 0);
+    }
+    for(i=8;i<N-8;i++){ zet(6,i,i%2===0?1:0); zet(i,6,i%2===0?1:0); }
+    for(i=0;i<9;i++){ if(!vast[8][i]) zet(8,i,0); if(!vast[i][8]) zet(i,8,0); }
+    for(i=0;i<8;i++){ zet(8,N-1-i,0); zet(N-1-i,8,0); }
+    for(r=0;r<6;r++) for(c=0;c<3;c++){ zet(N-11+c,r,0); zet(r,N-11+c,0); }
+    // De altijd donkere module staat na het vrijhouden: het formaatgebied loopt over
+    // deze plek heen en zou hem anders wegvegen.
+    zet(N-8,8,1);
+
+    var idx=0, omhoog=true;
+    for(var kol=N-1;kol>0;kol-=2){
+      if(kol===6) kol--;                       // de tijdkolom is nooit een kolompaar
+      for(var k=0;k<N;k++){
+        var rr=omhoog?N-1-k:k;
+        for(var t=0;t<2;t++){
+          var cc=kol-t;
+          if(vast[rr][cc]) continue;           // vaste modules verbruiken geen bit
+          var bit=idx<bits.length?bits[idx++]:0;
+          m[rr][cc]=bit^(qrMasker(masker,rr,cc)?1:0);
+        }
+      }
+      omhoog=!omhoog;
+    }
+
+    var f=qrFormaat(masker);
+    for(i=0;i<15;i++){
+      var fb=(f>>i)&1;
+      if(i<6) m[i][8]=fb; else if(i<8) m[i+1][8]=fb; else m[N-15+i][8]=fb;
+      if(i<8) m[8][N-1-i]=fb; else if(i<9) m[8][15-i]=fb; else m[8][14-i]=fb;
+    }
+    var vb=qrVersie(QR_V);
+    for(i=0;i<18;i++){
+      var b2=(vb>>i)&1, rr2=Math.floor(i/3), cc2=i%3;
+      m[rr2][N-11+cc2]=b2; m[N-11+cc2][rr2]=b2;
+    }
+    return m;
+  }
+
+  // De code als inline svg. Rechthoeken met fill, want een browser drukt een
+  // achtergrond uit css niet af en een gevuld vlak in de voorgrond wel. Aaneen-
+  // sluitende modules worden één rechthoek, zodat het blad niet duizenden knopen
+  // hoeft te dragen.
+  function qrSvg(txt){
+    var m=qrMatrix(txt,QR_MASKER);
+    if(!m) return '';
+    var N=m.length, zij=N+2*QR_RAND, d='', r, c;
+    for(r=0;r<N;r++){
+      c=0;
+      while(c<N){
+        if(!m[r][c]){ c++; continue; }
+        var start=c;
+        while(c<N && m[r][c]) c++;
+        d+='M'+(start+QR_RAND)+' '+(r+QR_RAND)+'h'+(c-start)+'v1h-'+(c-start)+'z';
+      }
+    }
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+zij+' '+zij
+      +'" role="img" aria-label="Code met de link naar deze berekening">'
+      +'<path fill="#000" d="'+d+'"/></svg>';
+  }
+
+
+  // Een link komt van buiten, dus elke sleutel wordt afgetoetst tegen de tabel en
+  // elke waarde tegen het veld waar ze in gaat. Wat niet klopt wordt genegeerd en
+  // niet geraden. Zonder dat aftoetsen zet kind=onzin de selectedIndex op -1,
+  // waarna selTxt over options[-1].text valt, en zet een waarde als 1e400 via
+  // fromNum een Infinity in de max van de schuifbalk.
+  var linkAsOf=null;
+  function linkNaarInvoer(){
+    var frag=location.hash.replace(/^#/,'');
+    if(!frag || frag.length>MAX_FRAGMENT) return;
+    var delen=frag.split('&');
+    if(delen.shift()!==LINK_VERSIE) return;
+    var nums={}, standen={};
+    delen.forEach(function(deel){
+      var i=deel.indexOf('=');
+      if(i<1) return;
+      var k=deel.slice(0,i), w;
+      try{ w=decodeURIComponent(deel.slice(i+1)); }catch(e){ return; }
+      if(w.length>MAX_WAARDE) return;
+      if(linkNum.indexOf(k)>=0){ nums[k]=w; return; }
+      if(linkChk.indexOf(k)>=0){ if(w==='0'||w==='1') E(k).checked=(w==='1'); return; }
+      if(linkSel.indexOf(k)>=0){
+        if(Array.prototype.some.call(E(k).options,function(o){ return o.value===w; })) E(k).value=w;
+        return;
+      }
+      if(linkRadio.indexOf(k)>=0){
+        // de waarde niet in een selector zetten: ze komt van buiten
+        Array.prototype.forEach.call(document.querySelectorAll('input[name='+k+']'),function(r){
+          if(r.value===w) r.checked=true;
+        });
+        return;
+      }
+      if(linkStand[k]){ if(w==='pct'||w==='eur') standen[k]=w; return; }
+      if(k==='asOf' && /^\d{4}-\d{2}-\d{2}$/.test(w)) linkAsOf=w;
+    });
+    // De standen eerst, en via applyMode: swap zou de waarde omrekenen, en die
+    // staat in de link al in de juiste eenheid.
+    Object.keys(standen).forEach(function(k){ applyMode(linkStand[k],standen[k]); });
+    Object.keys(nums).forEach(function(k){
+      var el=linkVeld(k), w=nums[k];
+      if(w===''){ el.value=''; }
+      else{
+        if(!/^\d+(\.\d+)?$/.test(w)) return;      // geen exponent, geen Infinity, geen min
+        var x=parseFloat(w);
+        var lo=attr(el,'min',-Infinity), hi=attr(el,'max',Infinity);
+        if(x<lo) x=lo;
+        if(x>hi) x=hi;                           // alleen waar het veld zelf een grens heeft
+        el.value=toon(el.id,x);
+      }
+      if(pairOf[k]) fromNum(k,pairOf[k]);
+    });
+  }
+
+  var MAANDEN=['januari','februari','maart','april','mei','juni','juli',
+               'augustus','september','oktober','november','december'];
+  function datumNL(iso){
+    var d=iso.split('-');
+    return Number(d[2])+' '+MAANDEN[Number(d[1])-1]+' '+d[0];
+  }
+
+  // De adresbalk wordt bewust niet bijgewerkt terwijl je typt, en er komt niets in
+  // de geschiedenis van de browser: dan zouden de bedragen op elke schermafdruk
+  // staan en in de geschiedenis blijven. De link bestaat pas als iemand erom
+  // vraagt. De toets op de privacybelofte houdt die keuze vast.
+  function toonLink(){
+    var veld=E('linkUrl');
+    veld.value=invoerNaarLink();
+    E('linkBar').hidden=false;
+    // preventScroll: het veld staat in de vastgeplakte balk en is dus al zichtbaar;
+    // zonder dit springt de pagina naar het veld toe. De selectie blijft nodig,
+    // want ctrl+c is de weg die overal werkt.
+    veld.focus({preventScroll:true}); veld.select();
+    function meld(t){ E('linkMsg').textContent=t; }
+    meld('');
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(veld.value).then(function(){ meld('Gekopieerd'); },
+                                                     function(){ meld('Kopieer met ctrl+c'); });
+    } else meld('Kopieer met ctrl+c');
+  }
+
+  koppelOpmaak();
+
+  // de gekoppelde schuifbalken staan hier niet bij: die krijgen hun eigen luisteraar hieronder
+  ['kind','kern','landVal','landTax','v6demo','v6only','v6area','v6five',
+   'notVal','disb','reno','moving','hasHome','agent','feeVal','certs',
+   'hasOld','oldBal','oldRate','oldYears','portCost','bonus','release','two',
+   'b1Have','b1Min','b1Max','b2Have','b2Min','b2Max',
+   'mortFix','acc','bankFee','valFee','bridgeAmt','bridgeRate','bridgeMonths',
+   'inc1','debts','ovr','fire','ssv','spExPartner','spDuur'].forEach(function(i){
+    var el=E(i); if(!el) return;
+    el.addEventListener('input',calc); el.addEventListener('change',calc);
+  });
+  links.forEach(function(p){
+    E(p[0]).addEventListener('input',function(){ fromRange(p[0],p[1]); calc(); });
+    E(p[1]).addEventListener('input',function(){ fromNum(p[0],p[1]); calc(); });
+  });
+  // Alleen de niet-geldvelden krijgen hun beginwaarde uit de schuifbalk. De bedragen
+  // blijven leeg, zodat er nergens een nul staat die de gebruiker moet wegvegen.
+  Object.keys(UIT_BALK).forEach(function(id){
+    if(E(id).value==='') E(id).value=toon(id, parseFloat(E(UIT_BALK[id]).value)||0);
+  });
+  // Het ereloon komt uit het barema, dus het invoervak staat uit tot je op euro schakelt.
+  applyMode('not', mode.not);
+
+  // Eerst de beginwaarden opnemen, dan pas een link terugzetten: zo weet het
+  // bouwen van een link wat een beginwaarde is, en vecht de aanzet hierboven niet
+  // met wat er uit de link komt.
+  neemBeginwaarden();
+  linkNaarInvoer();
+  E('linkBtn').addEventListener('click',toonLink);
+  document.querySelectorAll('input[name=oldChoice], input[name=vatRate]').forEach(function(x){ x.addEventListener('change',calc); });
+  [['notSeg','not'],['feeSeg','fee'],['landSeg','land']].forEach(function(pr){
+    Array.prototype.forEach.call(E(pr[0]).querySelectorAll('button'),function(b){
+      b.addEventListener('click',function(){ swap(pr[1], b.dataset.m); });
+    });
+  });
+  // De bestandsnaam van een pdf komt bij de meeste browsers uit de documenttitel. Daar zetten we
+  // de datum bij, zodat twee afdrukken van dezelfde pagina niet dezelfde naam krijgen. Dit hangt
+  // aan beforeprint, dus Ctrl+P levert hetzelfde als de knop.
+  var pageTitle=document.title;
+  function stamp(n){ return (n<10?'0':'')+n; }
+  window.addEventListener('beforeprint',function(){
+    var d=new Date();
+    buildPrint();
+    document.title='Wat kost dit huis - overzicht '+d.getFullYear()+'-'+stamp(d.getMonth()+1)+'-'+stamp(d.getDate());
+  });
+  window.addEventListener('afterprint',function(){ document.title=pageTitle; });
+  E('printBtn').addEventListener('click',function(){ window.print(); });
+
+  calc();
+})();
+</script>
+</body>
+</html>
