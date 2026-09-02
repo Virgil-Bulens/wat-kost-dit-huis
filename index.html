@@ -432,6 +432,7 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
         <option value="own" selected>Enige eigen woning (2%)</option>
         <option value="other">Tweede woning of investering (12%)</option>
         <option value="new">Nieuwbouw of afbraak-heropbouw (btw)</option>
+        <option value="split">Uit onverdeeldheid treden (partner uitkopen)</option>
       </select>
       <span class="sub-hint" id="kindHint"></span>
     </div>
@@ -468,6 +469,20 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
         <label class="check"><input type="checkbox" id="v6area"> De bewoonbare oppervlakte is niet groter dan 200 m&sup2;</label>
         <label class="check"><input type="checkbox" id="v6five"> Ik blijf er minstens vijf jaar wonen</label>
         <span class="sub-hint">Er bestaat ook een tweede weg naar 6%: langdurig verhuren aan een sociaal verhuurkantoor of een woonmaatschappij. Die zit hier niet in. Laat je notaris bevestigen welk stelsel op jou van toepassing is.</span>
+      </div>
+    </div>
+    <div class="field" id="splitBox">
+      <p class="hint" style="margin:0 0 12px">Vul bij Aankoopprijs de volledige waarde van de woning in, niet het
+        bedrag dat je aan je partner betaalt. Dat bedrag staat hieronder als uitkoopsom.</p>
+      <div class="flab"><label for="splitShare">Aandeel dat je overneemt (%)</label>
+        <button type="button" class="q" data-t="onverdeeldheid" aria-expanded="false" aria-label="Wat betekent onverdeeldheid?">?</button>
+        <button type="button" class="q" data-t="verdeelrecht" aria-expanded="false" aria-label="Wat betekent verdeelrecht?">?</button>
+        <input type="text" inputmode="decimal" class="amt pin num" id="splitShareN" data-min="1" data-max="99" data-step="1"></div>
+      <input type="range" id="splitShare" min="1" max="99" step="1" value="50" aria-label="Aandeel dat je overneemt">
+      <div class="subchecks" id="splitCondBox">
+        <span class="mini">Vink aan wat klopt voor het verlaagd tarief van 1% verdeelrecht. Staat er &eacute;&eacute;n niet aan, dan rekent deze pagina met het standaardtarief van 2,5%.</span>
+        <label class="check"><input type="checkbox" id="spExPartner"> Je neemt het aandeel over van een ex-echtgenoot of een ex-wettelijk samenwonende partner. Feitelijk samenwonen telt niet mee.</label>
+        <label class="check"><input type="checkbox" id="spDuur"> Was je wettelijk samenwonend en niet gehuwd, dan duurde die samenwoning minstens &eacute;&eacute;n jaar</label>
       </div>
     </div>
   </div>
@@ -774,7 +789,7 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
   // Bij gekoppelde velden is het invoervak de bron van waarheid. De schuifbalk heeft een
   // grove stapgrootte en zou een getypt bedrag afronden, dus daar lezen we niet uit.
   var pairOf={price:'priceN', sale:'saleN', b1In:'b1InN', b2In:'b2InN',
-              term:'termN', rate:'rateN', ratio:'ratioN'};
+              term:'termN', rate:'rateN', ratio:'ratioN', splitShare:'splitShareN'};
   function v(i){
     var t=pairOf[i];
     if(t){
@@ -802,7 +817,7 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
             'bonus','release','b1InN','b1Have','b1Min','b1Max','b2InN','b2Have',
             'b2Min','b2Max','mortFix','bankFee','valFee','bridgeAmt','inc1','debts',
             'ovr','fire','ssv','notVal'];
-  var PROCENT=['oldRate','rateN','acc','bridgeRate','ratioN'];
+  var PROCENT=['oldRate','rateN','acc','bridgeRate','ratioN','splitShareN'];
   // Deze twee wisselen van eenheid met hun schakelaar, dus hun soort hangt van mode af.
   // notVal staat er niet bij: die schakelt tussen barema en een vast bedrag, en in de
   // baremastand is het vak uitgeschakeld en wordt het niet gelezen (zie notaryFee).
@@ -991,7 +1006,7 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
 
   // schuifbalk en invoervak twee richtingen koppelen; typen mag buiten het bereik
   var links=[['price','priceN'],['sale','saleN'],['b1In','b1InN'],['b2In','b2InN'],
-             ['term','termN'],['rate','rateN'],['ratio','ratioN']];
+             ['term','termN'],['rate','rateN'],['ratio','ratioN'],['splitShare','splitShareN']];
   // schuifbalk versleept: het invoervak volgt
   function fromRange(r,n){ E(n).value=toon(n, parseFloat(E(r).value)||0); }
   // bedrag getypt: alleen de duimpositie volgt, de getypte waarde blijft onaangeroerd
@@ -1027,6 +1042,12 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     'registratiebelasting':{
       tekst:'De belasting die je aan de Vlaamse overheid betaalt op de aankoopprijs. Dit is meestal de grootste post bovenop de prijs. De notaris houdt ze in en stort ze door; hij verdient er zelf niets aan.',
       wie:'Vlaamse overheid', url:'https://www.vlaanderen.be/verkooprecht'},
+    'verdeelrecht':{
+      tekst:'De belasting die je betaalt als je een mede-eigenaar uitkoopt, bijvoorbeeld een ex-partner na een scheiding. Ze rekent op de volledige waarde van de woning, niet op de uitkoopsom die je aan je partner betaalt. Het standaardtarief is 2,5%. Neem je het aandeel over van een ex-echtgenoot of een ex-wettelijk samenwonende partner, dan geldt een verlaagd tarief van 1%. Feitelijk samenwonen telt daarvoor niet mee.',
+      wie:'notaris.be (Fednot, de federatie van notarissen)', url:'https://www.notaris.be/nieuws/de-miserietaks-wat-je-moet-weten-over-deze-belasting'},
+    'onverdeeldheid':{
+      tekst:'Meerdere mensen bezitten dan samen dezelfde woning, elk voor een aandeel, zonder dat de woning zelf opgedeeld is. Dat ontstaat bijvoorbeeld bij een koppel dat samen kocht of bij een erfenis. Koopt de ene het aandeel van de andere over, dan treedt die laatste uit de onverdeeldheid en wordt de eerste volledig eigenaar.',
+      wie:'notaris.be (Fednot, de federatie van notarissen)', url:'https://www.notaris.be/scheiden-en-uit-elkaar-gaan/uit-elkaar-gaan-als-je-gehuwd-bent/scheiden-op-grond-van-onherstelbare-ontwrichting-eoo/verdeling-van-de-goederen'},
     'verlaagd tarief':{
       tekst:'Koop je je enige eigen woning en ga je er zelf wonen, dan betaal je 2% in plaats van 12%. Aan die gunst hangen voorwaarden: geen andere woning bezitten op de dag van de akte, je binnen drie jaar na de akte domiciliëren, en voor verkoopovereenkomsten vanaf 1 januari 2026 daar minstens een jaar ononderbroken ingeschreven blijven. Of je eraan voldoet beslist de belastingdienst, niet deze pagina.',
       wie:'Vlaamse overheid', url:'https://www.vlaanderen.be/belastingen-en-begroting/vlaamse-belastingen/registratiebelasting/verkooprecht/tarieven-in-het-verkooprecht/verlaagd-tarief-in-het-verkooprecht-voor-de-aankoop-van-de-enige-eigen-woning'},
@@ -1112,7 +1133,7 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     // machineleesbaar zijn. De datum in het proza op de pagina staat in het
     // Nederlands; een toets houdt beide gelijk.
     asOf:'2026-08-23',
-    duty:{own:0.02, other:0.12, land:0.12},        // Vlaanderen 2026
+    duty:{own:0.02, other:0.12, land:0.12, split:0.025, splitReduced:0.01},        // Vlaanderen 2026
     vatOnFees:0.21,
     // Enige eigen bescheiden woning. Er zijn twee maximumprijzen, en het verschil
     // zit in de ligging: 240.000 voor een woning in de kernsteden of de Vlaamse Rand,
@@ -1201,6 +1222,16 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
   }
   function vatRate(){ return (vatPick()==='6' && vat6Missing().length===0) ? 0.06 : 0.21; }
   function pctLab(r){ return Math.round(r*100)+'%'; }
+
+  // 1% verdeelrecht geldt bij een relatiebreuk, en enkel voor ex-gehuwden of
+  // ex-wettelijk samenwonende partners; feitelijk samenwonen telt niet mee.
+  // Zonder deze twee voorwaarden samen geldt het standaardtarief van 2,5%.
+  var splitConds=[['spExPartner','een ex-echtgenoot of ex-wettelijk samenwonende partner'],
+                  ['spDuur','minstens &eacute;&eacute;n jaar wettelijke samenwoning, als je niet gehuwd was']];
+  function splitMissing(){
+    return splitConds.filter(function(c){ return !chk(c[0]); }).map(function(c){ return c[1]; });
+  }
+  function splitOk(){ return splitMissing().length===0; }
   function agentFee(){
     if(!chk('hasHome')||!chk('agent')) return 0;
     var sp=v('sale');
@@ -1288,6 +1319,17 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
       }
       return {amt:amt, cut:0, alt:amt, atRisk:false, parts:parts};
     }
+    if(kind==='split'){
+      // Verdeelrecht rekent op de volledige waarde van de woning, niet op de
+      // uitkoopsom: zie payoutBase(). pctLab rondt af op een heel percent en zou
+      // van 2,5% een 3% maken, dus het label komt hier met een eigen komma.
+      var ok=splitOk(), rate=ok?RATES.duty.splitReduced:RATES.duty.split;
+      var rateLab=ok?'1%':'2,5%', tax=P*rate;
+      return {amt:tax, cut:0, alt:tax, atRisk:false,
+        parts:[{lab:rateLab+' verdeelrecht', amt:tax,
+          sub:ok?'verlaagd tarief voor ex-partners, op de volledige woningwaarde'
+                :'standaardtarief: niet aan alle voorwaarden voor het verlaagd tarief voldaan'}]};
+    }
     if(kind==='own'){
       var tax=P*RATES.duty.own, cut=0;
       if(P>0 && P<=modestMax()){ cut=Math.min(RATES.modest.cut,tax); tax-=cut; }
@@ -1325,14 +1367,23 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
   // Posten die je met eigen geld betaalt en die dus niet meegefinancierd worden.
   function ownPaidCosts(){ return v('moving')+v('bankFee')+v('valFee'); }
 
+  // Bij uit onverdeeldheid treden betaal je alleen het aandeel van je partner,
+  // de uitkoopsom, en niet de volledige woningwaarde: die waarde blijft wel de
+  // grondslag van het verdeelrecht. Overal elders is er geen mede-eigendom en
+  // is de uitkoopsom gelijk aan de volledige prijs.
+  function payoutBase(P){
+    return E('kind').value==='split' ? P*(v('splitShare')/100) : P;
+  }
+
   function model(P){
-    if(P<=0) return {P:0,d:{amt:0,cut:0,alt:0,atRisk:false,parts:[]},notary:0,disb:0,reno:0,
+    if(P<=0) return {P:0,pb:0,d:{amt:0,cut:0,alt:0,atRisk:false,parts:[]},notary:0,disb:0,reno:0,
                      moving:0,ownPaid:0,bridge:0,mc:0,cd:creditDeed(0),
                      funds:0,loan:0,surplus:0,purchaseCosts:0,financedCosts:0,allExtras:0,total:0};
     var d=duty(P), notary=notaryFee(P), disb=v('disb'), reno=v('reno'), moving=v('moving');
     var ownPaid=ownPaidCosts();
     var bridge=v('bridgeAmt')*(v('bridgeRate')/100)/12*v('bridgeMonths');
-    var financed=P+d.amt+notary+disb+reno+bridge;
+    var pb=payoutBase(P);
+    var financed=pb+d.amt+notary+disb+reno+bridge;
     var funds=contributions()+netSale()-ownPaid;
     var gap=financed-funds, loan=0, surplus=0, cd=creditDeed(0);
     if(gap>0){
@@ -1349,10 +1400,10 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     var purchaseCosts=d.amt+notary+disb+mc+bridge;
     var financedCosts=purchaseCosts+reno;
     var allExtras=financedCosts+ownPaid;
-    return {P:P,d:d,notary:notary,disb:disb,reno:reno,moving:moving,ownPaid:ownPaid,
+    return {P:P,pb:pb,d:d,notary:notary,disb:disb,reno:reno,moving:moving,ownPaid:ownPaid,
             bridge:bridge,mc:mc,cd:cd,funds:funds,loan:loan,surplus:surplus,
             purchaseCosts:purchaseCosts,financedCosts:financedCosts,
-            allExtras:allExtras,total:P+allExtras};
+            allExtras:allExtras,total:pb+allExtras};
   }
 
   // cap is de ruimte die er per maand is voor de nieuwe lening alleen: het deel van het
@@ -1409,6 +1460,7 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     E('landTaxBox').style.display=isNew()?'block':'none';
     E('vatBox').style.display=isNew()?'block':'none';
     E('vat6Box').style.display=(isNew()&&vatPick()==='6')?'block':'none';
+    E('splitBox').style.display=(E('kind').value==='split')?'block':'none';
     E('portBox').style.display=port()?'grid':'none';
     E('feeVal').disabled=!chk('agent');
     clampBuyer('b1'); if(chk('two')) clampBuyer('b2');
@@ -1453,7 +1505,10 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
     // aankoop
     if(P<=0){ E('r-buy').innerHTML=empty; E('r-loan').innerHTML=empty; E('r-month').innerHTML=empty; }
     else {
-      var bh=row('Aankoopprijs', eur.format(P));
+      var isSplit=E('kind').value==='split';
+      var bh=row(isSplit?'Waarde van de woning':'Aankoopprijs', eur.format(P));
+      if(isSplit) bh+=row('Uitkoopsom aan je partner', eur.format(m.pb),
+        v('splitShare').toString().replace('.',',')+'% van de woningwaarde');
       m.d.parts.forEach(function(pt){ bh+=row(pt.lab, eur.format(pt.amt), pt.sub); });
       var onLand=isNew()&&landShare(P)>0;
       bh+=row('Ereloon notaris', eur.format(m.notary),
@@ -1474,7 +1529,8 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
       // gaan van je eigen geld af in plaats van in de lening. Zo trekken de getallen
       // die je naast elkaar ziet ook echt van elkaar af tot het kredietbedrag.
       if(m.ownPaid>0){
-        bh+=row('Mee te financieren', eur.format(P+m.financedCosts),'prijs plus de kosten hierboven','tot');
+        bh+=row('Mee te financieren', eur.format(m.pb+m.financedCosts),
+          (isSplit?'uitkoopsom':'prijs')+' plus de kosten hierboven','tot');
         if(m.moving>0) bh+=row('Verhuis en inrichting', eur.format(m.moving),'zelf te betalen');
         if(v('bankFee')>0) bh+=row('Dossierkosten van de bank', eur.format(v('bankFee')),'zelf te betalen');
         if(v('valFee')>0) bh+=row('Schatting van de woning', eur.format(v('valFee')),'zelf te betalen');
@@ -1498,7 +1554,8 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
       // naast elkaar ziet niet van elkaar af tot het bedrag eronder.
       if(m.loan>0){
         lh+='<div style="height:14px"></div>';
-        lh+=row('Mee te financieren', eur.format(P+m.financedCosts),'prijs plus de kosten die in de lening gaan');
+        lh+=row('Mee te financieren', eur.format(m.pb+m.financedCosts),
+          (isSplit?'uitkoopsom':'prijs')+' plus de kosten die in de lening gaan');
         lh+=row('Eigen geld dat daarvan afgaat','&minus;'+eur.format(m.funds),'','neg');
       }
       lh+='<div class="big"><div class="k">'+(m.loan>0?'Te lenen':'Je hoeft niets te lenen')+'</div><div class="v">'+
@@ -1587,10 +1644,13 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
       E('feeHint').textContent = mode.fee==='pct' ? ('= '+eur.format(agentFee())+' incl. btw')
         : (sp>0 ? '= '+(v('feeVal')/sp*100).toFixed(2).replace('.',',')+'% plus btw' : '');
     }
-    E('kindHint').textContent = E('kind').value!=='own' ? ''
-      : (m.d.cut>0 ? 'korting bescheiden woning van '+eur.format(m.d.cut)+' toegepast'
+    E('kindHint').textContent = E('kind').value==='own'
+      ? (m.d.cut>0 ? 'korting bescheiden woning van '+eur.format(m.d.cut)+' toegepast'
         : (P>0 ? 'geen korting: de prijs ligt boven '+eur.format(modestMax())
-               : 'tot '+eur.format(modestMax())+' krijg je '+eur.format(RATES.modest.cut)+' korting'));
+               : 'tot '+eur.format(modestMax())+' krijg je '+eur.format(RATES.modest.cut)+' korting'))
+      : E('kind').value==='split'
+      ? (splitOk() ? 'verlaagd tarief van 1% toegepast' : 'standaardtarief van 2,5%: niet aan alle voorwaarden voldaan')
+      : '';
 
     // aandachtspunten
     var msg='';
@@ -1734,7 +1794,8 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
   }
 
   function pdBasis(P){
-    var out=row('Aankoopprijs', eur.format(P)+(isNew()?', exclusief btw':''));
+    var out=row(E('kind').value==='split'?'Waarde van de woning':'Aankoopprijs',
+      eur.format(P)+(isNew()?', exclusief btw':''));
     out+=row('Situatie', selTxt('kind'));
     if(E('kind').value==='own'){
       out+=row('Verlaagd tarief', 'voorwaardelijk',
@@ -1750,6 +1811,12 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
       if(L>0) out+=row('Belasting op de grond', selTxt('landTax'));
       out+=row('Btw op de bouw', pctLab(vatRate())
         +(vatPick()==='6'&&vat6Missing().length>0 ? ', want niet alle voorwaarden voor 6% staan aan' : ''));
+    }
+    if(E('kind').value==='split'){
+      out+=row('Aandeel dat je overneemt', num(v('splitShare'))+'%');
+      out+=row('Uitkoopsom aan je partner', eur.format(payoutBase(P)));
+      out+=row('Verdeelrecht', splitOk() ? '1%, verlaagd tarief voor ex-partners'
+        : '2,5%, standaardtarief: niet alle voorwaarden voor 1% staan aan');
     }
     out+=row('Ereloon notaris', mode.not==='pct'
       ? 'wettelijk barema op '+(isNew()&&landShare(P)>0?'het grondaandeel':'de prijs')+', plus 21% btw'
@@ -1966,23 +2033,24 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
   }
   // De sleutel is de id van het veld. Bij een gekoppeld paar is dat de basis-id,
   // want de waarde komt uit het invoervak: dat is de bron van waarheid (zie pairOf).
-  var linkNum=['price','sale','b1In','b2In','term','rate','ratio',
+  var linkNum=['price','sale','b1In','b2In','term','rate','ratio','splitShare',
                'landVal','notVal','disb','reno','moving','feeVal','certs',
                'oldBal','oldRate','oldYears','portCost','bonus','release',
                'b1Have','b1Min','b1Max','b2Have','b2Min','b2Max',
                'mortFix','acc','bankFee','valFee',
                'bridgeAmt','bridgeRate','bridgeMonths',
                'inc1','debts','ovr','fire','ssv'];
-  var linkChk=['v6demo','v6only','v6area','v6five','kern','hasHome','agent','hasOld','two'];
+  var linkChk=['v6demo','v6only','v6area','v6five','kern','hasHome','agent','hasOld','two',
+               'spExPartner','spDuur'];
   var linkSel=['kind','landTax'];
   var linkRadio=['vatRate','oldChoice'];
   var linkStand={mNot:'not', mFee:'fee', mLand:'land'};
   var MAX_FRAGMENT=4000, MAX_WAARDE=20;
-  // Drie vakken krijgen hun beginwaarde uit de schuifbalk in plaats van uit een value
+  // Vier vakken krijgen hun beginwaarde uit de schuifbalk in plaats van uit een value
   // in de html; de bedragen blijven leeg, zodat er nergens een nul staat die de
   // gebruiker moet wegvegen. Eén lijst, want de aanzet onderaan en de beginwaarden van
   // de link moeten over dezelfde velden hetzelfde zeggen.
-  var UIT_BALK={termN:'term', rateN:'rate', ratioN:'ratio'};
+  var UIT_BALK={termN:'term', rateN:'rate', ratioN:'ratio', splitShareN:'splitShare'};
 
   // het invoervak van een gekoppeld paar, of het veld zelf
   function linkVeld(k){ return E(pairOf[k]||k); }
@@ -2354,7 +2422,7 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
    'hasOld','oldBal','oldRate','oldYears','portCost','bonus','release','two',
    'b1Have','b1Min','b1Max','b2Have','b2Min','b2Max',
    'mortFix','acc','bankFee','valFee','bridgeAmt','bridgeRate','bridgeMonths',
-   'inc1','debts','ovr','fire','ssv'].forEach(function(i){
+   'inc1','debts','ovr','fire','ssv','spExPartner','spDuur'].forEach(function(i){
     var el=E(i); if(!el) return;
     el.addEventListener('input',calc); el.addEventListener('change',calc);
   });
