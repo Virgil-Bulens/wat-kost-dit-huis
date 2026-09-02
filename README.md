@@ -293,6 +293,22 @@ plekken laten staan. Elk van die ingrepen maakt de suite rood.
 GitHub Actions draait `npm test` bij elke pull request en bij elke push naar
 `main`, zie `.github/workflows/test.yml`.
 
+## Voorbeeld per pull request
+
+Elke open pull request krijgt een eigen voorbeeld op
+`https://virgil-bulens.github.io/wat-kost-dit-huis/pr-<nummer>/`. De workflow
+`.github/workflows/pages.yml` zet dat adres in een reactie op de pull request
+en werkt die reactie bij bij elke nieuwe push. Het voorbeeld blijft bestaan
+zolang de pull request open staat en verdwijnt zodra ze dichtgaat.
+
+`CANON` in `index.html` wijst vast naar de gepubliceerde site hierboven, ook
+op een voorbeeld. De deelbare link, de QR-code en de linkannotatie in de pdf
+wijzen dus altijd naar de live site, nooit naar het voorbeeld zelf. Wie het
+volledige pad van papier terug naar de invoer wil natoetsen, moet dat op de
+live site doen, niet op een voorbeeld.
+
+De repository is publiek, dus elk voorbeeld is publiek.
+
 ## Privacy
 
 Eén statisch HTML-bestand. Geen build, geen afhankelijkheden, geen externe

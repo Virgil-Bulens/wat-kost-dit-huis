@@ -1,0 +1,100 @@
+name: pages
+
+# Bouwt de site op de tak gh-pages. Een push naar main gaat naar de wortel.
+# Een open pull request krijgt een eigen voorbeeld in /pr-<nummer>/. Sluit de
+# pull request, dan verdwijnt die map weer.
+#
+# Aanname: elke pull request komt uit deze repository, niet uit een fork. Op
+# een fork-pull-request heeft GITHUB_TOKEN geen rechten om naar gh-pages te
+# pushen of te reageren, en die twee stappen slaan dan over noch lukken.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  publiceren:
+    if: github.event_name == 'push' || github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Op de wortel publiceren
+        if: github.event_name == 'push'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
+          keep_files: true
+
+      - name: Voorbeeld publiceren
+        if: github.event_name == 'pull_request'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
+          destination_dir: pr-${{ github.event.pull_request.number }}
+          keep_files: true
+
+      # Eén reactie per pull request, bijgewerkt bij elke push, in plaats van
+      # een nieuwe reactie bij elke run.
+      - name: Adres in de pull request zetten
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const marker = '<!-- voorbeeld-adres -->';
+            const url = `https://virgil-bulens.github.io/wat-kost-dit-huis/pr-${context.issue.number}/`;
+            const body = `${marker}\nVoorbeeld: ${url}`;
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const bestaand = comments.find((c) => c.body.startsWith(marker));
+            if (bestaand) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: bestaand.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
+
+  opruimen:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Voorbeeldmap verwijderen
+        run: |
+          set -eu
+          if ! git ls-remote --exit-code --heads origin gh-pages > /dev/null; then
+            echo "gh-pages bestaat nog niet, niets te verwijderen."
+            exit 0
+          fi
+          git fetch origin gh-pages
+          git checkout gh-pages
+
+          map="pr-${{ github.event.pull_request.number }}"
+          if [ -d "$map" ]; then
+            git rm -r --quiet "$map"
+            git -c user.name=github-actions -c user.email=github-actions@github.com \
+              commit -m "Voorbeeld $map verwijderd (pull request dicht)"
+            git push origin gh-pages
+          else
+            echo "Map $map bestond al niet."
+          fi
