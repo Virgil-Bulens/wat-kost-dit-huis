@@ -605,15 +605,15 @@ describe('uit onverdeeldheid treden', () => {
     await p.sluit();
   });
 
-  test('het verlaagd tarief van 1% geldt pas als beide voorwaarden aanstaan', async () => {
+  test('het verlaagd tarief van 1% geldt zodra een van beide voorwaarden aanstaat', async () => {
     const p = await metPagina({priceN:400000, kind:'split', splitShareN:50, b1InN:600000});
     await p.vul({spExPartner:true});
     let r = await p.regels('r-buy');
-    assert.equal(r['2,5% verdeelrecht'], 400000 * 0.025, 'één voorwaarde volstaat niet');
+    assert.equal(r['1% verdeelrecht'], 400000 * 0.01, 'ex-echtgenoot volstaat op zich, geen duurvereiste');
 
-    await p.vul({spDuur:true});
+    await p.vul({spExPartner:false, spDuur:true});
     r = await p.regels('r-buy');
-    assert.equal(r['1% verdeelrecht'], 400000 * 0.01);
+    assert.equal(r['1% verdeelrecht'], 400000 * 0.01, 'ex-wettelijk samenwonend plus duur volstaat ook op zich');
     geenFouten(p);
     await p.sluit();
   });

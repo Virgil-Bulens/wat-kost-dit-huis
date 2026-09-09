@@ -480,9 +480,9 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
         <input type="text" inputmode="decimal" class="amt pin num" id="splitShareN" data-min="1" data-max="99" data-step="1"></div>
       <input type="range" id="splitShare" min="1" max="99" step="1" value="50" aria-label="Aandeel dat je overneemt">
       <div class="subchecks" id="splitCondBox">
-        <span class="mini">Vink aan wat klopt voor het verlaagd tarief van 1% verdeelrecht. Staat er &eacute;&eacute;n niet aan, dan rekent deze pagina met het standaardtarief van 2,5%.</span>
-        <label class="check"><input type="checkbox" id="spExPartner"> Je neemt het aandeel over van een ex-echtgenoot of een ex-wettelijk samenwonende partner. Feitelijk samenwonen telt niet mee.</label>
-        <label class="check"><input type="checkbox" id="spDuur"> Was je wettelijk samenwonend en niet gehuwd, dan duurde die samenwoning minstens &eacute;&eacute;n jaar</label>
+        <span class="mini">Vink minstens &eacute;&eacute;n van deze twee aan voor het verlaagd tarief van 1% verdeelrecht. Vink je geen van beide aan, dan rekent deze pagina met het standaardtarief van 2,5%. Feitelijk samenwonen telt in geen van beide gevallen mee.</span>
+        <label class="check"><input type="checkbox" id="spExPartner"> Je neemt het aandeel over van een ex-echtgenoot</label>
+        <label class="check"><input type="checkbox" id="spDuur"> Je neemt het aandeel over van een ex-wettelijk samenwonende partner, en die samenwoning duurde minstens &eacute;&eacute;n jaar</label>
       </div>
     </div>
   </div>
@@ -1223,15 +1223,14 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
   function vatRate(){ return (vatPick()==='6' && vat6Missing().length===0) ? 0.06 : 0.21; }
   function pctLab(r){ return Math.round(r*100)+'%'; }
 
-  // 1% verdeelrecht geldt bij een relatiebreuk, en enkel voor ex-gehuwden of
-  // ex-wettelijk samenwonende partners; feitelijk samenwonen telt niet mee.
-  // Zonder deze twee voorwaarden samen geldt het standaardtarief van 2,5%.
-  var splitConds=[['spExPartner','een ex-echtgenoot of ex-wettelijk samenwonende partner'],
-                  ['spDuur','minstens &eacute;&eacute;n jaar wettelijke samenwoning, als je niet gehuwd was']];
-  function splitMissing(){
-    return splitConds.filter(function(c){ return !chk(c[0]); }).map(function(c){ return c[1]; });
-  }
-  function splitOk(){ return splitMissing().length===0; }
+  // 1% verdeelrecht geldt bij een relatiebreuk: twee onafhankelijke gronden,
+  // elk op zich voldoende. Ex-gehuwden hebben geen duurvereiste. Ex-wettelijk
+  // samenwonenden wel: minstens een jaar wettelijke samenwoning. Feitelijk
+  // samenwonen telt in geen van beide gevallen mee. Voldoet geen van beide,
+  // dan geldt het standaardtarief van 2,5%.
+  var splitConds=[['spExPartner','ex-echtgenoot'],
+                  ['spDuur','ex-wettelijk samenwonende partner, minstens &eacute;&eacute;n jaar samenwoning']];
+  function splitOk(){ return splitConds.some(function(c){ return chk(c[0]); }); }
   function agentFee(){
     if(!chk('hasHome')||!chk('agent')) return 0;
     var sp=v('sale');
@@ -1328,7 +1327,7 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
       return {amt:tax, cut:0, alt:tax, atRisk:false,
         parts:[{lab:rateLab+' verdeelrecht', amt:tax,
           sub:ok?'verlaagd tarief voor ex-partners, op de volledige woningwaarde'
-                :'standaardtarief: niet aan alle voorwaarden voor het verlaagd tarief voldaan'}]};
+                :'standaardtarief: geen van de voorwaarden voor het verlaagd tarief van toepassing'}]};
     }
     if(kind==='own'){
       var tax=P*RATES.duty.own, cut=0;
@@ -1649,7 +1648,7 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
         : (P>0 ? 'geen korting: de prijs ligt boven '+eur.format(modestMax())
                : 'tot '+eur.format(modestMax())+' krijg je '+eur.format(RATES.modest.cut)+' korting'))
       : E('kind').value==='split'
-      ? (splitOk() ? 'verlaagd tarief van 1% toegepast' : 'standaardtarief van 2,5%: niet aan alle voorwaarden voldaan')
+      ? (splitOk() ? 'verlaagd tarief van 1% toegepast' : 'standaardtarief van 2,5%: geen van de voorwaarden van toepassing')
       : '';
 
     // aandachtspunten
@@ -1816,7 +1815,7 @@ footer .colophon{margin-top:16px; padding-top:14px; border-top:1px solid var(--l
       out+=row('Aandeel dat je overneemt', num(v('splitShare'))+'%');
       out+=row('Uitkoopsom aan je partner', eur.format(payoutBase(P)));
       out+=row('Verdeelrecht', splitOk() ? '1%, verlaagd tarief voor ex-partners'
-        : '2,5%, standaardtarief: niet alle voorwaarden voor 1% staan aan');
+        : '2,5%, standaardtarief: geen van de voorwaarden voor 1% staat aan');
     }
     out+=row('Ereloon notaris', mode.not==='pct'
       ? 'wettelijk barema op '+(isNew()&&landShare(P)>0?'het grondaandeel':'de prijs')+', plus 21% btw'
