@@ -594,6 +594,45 @@ describe('nieuwbouw', () => {
 
 // ---------------------------------------------------------------------------
 
+describe('uit onverdeeldheid treden', () => {
+
+  test('verdeelrecht rekent op de volledige woningwaarde, niet op de uitkoopsom', async () => {
+    const p = await metPagina({priceN:400000, kind:'split', splitShareN:50, b1InN:600000});
+    const r = await p.regels('r-buy');
+    assert.equal(r['2,5% verdeelrecht'], 400000 * 0.025, 'standaardtarief zonder aangevinkte voorwaarden');
+    assert.equal(r['Uitkoopsom aan je partner'], 200000, 'de helft van de woningwaarde');
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('het verlaagd tarief van 1% geldt zodra een van beide voorwaarden aanstaat', async () => {
+    const p = await metPagina({priceN:400000, kind:'split', splitShareN:50, b1InN:600000});
+    await p.vul({spExPartner:true});
+    let r = await p.regels('r-buy');
+    assert.equal(r['1% verdeelrecht'], 400000 * 0.01, 'ex-echtgenoot volstaat op zich, geen duurvereiste');
+
+    await p.vul({spExPartner:false, spDuur:true});
+    r = await p.regels('r-buy');
+    assert.equal(r['1% verdeelrecht'], 400000 * 0.01, 'ex-wettelijk samenwonend plus duur volstaat ook op zich');
+    geenFouten(p);
+    await p.sluit();
+  });
+
+  test('je financiert de uitkoopsom en de kosten, niet de volledige woningwaarde', async () => {
+    const p = await metPagina({priceN:400000, kind:'split', splitShareN:30});
+    const lh = await p.tekst('r-loan');
+    assert.match(lh, /Mee te financieren/);
+    const r = await p.regels('r-loan');
+    // uitkoopsom (120.000) plus de kosten van de aankoop, zonder eigen geld
+    const rBuy = await p.regels('r-buy');
+    assert.equal(r['Mee te financieren'], 120000 + rBuy['Kosten van de aankoop']);
+    geenFouten(p);
+    await p.sluit();
+  });
+});
+
+// ---------------------------------------------------------------------------
+
 describe('randgevallen en de afdruk', () => {
 
   test('zonder aankoopprijs staat er geen nul maar een uitnodiging', async () => {
